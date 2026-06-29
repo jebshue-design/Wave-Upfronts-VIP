@@ -1,26 +1,151 @@
 @import "tailwindcss";
 
+html { scroll-behavior: smooth; }
+
+/* =========================================================
+   WAVE BRAND FONTS
+   ========================================================= */
+@font-face {
+  font-family: "Zalando Sans Expanded";
+  src: url("/fonts/ZalandoSansExpanded-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zalando Sans";
+  src: url("/fonts/ZalandoSans-VariableFont_wdth,wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/SpaceGrotesk-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("/fonts/IBMPlexSerif-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("/fonts/IBMPlexSerif-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("/fonts/IBMPlexSerif-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================================================
+   TAILWIND v4 THEME — Wave design tokens
+   ========================================================= */
+@theme {
+  /* Font stacks */
+  --font-display:  "Zalando Sans Expanded", "Helvetica Neue Condensed", system-ui, sans-serif;
+  --font-sans:     "Zalando Sans", "Inter", system-ui, sans-serif;
+  --font-mono:     "Space Grotesk", ui-monospace, monospace;
+  --font-serif:    "IBM Plex Serif", "Times New Roman", serif;
+
+  /* Primary palette */
+  --color-volt:    #E3F643;
+  --color-silver:  #FAF7F4;
+  --color-clay:    #94958B;
+  --color-slate:   #212922;
+  --color-night:   #0B0909;
+
+  /* Greyscale */
+  --color-grey-950: #0B0909;
+  --color-grey-900: #14161A;
+  --color-grey-800: #212922;
+  --color-grey-700: #2E332E;
+  --color-grey-600: #4B504A;
+  --color-grey-500: #6B6F66;
+  --color-grey-400: #94958B;
+  --color-grey-300: #B7B8AF;
+  --color-grey-200: #D6D6CF;
+  --color-grey-100: #ECEAE3;
+  --color-grey-50:  #FAF7F4;
+
+  /* Secondary — taxonomy/show tags */
+  --color-wave-yellow: #FFC421;
+  --color-wave-orange: #FF8712;
+  --color-wave-red:    #FA3842;
+  --color-wave-pink:   #D12670;
+  --color-wave-purple: #A11791;
+  --color-wave-violet: #A60AFF;
+  --color-wave-indigo: #590FFF;
+  --color-wave-blue:   #0A16FF;
+  --color-wave-azure:  #007DFF;
+  --color-wave-cyan:   #0AC2FF;
+  --color-wave-teal:   #69EDE9;
+  --color-wave-green:  #0BDD65;
+}
+
+/* =========================================================
+   CSS CUSTOM PROPERTIES — semantic tokens
+   ========================================================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --volt:   #E3F643;
+  --silver: #FAF7F4;
+  --clay:   #94958B;
+  --slate:  #212922;
+  --night:  #0B0909;
+
+  --bg:         #0B0909;
+  --bg-elev-1:  #212922;
+  --bg-elev-2:  #2A332B;
+  --line:       #2E332E;
+  --line-strong:#3F4640;
+
+  --fg:         #FAF7F4;
+  --fg-muted:   #B7B8AF;
+  --fg-dim:     #94958B;
+  --fg-accent:  #E3F643;
+
+  --tracking-tight:  -0.025em;
+  --tracking-loose:  0.08em;
+  --tracking-mono:   0.04em;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --dur-base:      200ms;
+  --dur-slow:      400ms;
+
+  --container-max: 1440px;
+  --gutter:        24px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* =========================================================
+   BASE
+   ========================================================= */
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Zalando Sans", "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::selection {
+  background: var(--volt);
+  color: #0B0909;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  box-sizing: border-box;
 }
