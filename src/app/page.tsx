@@ -220,7 +220,7 @@ export default function VipPage() {
     <div style={{ background: S.night, minHeight: "100vh", color: S.silver }}>
       <RsvpModal />
       <ShowModalManager shows={shows} />
-      {INTRO_VIDEO_PATH ? <IntroOverlay videoPath={INTRO_VIDEO_PATH} /> : <TextIntro />}
+      {INTRO_VIDEO_PATH && <IntroOverlay videoPath={INTRO_VIDEO_PATH} />}
       <style>{`
         /* ── Card Entrance ─────────────────────── */
         .show-card-wrapper {
