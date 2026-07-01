@@ -44,6 +44,7 @@ type Props = {
     totalShowsViewed: number;
     totalClicks: number;
     totalTimeSeconds: number;
+    showTimeBreakdown: { title: string; seconds: number }[];
   }>;
 };
 
