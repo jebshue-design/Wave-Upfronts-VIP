@@ -179,7 +179,7 @@ const shows = [
    INTRO VIDEO — drop a file in /public/videos/ and set the path.
    Set to null to disable the intro overlay entirely.
    ========================================================= */
-const INTRO_VIDEO_PATH: string | null = "/videos/2026_WaveUpfrontSizzle_v6.mp4";
+const INTRO_VIDEO_PATH: string | null = null;
 
 /* =========================================================
    DOWNLOADABLE ASSETS — swap in real files
