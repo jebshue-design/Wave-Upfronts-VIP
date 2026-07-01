@@ -127,6 +127,7 @@ export default async function AdminPage() {
     totalShowsViewed: number;
     totalClicks: number;
     totalTimeSeconds: number;
+    showTimeBreakdown: { title: string; seconds: number }[];
   }> = {};
 
   for (const u of userBreakdownData) {
@@ -147,6 +148,10 @@ export default async function AdminPage() {
       totalShowsViewed: u.shows.length,
       totalClicks,
       totalTimeSeconds,
+      showTimeBreakdown: Object.entries(userDurations)
+        .filter(([, s]) => s > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([title, seconds]) => ({ title, seconds })),
     };
   }
 

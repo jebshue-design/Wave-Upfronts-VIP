@@ -69,6 +69,7 @@ type EngagementStats = {
   totalShowsViewed: number;
   totalClicks: number;
   totalTimeSeconds: number;
+  showTimeBreakdown: { title: string; seconds: number }[];
 };
 
 function formatTime(seconds: number): string {
@@ -283,6 +284,29 @@ export default function VipInfoTab({ initialAccounts, engagementByUser }: { init
                       </div>
                     ))}
                   </div>
+
+                  {/* Watch time per show */}
+                  {eng.showTimeBreakdown.length > 0 && (
+                    <div style={{ marginTop: "16px" }}>
+                      <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Watch Time by Show</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {eng.showTimeBreakdown.map(({ title, seconds }) => {
+                          const pct = Math.round((seconds / eng.totalTimeSeconds) * 100);
+                          return (
+                            <div key={title} style={{ background: S.night, border: `1px solid ${S.line}`, borderRadius: "8px", padding: "10px 14px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                                <div style={{ fontSize: "13px", fontWeight: 600, color: S.silver, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: "12px" }}>{title}</div>
+                                <div style={{ fontSize: "12px", fontWeight: 700, color: S.volt, flexShrink: 0 }}>{formatTime(seconds)}</div>
+                              </div>
+                              <div style={{ height: "3px", background: S.line, borderRadius: "2px" }}>
+                                <div style={{ height: "100%", width: `${pct}%`, background: S.volt, borderRadius: "2px", transition: "width 0.3s" }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}
