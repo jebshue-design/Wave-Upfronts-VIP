@@ -10,6 +10,7 @@ const S = {
   silver: "#FAF7F4",
   clay: "#94958B",
   line: "#2E332E",
+  pill: "999px",
   fontMono: '"Space Grotesk", ui-monospace, monospace',
   fontDisplay: '"Zalando Sans Expanded", system-ui, sans-serif',
 };

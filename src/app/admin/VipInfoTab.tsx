@@ -81,6 +81,7 @@ function formatTime(seconds: number): string {
 export default function VipInfoTab({ initialAccounts, engagementByUser }: { initialAccounts: VipAccount[]; engagementByUser: Record<string, EngagementStats> }) {
   const [accounts, setAccounts] = useState<VipAccount[]>(initialAccounts);
   const [modal, setModal] = useState<ModalState | null>(null);
+  const [search, setSearch] = useState("");
 
   const openModal = (account: VipAccount) => {
     setModal({
@@ -119,10 +120,45 @@ export default function VipInfoTab({ initialAccounts, engagementByUser }: { init
     }
   };
 
+  const filtered = search.trim()
+    ? accounts.filter((a) =>
+        `${a.name} ${a.company} ${a.title}`.toLowerCase().includes(search.toLowerCase())
+      )
+    : accounts;
+
   const cell: React.CSSProperties = { padding: "14px 16px", borderBottom: `1px solid ${S.line}` };
 
   return (
     <>
+      {/* Search */}
+      <div style={{ position: "relative", marginBottom: "16px", maxWidth: "320px" }}>
+        <input
+          type="text"
+          placeholder="Search by name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            background: S.slate,
+            border: `1px solid ${S.line}`,
+            borderRadius: "6px",
+            color: S.silver,
+            fontFamily: S.fontMono,
+            fontSize: "13px",
+            padding: "10px 14px 10px 36px",
+            width: "100%",
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+        <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: S.clay, fontSize: "14px", pointerEvents: "none" }}>⌕</span>
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", color: S.clay, cursor: "pointer", fontSize: "14px", padding: "0" }}
+          >×</button>
+        )}
+      </div>
+
       {/* Table */}
       <div style={{ border: `1px solid ${S.line}`, borderRadius: "8px", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
@@ -135,9 +171,9 @@ export default function VipInfoTab({ initialAccounts, engagementByUser }: { init
             </tr>
           </thead>
           <tbody>
-            {accounts.length === 0 ? (
-              <tr><td colSpan={6} style={{ padding: "32px 16px", color: S.clay, textAlign: "center" }}>No VIP accounts yet. Create them in the Accounts tab.</td></tr>
-            ) : accounts.map((acc) => (
+            {filtered.length === 0 ? (
+              <tr><td colSpan={6} style={{ padding: "32px 16px", color: S.clay, textAlign: "center" }}>{accounts.length === 0 ? "No VIP accounts yet. Create them in the Accounts tab." : "No results match your search."}</td></tr>
+            ) : filtered.map((acc) => (
               <tr
                 key={acc.id ?? acc.password}
                 style={{ borderBottom: `1px solid ${S.line}`, cursor: "pointer", transition: "background 0.15s" }}

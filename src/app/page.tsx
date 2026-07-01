@@ -443,19 +443,6 @@ export default function VipPage() {
               paddingTop: "48px",
             }}
           >
-            <p
-              style={{
-                fontFamily: S.fontSans,
-                fontSize: "20px",
-                lineHeight: 1.6,
-                color: S.fgMuted,
-                maxWidth: "480px",
-                margin: 0,
-              }}
-            >
-              Wave Sports & Entertainment partners with culture-first creators
-              to build sports IP that moves. This is the 2026 slate.
-            </p>
 
           </div>
         </div>
@@ -895,7 +882,8 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   );
 }
 
-function ShowsMarquee({ shows }: { shows: typeof shows }) {
+type Show = typeof shows[number];
+function ShowsMarquee({ shows }: { shows: Show[] }) {
   const doubled = [...shows, ...shows];
   return (
     <div

@@ -30,7 +30,7 @@ type Show = {
   oneSheetPath: string | null;
   thumbnailPath: string;
   youtubeUrl: string;
-  audioUrl: string;
+  audioUrl: string | null;
 };
 
 function openShowModal(id: string) {
