@@ -17,9 +17,10 @@ export async function login(
     .filter(Boolean);
 
   let isValid = envPasswords.includes(password);
+  let vipName: string | null = null;
   if (!isValid) {
-    const { data } = await supabase.from("vip_accounts").select("id").eq("password", password).maybeSingle();
-    isValid = !!data;
+    const { data } = await supabase.from("vip_accounts").select("id, name").eq("password", password).maybeSingle();
+    if (data) { isValid = true; vipName = data.name; }
   }
 
   if (!isValid) {
@@ -53,6 +54,15 @@ export async function login(
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
+  if (vipName) {
+    cookieStore.set("wave-name", vipName, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
+  }
 
   redirect("/");
 }

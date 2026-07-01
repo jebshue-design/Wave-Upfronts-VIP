@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { cookies } from "next/headers";
 import { logout } from "./actions";
 import IntroOverlay from "./components/IntroOverlay";
 import AnimateCards from "./components/AnimateCards";
@@ -215,7 +216,9 @@ const S = {
 /* =========================================================
    PAGE
    ========================================================= */
-export default function VipPage() {
+export default async function VipPage() {
+  const cookieStore = await cookies();
+  const vipName = cookieStore.get("wave-name")?.value ?? null;
   return (
     <div style={{ background: S.night, minHeight: "100vh", color: S.silver }}>
       <RsvpModal />
@@ -350,6 +353,12 @@ export default function VipPage() {
 
         <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
           <NavLinks shows={shows.map(s => ({ id: s.id, title: s.title, category: s.category, categoryColor: s.categoryColor }))} />
+
+          {vipName && (
+            <span style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.clay, letterSpacing: "0.04em", marginRight: "16px" }}>
+              Welcome, <span style={{ color: S.silver, fontWeight: 600 }}>{vipName}</span>
+            </span>
+          )}
 
           <form action={logout}>
             <button
