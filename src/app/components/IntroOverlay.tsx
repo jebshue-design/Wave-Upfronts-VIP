@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
-type Phase = "logo" | "reveal" | "open";
+type Phase = "logo" | "reveal" | "open" | "tagline";
 
 const S = {
   night: "#0B0909",
@@ -40,6 +40,15 @@ export default function IntroOverlay({ videoPath }: { videoPath: string }) {
     }, 750);
   };
 
+  const onVideoEnded = () => {
+    setPhase("tagline");
+    setTimeout(() => {
+      setPhase("reveal");
+      setTimeout(() => setPhase("open"), 850);
+      setTimeout(dismiss, 1800);
+    }, 2000);
+  };
+
   const unmute = () => {
     if (videoRef.current) {
       videoRef.current.muted = false;
@@ -59,10 +68,11 @@ export default function IntroOverlay({ videoPath }: { videoPath: string }) {
 
   if (!visible) return null;
 
-  const curtainsOpen = phase === "reveal" || phase === "open";
-  const uiVisible    = phase === "open";
-  const logoVisible  = phase === "logo";
-  const seamVisible  = phase === "reveal";
+  const curtainsOpen  = phase === "reveal" || phase === "open";
+  const uiVisible     = phase === "open";
+  const logoVisible   = phase === "logo";
+  const seamVisible   = phase === "reveal";
+  const taglineVisible = phase === "tagline";
 
   return (
     <div
@@ -90,6 +100,10 @@ export default function IntroOverlay({ videoPath }: { videoPath: string }) {
           from { transform: translate(-50%, -50%) scaleX(0); }
           to   { transform: translate(-50%, -50%) scaleX(1); }
         }
+        @keyframes tagline-rise {
+          from { opacity: 0; transform: translate(-50%, calc(-50% + 20px)); }
+          to   { opacity: 1; transform: translate(-50%, -50%); }
+        }
         @keyframes unmute-pulse {
           0%, 100% { box-shadow: 0 0 0 0 rgba(227,246,67,0.4); }
           50%       { box-shadow: 0 0 0 8px rgba(227,246,67,0); }
@@ -108,7 +122,7 @@ export default function IntroOverlay({ videoPath }: { videoPath: string }) {
           autoPlay
           muted
           playsInline
-          onEnded={dismiss}
+          onEnded={onVideoEnded}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         >
           <source src={videoPath} />
@@ -119,6 +133,31 @@ export default function IntroOverlay({ videoPath }: { videoPath: string }) {
           background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(11,9,9,0.45) 100%)",
         }} />
       </div>
+
+      {/* ── POST-VIDEO TAGLINE ────────────────────── */}
+      {taglineVisible && (
+        <div style={{
+          position: "absolute",
+          top: "50%", left: "50%",
+          zIndex: 8,
+          textAlign: "center",
+          pointerEvents: "none",
+          animation: "tagline-rise 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both",
+        }}>
+          <div style={{
+            fontFamily: S.fontDisplay,
+            fontSize: "clamp(48px, 8vw, 120px)",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.0,
+            color: S.silver,
+            whiteSpace: "nowrap",
+          }}>
+            On Your<br />
+            <span style={{ color: S.volt }}>Frequency</span>
+          </div>
+        </div>
+      )}
 
       {/* ── VOLT TOP LINE (always) ─────────────────── */}
       <div style={{

@@ -3,6 +3,11 @@ import { logout } from "./actions";
 import IntroOverlay from "./components/IntroOverlay";
 import AnimateCards from "./components/AnimateCards";
 import NavLinks from "./components/NavLinks";
+import RsvpForm from "./components/RsvpForm";
+import RsvpModal from "./components/RsvpModal";
+import TextIntro from "./components/TextIntro";
+import ShowCard from "./components/ShowCard";
+import ShowModalManager from "./components/ShowModalManager";
 
 /* =========================================================
    SHOW DATA — swap in real content here
@@ -213,7 +218,9 @@ const S = {
 export default function VipPage() {
   return (
     <div style={{ background: S.night, minHeight: "100vh", color: S.silver }}>
-      {INTRO_VIDEO_PATH && <IntroOverlay videoPath={INTRO_VIDEO_PATH} />}
+      <RsvpModal />
+      <ShowModalManager shows={shows} />
+      {INTRO_VIDEO_PATH ? <IntroOverlay videoPath={INTRO_VIDEO_PATH} /> : <TextIntro />}
       <style>{`
         /* ── Card Entrance ─────────────────────── */
         .show-card-wrapper {
@@ -342,7 +349,7 @@ export default function VipPage() {
         />
 
         <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
-          <NavLinks />
+          <NavLinks shows={shows.map(s => ({ id: s.id, title: s.title, category: s.category, categoryColor: s.categoryColor }))} />
 
           <form action={logout}>
             <button
@@ -420,23 +427,10 @@ export default function VipPage() {
                 margin: 0,
               }}
             >
-              Building<br />
-              The Future<br />
-              <span style={{ color: S.volt }}>of Fandom</span>
+              On Your<br />
+              <span style={{ color: S.volt }}>Frequency</span>
             </h1>
 
-            {/* Volt circle dot — wave.tv signature element */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: "-24px",
-                left: "0",
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                background: S.volt,
-              }}
-            />
           </div>
 
           {/* Sub-copy + stats row */}
@@ -463,39 +457,6 @@ export default function VipPage() {
               to build sports IP that moves. This is the 2026 slate.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {[
-                ["SHOWS", `${shows.length} Originals`],
-                ["FORMAT", "Audio + Video"],
-                ["REACH", "Replace with stats"],
-              ].map(([label, value]) => (
-                <div key={label} style={{ display: "flex", gap: "20px", alignItems: "baseline" }}>
-                  <span
-                    style={{
-                      fontFamily: S.fontMono,
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: S.clay,
-                      minWidth: "72px",
-                    }}
-                  >
-                    {label}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: S.fontMono,
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      color: S.silver,
-                    }}
-                  >
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -503,16 +464,73 @@ export default function VipPage() {
       {/* Divider */}
       <div style={{ height: "1px", background: S.line, margin: "0 40px" }} />
 
+      {/* ── RSVP ────────────────────────────────────────── */}
+      <section id="rsvp" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <SectionHeader eyebrow="01 / RSVP" title="Join us in New York." />
+
+          <div
+            style={{
+              marginTop: "72px",
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              gap: "80px",
+              alignItems: "start",
+            }}
+          >
+            {/* Left — event details */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+              {[
+                { label: "Date", value: "TBD · 2026" },
+                { label: "Location", value: "New York, NY" },
+                { label: "Format", value: "VIP Upfront Presentation" },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <div
+                    style={{
+                      fontFamily: S.fontMono,
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: S.volt,
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: S.fontSans,
+                      fontSize: "18px",
+                      fontWeight: 600,
+                      color: S.silver,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right — form */}
+            <div>
+              <RsvpForm />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style={{ height: "1px", background: S.line, margin: "0 40px" }} />
+
       {/* ── THE 2026 SLATE ──────────────────────────────── */}
       <section id="slate" style={{ padding: "112px 0", scrollMarginTop: "64px" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 40px" }}>
-          <SectionHeader eyebrow="01 / The Slate" title="2026 Originals." />
+          <SectionHeader eyebrow="02 / The Slate" title="The Slate" />
         </div>
 
-        {/* Full-width scrolling show ticker */}
-        <ShowsMarquee shows={shows} />
-
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 40px" }}>
+<div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 40px" }}>
           {/* Open card grid — gaps instead of 1px border lines */}
           <AnimateCards>
             <div
@@ -536,7 +554,7 @@ export default function VipPage() {
       {/* ── AUDIENCE ────────────────────────────────────── */}
       <section id="audience" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-          <SectionHeader eyebrow="02 / Audience" title="Who's watching." />
+          <SectionHeader eyebrow="03 / Audience" title="Who's watching." />
 
           <div
             style={{
@@ -608,7 +626,7 @@ export default function VipPage() {
       {/* ── DOWNLOADS ───────────────────────────────────── */}
       <section id="assets" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-          <SectionHeader eyebrow="03 / Resources" title="Assets & one-sheets." />
+          <SectionHeader eyebrow="04 / Resources" title="Assets & one-sheets." />
 
           <div
             style={{
@@ -656,7 +674,7 @@ export default function VipPage() {
       {/* ── CONTACT ─────────────────────────────────────── */}
       <section id="contact" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-          <SectionHeader eyebrow="04 / Contact" title="Your Wave team." />
+          <SectionHeader eyebrow="05 / Contact" title="Your Wave team." />
 
           <div
             style={{
@@ -873,131 +891,6 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
       >
         {title}
       </h2>
-    </div>
-  );
-}
-
-function ShowCard({ show }: { show: (typeof shows)[0] }) {
-  return (
-    <div className="show-card-wrapper">
-    <div className="show-card">
-      <div className="show-card-inner">
-
-        {/* ── FRONT ── full-bleed poster */}
-        <div
-          className="card-face card-thumb"
-          style={{ background: "#161A16" }}
-        >
-          {show.thumbnailPath ? (
-            <Image
-              src={show.thumbnailPath}
-              alt={show.title}
-              fill
-              unoptimized
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 420px"
-              style={{ objectFit: "cover", objectPosition: "center" }}
-            />
-          ) : (
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", background: show.categoryColor + "22" }}>
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: show.categoryColor, opacity: 0.4 }} />
-              <span style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: S.clay }}>Art pending</span>
-            </div>
-          )}
-
-
-        </div>
-
-        {/* ── BACK ── */}
-        <div
-          className="card-face card-back"
-          style={{ background: S.night, display: "flex", flexDirection: "column", border: `1px solid ${S.line}` }}
-        >
-          {/* Accent bar */}
-          <div style={{ height: "4px", background: show.categoryColor, flexShrink: 0 }} />
-
-          {/* Header */}
-          <div style={{ padding: "22px 28px 0", flexShrink: 0 }}>
-            <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: show.categoryColor, marginBottom: "8px" }}>
-              {show.category}
-            </div>
-            <h3 style={{ fontFamily: S.fontDisplay, fontSize: "22px", fontWeight: 700, letterSpacing: "-0.02em", color: S.silver, margin: 0 }}>
-              {show.title}
-            </h3>
-          </div>
-
-          <div style={{ height: "1px", background: S.line, margin: "18px 28px 0" }} />
-
-          {/* Info grid */}
-          <div style={{ padding: "18px 28px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px 16px", flexShrink: 0 }}>
-            {([
-              { label: "Target Demo", value: show.demo },
-              { label: "Format", value: show.specs },
-              { label: "Season", value: show.season },
-              { label: "Reach", value: "Add stat" },
-            ] as { label: string; value: string }[]).map(({ label, value }) => (
-              <div key={label}>
-                <div style={{ fontFamily: S.fontMono, fontSize: "8px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: S.clay, marginBottom: "5px" }}>
-                  {label}
-                </div>
-                <div style={{ fontFamily: S.fontSans, fontSize: "13px", color: S.silver, lineHeight: 1.3 }}>
-                  {value}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ height: "1px", background: S.line, margin: "18px 28px" }} />
-
-          {/* Description + CTAs */}
-          <div style={{ padding: "0 28px 24px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <p style={{ fontFamily: S.fontSans, fontSize: "13px", lineHeight: 1.6, color: S.clay, margin: "0 0 18px", overflow: "hidden", maxHeight: "62px" }}>
-              {show.description}
-            </p>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-              {show.videoPath ? (
-                <a href={show.videoPath} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: S.night, background: S.volt, textDecoration: "none", padding: "10px 18px", borderRadius: S.pill, flexShrink: 0 }}>
-                  ▶ Sizzle Reel
-                </a>
-              ) : (
-                <span style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#3F4640", border: "1px solid #2E332E", padding: "10px 18px", borderRadius: S.pill }}>
-                  Reel Pending
-                </span>
-              )}
-              {show.oneSheetPath ? (
-                <a href={show.oneSheetPath} download style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: S.volt, textDecoration: "none", border: `1px solid ${S.volt}`, padding: "10px 18px", borderRadius: S.pill }}>
-                  One-Sheet
-                </a>
-              ) : (
-                <span style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#3F4640", border: "1px solid #2E332E", padding: "10px 18px", borderRadius: S.pill }}>
-                  Sheet Pending
-                </span>
-              )}
-
-              {/* Platform icon links */}
-              {show.youtubeUrl && (
-                <a href={show.youtubeUrl} target="_blank" rel="noopener noreferrer" title="Watch on YouTube"
-                  style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#1a1a1a", border: "1px solid #2E332E", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", flexShrink: 0 }}>
-                  <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.665 1.879A2.007 2.007 0 0 0 14.253.46C13.01.12 8 .12 8 .12s-5.01 0-6.253.34A2.007 2.007 0 0 0 .335 1.88C0 3.13 0 5.74 0 5.74s0 2.61.335 3.861a2.007 2.007 0 0 0 1.412 1.419C2.99 11.36 8 11.36 8 11.36s5.01 0 6.253-.34a2.007 2.007 0 0 0 1.412-1.419C16 8.35 16 5.74 16 5.74s0-2.61-.335-3.861z" fill="#FF0000"/>
-                    <path d="M6.4 8.2l4.16-2.46L6.4 3.28v4.92z" fill="white"/>
-                  </svg>
-                </a>
-              )}
-              {show.audioUrl && (
-                <a href={show.audioUrl} target="_blank" rel="noopener noreferrer" title="Listen on Spotify"
-                  style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#1a1a1a", border: "1px solid #2E332E", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", flexShrink: 0 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="12" fill="#1DB954"/>
-                    <path d="M17.25 16.5c-.19 0-.37-.06-.52-.18-1.57-1.05-3.54-1.6-5.73-1.6-1.19 0-2.38.16-3.5.47-.2.06-.42.03-.6-.08a.75.75 0 0 1-.33-.52.77.77 0 0 1 .53-.88c1.27-.36 2.62-.54 3.9-.54 2.47 0 4.72.63 6.51 1.83.28.19.4.55.29.86a.77.77 0 0 1-.55.64zm1.42-3.25a.93.93 0 0 1-.64-.24c-1.86-1.24-4.2-1.9-6.78-1.9-1.38 0-2.74.2-4.01.6a.93.93 0 0 1-1.16-.62.94.94 0 0 1 .62-1.17 15.1 15.1 0 0 1 4.55-.69c2.9 0 5.56.75 7.69 2.17.42.28.54.85.26 1.27a.93.93 0 0 1-.53.58zm1.6-3.6a1.1 1.1 0 0 1-.6-.18C17.53 7.85 14.87 7.06 12 7.06c-1.66 0-3.32.26-4.93.77a1.1 1.1 0 0 1-1.39-.72 1.1 1.1 0 0 1 .72-1.39A17.3 17.3 0 0 1 12 4.87c3.18 0 6.14.88 8.58 2.53a1.1 1.1 0 0 1-.31 1.96 1.1 1.1 0 0 1-.5.29z" fill="white"/>
-                  </svg>
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
     </div>
   );
 }

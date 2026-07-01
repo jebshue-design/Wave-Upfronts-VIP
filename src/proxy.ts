@@ -12,6 +12,7 @@ export function proxy(request: NextRequest) {
 
   // Admin section — requires separate admin cookie
   if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login") return NextResponse.next();
     const isAdminAuthed = request.cookies.has("wave-admin");
     if (!isAdminAuthed) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
