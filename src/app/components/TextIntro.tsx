@@ -14,13 +14,15 @@ const S = {
   pill: "999px",
 };
 
-export default function TextIntro() {
+
+export default function TextIntro({ name }: { name?: string | null }) {
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<Phase>("text");
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    if (!sessionStorage.getItem("wave-intro-seen")) {
+    const alreadySeen = sessionStorage.getItem("wave-intro-seen");
+    if (name || !alreadySeen) {
       setVisible(true);
       const t1 = setTimeout(() => setPhase("curtains"), 1800);
       const t2 = setTimeout(() => {
@@ -29,10 +31,10 @@ export default function TextIntro() {
           setVisible(false);
           sessionStorage.setItem("wave-intro-seen", "1");
         }, 750);
-      }, 2800);
+      }, 2900);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
-  }, []);
+  }, [name]);
 
   const dismiss = () => {
     setFading(true);
@@ -65,56 +67,35 @@ export default function TextIntro() {
         }
         @keyframes tag-rise {
           from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 0.5; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes intro-seam-flash {
-          0%   { opacity: 0; box-shadow: none; }
-          30%  { opacity: 1; box-shadow: 0 0 24px 4px rgba(227,246,67,0.6); }
-          100% { opacity: 1; box-shadow: 0 0 8px 1px rgba(227,246,67,0.2); }
-        }
+
       `}</style>
 
       {/* Background */}
       <div style={{ position: "absolute", inset: 0, background: S.night }} />
 
       {/* Volt top line */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0,
-        height: "2px", background: S.volt, zIndex: 10,
-      }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: S.volt, zIndex: 10 }} />
 
-      {/* Left curtain */}
+      {/* Top curtain */}
       <div style={{
         position: "absolute", top: 0, left: 0,
-        width: "50%", height: "100%",
-        background: S.night,
-        zIndex: 5,
-        transform: curtainsOpen ? "translateX(-100%)" : "translateX(0)",
-        transition: curtainsOpen ? "transform 0.85s cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+        width: "100%", height: "50%",
+        background: S.night, zIndex: 5,
+        transform: curtainsOpen ? "translateY(-100%)" : "translateY(0)",
+        transition: curtainsOpen ? "transform 0.92s cubic-bezier(0.76, 0, 0.24, 1)" : "none",
       }} />
 
-      {/* Right curtain */}
+      {/* Bottom curtain */}
       <div style={{
-        position: "absolute", top: 0, right: 0,
-        width: "50%", height: "100%",
-        background: S.night,
-        zIndex: 5,
-        transform: curtainsOpen ? "translateX(100%)" : "translateX(0)",
-        transition: curtainsOpen ? "transform 0.85s cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+        position: "absolute", bottom: 0, left: 0,
+        width: "100%", height: "50%",
+        background: S.night, zIndex: 5,
+        transform: curtainsOpen ? "translateY(100%)" : "translateY(0)",
+        transition: curtainsOpen ? "transform 0.92s cubic-bezier(0.76, 0, 0.24, 1)" : "none",
       }} />
 
-      {/* Volt seam flash */}
-      {phase === "curtains" && (
-        <div style={{
-          position: "absolute",
-          top: 0, bottom: 0,
-          left: "calc(50% - 1px)",
-          width: "2px",
-          background: `linear-gradient(to bottom, transparent, ${S.volt} 15%, ${S.volt} 85%, transparent)`,
-          zIndex: 6,
-          animation: "intro-seam-flash 0.85s ease both",
-        }} />
-      )}
 
       {/* Centered headline */}
       <div style={{
@@ -125,34 +106,63 @@ export default function TextIntro() {
         textAlign: "center",
         pointerEvents: "none",
       }}>
-        <div
-          style={{
-            fontFamily: S.fontDisplay,
-            fontSize: "clamp(48px, 8vw, 120px)",
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.0,
-            color: S.silver,
-            animation: "headline-rise 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both",
-            whiteSpace: "nowrap",
-          }}
-        >
-          On Your<br />
-          <span style={{ color: S.volt }}>Frequency</span>
-        </div>
-
-        <div style={{
-          fontFamily: S.fontMono,
-          fontSize: "11px",
-          fontWeight: 600,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: S.clay,
-          marginTop: "24px",
-          animation: "tag-rise 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.9s both",
-        }}>
-          Upfronts 2026 · VIP Access
-        </div>
+        {name ? (
+          <>
+            <div style={{
+              fontFamily: S.fontMono,
+              fontSize: "12px",
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: S.volt,
+              marginBottom: "20px",
+              animation: "tag-rise 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s both",
+            }}>
+              Wave Upfronts 2026
+            </div>
+            <div style={{
+              fontFamily: S.fontDisplay,
+              fontSize: "clamp(48px, 8vw, 120px)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.0,
+              color: S.silver,
+              animation: "headline-rise 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both",
+              whiteSpace: "nowrap",
+            }}>
+              Welcome,<br />
+              <span style={{ color: S.volt }}>{name.split(" ")[0]}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{
+              fontFamily: S.fontDisplay,
+              fontSize: "clamp(48px, 8vw, 120px)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.0,
+              color: S.silver,
+              animation: "headline-rise 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both",
+              whiteSpace: "nowrap",
+            }}>
+              On Your<br />
+              <span style={{ color: S.volt }}>Frequency</span>
+            </div>
+            <div style={{
+              fontFamily: S.fontMono,
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: S.clay,
+              marginTop: "24px",
+              animation: "tag-rise 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.9s both",
+            }}>
+              Upfronts 2026 · VIP Access
+            </div>
+          </>
+        )}
       </div>
 
       {/* Skip button */}
@@ -177,14 +187,6 @@ export default function TextIntro() {
             textTransform: "uppercase",
             padding: "8px 20px",
             cursor: "pointer",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = S.volt;
-            e.currentTarget.style.background = "rgba(227,246,67,0.07)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(227,246,67,0.35)";
-            e.currentTarget.style.background = "transparent";
           }}
         >
           Skip
