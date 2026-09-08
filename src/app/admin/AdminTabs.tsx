@@ -6,6 +6,9 @@ import UserBreakdown from "./UserBreakdown";
 import GenerateReport from "./GenerateReport";
 import VipAccountManager from "./VipAccountManager";
 import VipInfoTab from "./VipInfoTab";
+import BulkImportTab from "./BulkImportTab";
+import PipelineTab from "./PipelineTab";
+import EmailLogTab from "./EmailLogTab";
 
 const S = {
   night:       "#0B0909",
@@ -37,6 +40,7 @@ type Props = {
   events: { id?: string; created_at: string; type: string; password_used?: string; metadata?: Record<string, string> }[];
   vipAccounts: { id?: string; name: string; email: string; company: string; title: string; password: string; created_at: string; point_of_contact?: string; past_deals?: string; notes?: string; client_status?: string }[];
   passwordToName: Record<string, string>;
+  emailLog: { id: string; recipient_email: string; recipient_name: string; type: string; sent_by: string; notes?: string; created_at: string }[];
   engagementByUser: Record<string, {
     topViewedShow:  { title: string; views: number }  | null;
     topClickedShow: { title: string; clicks: number } | null;
@@ -48,13 +52,13 @@ type Props = {
   }>;
 };
 
-const TABS = ["Overview", "Shows", "Users", "RSVPs", "Accounts", "VIP Info", "Logins"] as const;
+const TABS = ["Pipeline", "Overview", "Shows", "Users", "RSVPs", "Accounts", "VIP Info", "Logins", "Emails", "Import"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [activeTab, setActiveTab] = useState<Tab>("Pipeline");
   const [selectedShow, setSelectedShow] = useState<string | null>(null);
-  const { stats, sortedShows, maxViews, showViewerData, userBreakdownData, userShowMap, logins, rsvps, events, vipAccounts, passwordToName, engagementByUser } = props;
+  const { stats, sortedShows, maxViews, showViewerData, userBreakdownData, userShowMap, logins, rsvps, events, vipAccounts, passwordToName, emailLog, engagementByUser } = props;
 
   const showEngagement = selectedShow
     ? userBreakdownData
@@ -252,7 +256,7 @@ export default function AdminTabs(props: Props) {
           <div style={{ border: `1px solid ${S.line}`, borderRadius: "8px", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
-                <tr>{["Time", "Name", "Company", "Password", "IP Address", "Browser"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
+                <tr>{["Time", "Name", "Company", "Email", "IP Address", "Browser"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {logins.length === 0 ? (
@@ -265,7 +269,7 @@ export default function AdminTabs(props: Props) {
                       <td style={{ ...cell, color: S.silver, whiteSpace: "nowrap" }}>{new Date(e.created_at).toLocaleString()}</td>
                       <td style={{ ...cell, fontWeight: 600, color: name ? S.silver : S.clay }}>{name ?? "—"}</td>
                       <td style={{ ...cell, color: S.clay }}>{company ?? "—"}</td>
-                      <td style={cell}><span style={{ background: S.volt, color: S.night, padding: "2px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: 700 }}>{e.password_used}</span></td>
+                      <td style={{ ...cell, color: S.clay, fontSize: "12px" }}>{e.password_used}</td>
                       <td style={{ ...cell, color: S.clay }}>{e.ip}</td>
                       <td style={{ ...cell, color: S.clay, maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.user_agent?.split(" ")[0]}</td>
                     </tr>
@@ -276,6 +280,19 @@ export default function AdminTabs(props: Props) {
           </div>
         </div>
       )}
+      {activeTab === "Pipeline" && (
+        <PipelineTab
+          vipAccounts={vipAccounts}
+          logins={logins}
+          rsvps={rsvps}
+          engagementByUser={engagementByUser}
+        />
+      )}
+
+      {activeTab === "Emails" && <EmailLogTab emailLog={emailLog} />}
+
+      {activeTab === "Import" && <BulkImportTab />}
+
       {/* ── SHOW ENGAGEMENT MODAL ── */}
       {selectedShow && (
         <div

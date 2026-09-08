@@ -20,9 +20,15 @@ export default async function AdminPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const { data: emailLog } = await supabase
+    .from("email_log")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
   const passwordToName: Record<string, string> = {};
   for (const acc of (vipAccounts ?? [])) {
-    passwordToName[acc.password] = `${acc.name} · ${acc.company}`;
+    passwordToName[acc.email.toLowerCase()] = `${acc.name} · ${acc.company}`;
   }
 
   const logins      = events?.filter((e) => e.type === "login") ?? [];
@@ -199,6 +205,7 @@ export default async function AdminPage() {
           events={events ?? []}
           vipAccounts={vipAccounts ?? []}
           passwordToName={passwordToName}
+          emailLog={emailLog ?? []}
           engagementByUser={engagementByUser}
         />
 

@@ -9,23 +9,24 @@ export async function login(
   _prevState: { error: string },
   formData: FormData
 ) {
-  const password = (formData.get("password") as string | null)?.trim() ?? "";
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
 
-  const envPasswords = (process.env.VALID_PASSWORDS ?? "")
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  let isValid = envPasswords.includes(password);
-  let vipName: string | null = null;
-  if (!isValid) {
-    const { data } = await supabase.from("vip_accounts").select("id, name").eq("password", password).maybeSingle();
-    if (data) { isValid = true; vipName = data.name; }
+  if (!email) {
+    return { error: "Please enter your email address." } as { error: string };
   }
 
-  if (!isValid) {
-    return { error: "Incorrect password. Try again." } as { error: string };
+  const { data: vipAccount } = await supabase
+    .from("vip_accounts")
+    .select("id, name, email, password")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (!vipAccount) {
+    return { error: "We don't recognize that email. Contact your Wave representative." } as { error: string };
   }
+
+  const vipName = vipAccount.name;
+  const identifier = vipAccount.email;
 
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for") ?? headerStore.get("x-real-ip") ?? "unknown";
@@ -33,7 +34,7 @@ export async function login(
 
   await supabase.from("events").insert({
     type: "login",
-    password_used: password,
+    password_used: identifier,
     ip,
     user_agent: userAgent,
   });
@@ -46,22 +47,53 @@ export async function login(
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
-  // Store identity so all subsequent events can be tied to this user
-  cookieStore.set("wave-user", password, {
+  cookieStore.set("wave-user", identifier, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
-  if (vipName) {
-    cookieStore.set("wave-name", vipName, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
+  cookieStore.set("wave-name", vipName, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+
+  // Alert team when a VIP logs in (fire-and-forget)
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const now = new Date().toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      dateStyle: "medium",
+      timeStyle: "short",
     });
+    resend.emails.send({
+      from: "Wave Upfronts <upfronts@wave.tv>",
+      to: ["jeb.shue@wave.tv"],
+      subject: `VIP Login: ${vipName}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+          <div style="background:#E3F643;height:4px;"></div>
+          <div style="padding:28px 32px 20px;">
+            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+            <h2 style="margin:0;color:#FAF7F4;font-size:22px;">VIP Login Alert</h2>
+          </div>
+          <div style="padding:0 32px 32px;">
+            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+              <p style="margin:0 0 16px;font-size:15px;color:#FAF7F4;"><strong style="color:#E3F643;">${vipName}</strong> just accessed the VIP portal.</p>
+              <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <tr><td style="padding:6px 0;color:#94958B;width:110px;">Time</td><td style="color:#FAF7F4;">${now} ET</td></tr>
+                <tr><td style="padding:6px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
+                <tr><td style="padding:6px 0;color:#94958B;">IP Address</td><td style="color:#FAF7F4;">${ip}</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      `,
+    }).catch(() => {});
   }
 
   redirect("/");
@@ -71,6 +103,7 @@ export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete("wave-auth");
   cookieStore.delete("wave-user");
+  cookieStore.delete("wave-name");
   redirect("/login");
 }
 
@@ -93,29 +126,102 @@ export async function submitRsvp(
     return { error: "Please fill in all fields.", success: false };
   }
 
-  const { error: dbError } = await supabase.from("rsvps").insert({ name, email, company, title });
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { error: "Please enter a valid email address.", success: false };
+  }
+
+  // Prevent duplicate RSVPs
+  const { data: existing } = await supabase
+    .from("rsvps")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+  if (existing) {
+    return { error: "", success: true }; // silent success — don't reveal who's on the list
+  }
+
+  const { error: dbError } = await supabase.from("rsvps").insert({ name, email: email.toLowerCase(), company, title });
   if (dbError) {
     return { error: "Something went wrong. Please try again.", success: false };
   }
 
+  // Look up assigned AE by matching email to vip_accounts
+  const AE_EMAILS: Record<string, string> = {
+    "Tom Defina":        "tom.defina@wave.tv",
+    "Gabby Davino":      "gabby.davino@wave.tv",
+    "Larry Menkes":      "larry.menkes@wave.tv",
+    "Ethan Abrams":      "ethan.abrams@wave.tv",
+    "Liane Sousa":       "liane.sousa@wave.tv",
+    "Megan Rall":        "megan.rall@wave.tv",
+    "Austie Montgomery": "austie.montgomery@wave.tv",
+    "Dean Markus":       "dean.markus@wave.tv",
+    "Meg Jones":         "meg.jones@wave.tv",
+  };
+  const { data: vipMatch } = await supabase
+    .from("vip_accounts")
+    .select("point_of_contact")
+    .eq("email", email)
+    .maybeSingle();
+  const aeName = vipMatch?.point_of_contact ?? null;
+  const aeEmail = aeName ? (AE_EMAILS[aeName] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
+  const aeContact = aeName ? `${aeName} (${aeEmail})` : null;
+
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
+
+    // Alert to Wave team
     await resend.emails.send({
-      from: "Wave Upfronts <noreply@wave.tv>",
+      from: "Wave Upfronts <upfronts@wave.tv>",
       to: ["jeb.shue@wave.tv"],
-      subject: `New RSVP: ${name}`,
+      subject: `New RSVP: ${name} · ${company}`,
       html: `
-        <div style="font-family: sans-serif; max-width: 480px;">
-          <h2 style="color: #E3F643; background: #0B0909; padding: 24px; margin: 0;">New RSVP — Wave Upfronts 2026</h2>
-          <div style="padding: 24px; background: #f9f9f9; border: 1px solid #eee;">
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Company:</strong> ${company}</p>
-            <p><strong>Title:</strong> ${title}</p>
+        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+          <div style="background:#E3F643;height:4px;"></div>
+          <div style="padding:28px 32px 20px;">
+            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+            <h2 style="margin:0;color:#FAF7F4;font-size:22px;">New RSVP</h2>
+          </div>
+          <div style="padding:0 32px 32px;">
+            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+              <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <tr><td style="padding:7px 0;color:#94958B;width:90px;">Name</td><td style="color:#FAF7F4;font-weight:600;">${name}</td></tr>
+                <tr><td style="padding:7px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
+                <tr><td style="padding:7px 0;color:#94958B;">Company</td><td style="color:#E3F643;font-weight:600;">${company}</td></tr>
+                <tr><td style="padding:7px 0;color:#94958B;">Title</td><td style="color:#FAF7F4;">${title}</td></tr>
+              </table>
+            </div>
           </div>
         </div>
       `,
     });
+
+    // Confirmation to the attendee
+    resend.emails.send({
+      from: "Wave Upfronts <upfronts@wave.tv>",
+      to: [email],
+      subject: "You're confirmed — Wave Upfronts 2026",
+      html: `
+        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+          <div style="background:#E3F643;height:4px;"></div>
+          <div style="padding:32px 32px 24px;">
+            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+            <h2 style="margin:0 0 16px;color:#FAF7F4;font-size:26px;">You're on the list.</h2>
+            <p style="margin:0;font-size:15px;color:#94958B;line-height:1.6;">Hi ${name}, we've received your RSVP and you're confirmed for Wave Upfronts 2026. We'll be in touch with event details as we get closer.</p>
+          </div>
+          <div style="padding:0 32px 32px;">
+            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+              <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <tr><td style="padding:7px 0;color:#94958B;width:90px;">Event</td><td style="color:#FAF7F4;font-weight:600;">Wave Upfronts 2026</td></tr>
+                <tr><td style="padding:7px 0;color:#94958B;">Location</td><td style="color:#FAF7F4;">New York, NY</td></tr>
+                <tr><td style="padding:7px 0;color:#94958B;">Date</td><td style="color:#E3F643;font-weight:600;">October 27, 2026</td></tr>
+              </table>
+            </div>
+            <p style="margin:24px 0 0;font-size:12px;color:#3F4640;">Questions? Reach out to your Wave contact: <a href="mailto:${aeEmail}" style="color:#E3F643;">${aeContact ?? aeEmail}</a></p>
+          </div>
+        </div>
+      `,
+    }).catch(() => {});
   }
 
   return { error: "", success: true };
@@ -185,6 +291,39 @@ export async function updateVipAccount(
   }
 
   return { error: "", success: true };
+}
+
+export async function logEmail(data: {
+  recipient_email: string;
+  recipient_name: string;
+  type: string;
+  sent_by: string;
+  notes?: string;
+}): Promise<{ error: string; success: boolean }> {
+  const { error } = await supabase.from("email_log").insert(data);
+  if (error) return { error: error.message, success: false };
+  return { error: "", success: true };
+}
+
+export async function bulkCreateVipAccounts(
+  accounts: { name: string; email: string; company: string; title: string; password: string }[]
+): Promise<{ results: { name: string; email: string; company: string; title: string; password: string; success: boolean; error?: string }[] }> {
+  const results = await Promise.all(
+    accounts.map(async (acc) => {
+      const { error } = await supabase
+        .from("vip_accounts")
+        .insert({ name: acc.name, email: acc.email, company: acc.company, title: acc.title, password: acc.password });
+      if (error) {
+        return {
+          name: acc.name, email: acc.email, company: acc.company, title: acc.title,
+          password: acc.password, success: false,
+          error: error.code === "23505" ? "Password already in use" : error.message,
+        };
+      }
+      return { name: acc.name, email: acc.email, company: acc.company, title: acc.title, password: acc.password, success: true };
+    })
+  );
+  return { results };
 }
 
 export async function adminLogin(
