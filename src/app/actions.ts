@@ -3,7 +3,27 @@
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+
+function getMailer() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+}
+
+function sendMail(opts: { to: string | string[]; subject: string; html: string }) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return Promise.resolve();
+  return getMailer().sendMail({
+    from: `Wave Upfronts <${process.env.GMAIL_USER}>`,
+    to: Array.isArray(opts.to) ? opts.to.join(", ") : opts.to,
+    subject: opts.subject,
+    html: opts.html,
+  });
+}
 
 export async function login(
   _prevState: { error: string },
@@ -63,38 +83,34 @@ export async function login(
   });
 
   // Alert team when a VIP logs in (fire-and-forget)
-  if (process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const now = new Date().toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-    resend.emails.send({
-      from: "Wave Upfronts <upfronts@wave.tv>",
-      to: ["jeb.shue@wave.tv"],
-      subject: `VIP Login: ${vipName}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
-          <div style="background:#E3F643;height:4px;"></div>
-          <div style="padding:28px 32px 20px;">
-            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
-            <h2 style="margin:0;color:#FAF7F4;font-size:22px;">VIP Login Alert</h2>
-          </div>
-          <div style="padding:0 32px 32px;">
-            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
-              <p style="margin:0 0 16px;font-size:15px;color:#FAF7F4;"><strong style="color:#E3F643;">${vipName}</strong> just accessed the VIP portal.</p>
-              <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                <tr><td style="padding:6px 0;color:#94958B;width:110px;">Time</td><td style="color:#FAF7F4;">${now} ET</td></tr>
-                <tr><td style="padding:6px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
-                <tr><td style="padding:6px 0;color:#94958B;">IP Address</td><td style="color:#FAF7F4;">${ip}</td></tr>
-              </table>
-            </div>
+  const now = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+  sendMail({
+    to: "jeb.shue@wave.tv",
+    subject: `VIP Login: ${vipName}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+        <div style="background:#E3F643;height:4px;"></div>
+        <div style="padding:28px 32px 20px;">
+          <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+          <h2 style="margin:0;color:#FAF7F4;font-size:22px;">VIP Login Alert</h2>
+        </div>
+        <div style="padding:0 32px 32px;">
+          <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+            <p style="margin:0 0 16px;font-size:15px;color:#FAF7F4;"><strong style="color:#E3F643;">${vipName}</strong> just accessed the VIP portal.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <tr><td style="padding:6px 0;color:#94958B;width:110px;">Time</td><td style="color:#FAF7F4;">${now} ET</td></tr>
+              <tr><td style="padding:6px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
+              <tr><td style="padding:6px 0;color:#94958B;">IP Address</td><td style="color:#FAF7F4;">${ip}</td></tr>
+            </table>
           </div>
         </div>
-      `,
-    }).catch(() => {});
-  }
+      </div>
+    `,
+  }).catch(() => {});
 
   redirect("/");
 }
@@ -167,62 +183,56 @@ export async function submitRsvp(
   const aeEmail = aeName ? (AE_EMAILS[aeName] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
   const aeContact = aeName ? `${aeName} (${aeEmail})` : null;
 
-  if (process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    // Alert to Wave team
-    await resend.emails.send({
-      from: "Wave Upfronts <upfronts@wave.tv>",
-      to: ["jeb.shue@wave.tv"],
-      subject: `New RSVP: ${name} · ${company}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
-          <div style="background:#E3F643;height:4px;"></div>
-          <div style="padding:28px 32px 20px;">
-            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
-            <h2 style="margin:0;color:#FAF7F4;font-size:22px;">New RSVP</h2>
-          </div>
-          <div style="padding:0 32px 32px;">
-            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
-              <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                <tr><td style="padding:7px 0;color:#94958B;width:90px;">Name</td><td style="color:#FAF7F4;font-weight:600;">${name}</td></tr>
-                <tr><td style="padding:7px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
-                <tr><td style="padding:7px 0;color:#94958B;">Company</td><td style="color:#E3F643;font-weight:600;">${company}</td></tr>
-                <tr><td style="padding:7px 0;color:#94958B;">Title</td><td style="color:#FAF7F4;">${title}</td></tr>
-              </table>
-            </div>
+  // Alert to Wave team
+  await sendMail({
+    to: "jeb.shue@wave.tv",
+    subject: `New RSVP: ${name} · ${company}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+        <div style="background:#E3F643;height:4px;"></div>
+        <div style="padding:28px 32px 20px;">
+          <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+          <h2 style="margin:0;color:#FAF7F4;font-size:22px;">New RSVP</h2>
+        </div>
+        <div style="padding:0 32px 32px;">
+          <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <tr><td style="padding:7px 0;color:#94958B;width:90px;">Name</td><td style="color:#FAF7F4;font-weight:600;">${name}</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Company</td><td style="color:#E3F643;font-weight:600;">${company}</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Title</td><td style="color:#FAF7F4;">${title}</td></tr>
+            </table>
           </div>
         </div>
-      `,
-    });
+      </div>
+    `,
+  }).catch(() => {});
 
-    // Confirmation to the attendee
-    resend.emails.send({
-      from: "Wave Upfronts <upfronts@wave.tv>",
-      to: [email],
-      subject: "You're confirmed — Wave Upfronts 2026",
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
-          <div style="background:#E3F643;height:4px;"></div>
-          <div style="padding:32px 32px 24px;">
-            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
-            <h2 style="margin:0 0 16px;color:#FAF7F4;font-size:26px;">You're on the list.</h2>
-            <p style="margin:0;font-size:15px;color:#94958B;line-height:1.6;">Hi ${name}, we've received your RSVP and you're confirmed for Wave Upfronts 2026. We'll be in touch with event details as we get closer.</p>
-          </div>
-          <div style="padding:0 32px 32px;">
-            <div style="background:#212922;border-radius:8px;padding:20px 24px;">
-              <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                <tr><td style="padding:7px 0;color:#94958B;width:90px;">Event</td><td style="color:#FAF7F4;font-weight:600;">Wave Upfronts 2026</td></tr>
-                <tr><td style="padding:7px 0;color:#94958B;">Location</td><td style="color:#FAF7F4;">New York, NY</td></tr>
-                <tr><td style="padding:7px 0;color:#94958B;">Date</td><td style="color:#E3F643;font-weight:600;">October 27, 2026</td></tr>
-              </table>
-            </div>
-            <p style="margin:24px 0 0;font-size:12px;color:#3F4640;">Questions? Reach out to your Wave contact: <a href="mailto:${aeEmail}" style="color:#E3F643;">${aeContact ?? aeEmail}</a></p>
-          </div>
+  // Confirmation to the attendee
+  sendMail({
+    to: email,
+    subject: "You're confirmed — Wave Upfronts 2026",
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;background:#0B0909;border-radius:10px;overflow:hidden;">
+        <div style="background:#E3F643;height:4px;"></div>
+        <div style="padding:32px 32px 24px;">
+          <p style="margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94958B;">Wave Upfronts 2026</p>
+          <h2 style="margin:0 0 16px;color:#FAF7F4;font-size:26px;">You're on the list.</h2>
+          <p style="margin:0;font-size:15px;color:#94958B;line-height:1.6;">Hi ${name}, we've received your RSVP and you're confirmed for Wave Upfronts 2026. We'll be in touch with event details as we get closer.</p>
         </div>
-      `,
-    }).catch(() => {});
-  }
+        <div style="padding:0 32px 32px;">
+          <div style="background:#212922;border-radius:8px;padding:20px 24px;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <tr><td style="padding:7px 0;color:#94958B;width:90px;">Event</td><td style="color:#FAF7F4;font-weight:600;">Wave Upfronts 2026</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Location</td><td style="color:#FAF7F4;">New York, NY</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Date</td><td style="color:#E3F643;font-weight:600;">October 27, 2026</td></tr>
+            </table>
+          </div>
+          <p style="margin:24px 0 0;font-size:12px;color:#3F4640;">Questions? Reach out to your Wave contact: <a href="mailto:${aeEmail}" style="color:#E3F643;">${aeContact ?? aeEmail}</a></p>
+        </div>
+      </div>
+    `,
+  }).catch(() => {});
 
   return { error: "", success: true };
 }
