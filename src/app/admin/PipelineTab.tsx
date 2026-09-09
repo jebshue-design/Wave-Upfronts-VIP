@@ -43,7 +43,6 @@ type VipAccount = {
   email: string;
   company: string;
   title: string;
-  password: string;
   created_at: string;
   point_of_contact?: string;
   past_deals?: string;
@@ -230,15 +229,15 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
             )}
             {visible.map((row) => {
               const statusCfg = STATUS_CONFIG[row.effectiveStatus] ?? STATUS_CONFIG.invited;
-              const isExpanded = expandedId === (row.id ?? row.password);
-              const isEditingThisAE = editingAE === (row.id ?? row.password);
+              const isExpanded = expandedId === (row.id ?? row.email);
+              const isEditingThisAE = editingAE === (row.id ?? row.email);
               const isSaving = saving === row.id;
 
               return (
                 <>
                   <tr
-                    key={row.id ?? row.password}
-                    onClick={() => setExpandedId(isExpanded ? null : (row.id ?? row.password))}
+                    key={row.id ?? row.email}
+                    onClick={() => setExpandedId(isExpanded ? null : (row.id ?? row.email))}
                     style={{ cursor: "pointer", background: isExpanded ? "rgba(227,246,67,0.03)" : "transparent", transition: "background 0.15s" }}
                     onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
                     onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.background = "transparent"; }}
@@ -265,7 +264,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                         </select>
                       ) : (
                         <button
-                          onClick={() => setEditingAE(row.id ?? row.password)}
+                          onClick={() => setEditingAE(row.id ?? row.email)}
                           style={{ background: "transparent", border: `1px dashed ${row.point_of_contact ? S.lineStrong : S.line}`, borderRadius: "6px", color: row.point_of_contact ? S.silver : S.lineStrong, fontFamily: S.fontMono, fontSize: "11px", fontWeight: 600, padding: "5px 10px", cursor: "pointer", whiteSpace: "nowrap" }}
                         >
                           {isSaving ? "Saving…" : (row.point_of_contact || "Assign AE")}
@@ -335,7 +334,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
 
                   {/* Expanded detail row */}
                   {isExpanded && (
-                    <tr key={`${row.id ?? row.password}-expanded`}>
+                    <tr key={`${row.id ?? row.email}-expanded`}>
                       <td colSpan={7} style={{ padding: "0", borderBottom: `1px solid ${S.line}`, background: "rgba(227,246,67,0.02)" }}>
                         <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
 
@@ -346,8 +345,6 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                             <div style={{ fontSize: "13px", color: S.silver, marginBottom: "12px" }}>
                               <a href={`mailto:${row.email}`} style={{ color: S.volt, textDecoration: "none" }}>{row.email}</a>
                             </div>
-                            <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.clay, marginBottom: "4px" }}>Password</div>
-                            <div style={{ fontFamily: S.fontMono, fontSize: "12px", color: S.volt }}>{row.password}</div>
                             {row.past_deals && (
                               <>
                                 <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.clay, marginTop: "12px", marginBottom: "4px" }}>Past Deals</div>
@@ -387,14 +384,14 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                             <div>
                               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
                                 <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.volt }}>AE Email Log</div>
-                                {logEmailOpenId !== (row.id ?? row.password) && (
+                                {logEmailOpenId !== (row.id ?? row.email) && (
                                   <button
-                                    onClick={(e) => { e.stopPropagation(); setLogEmailOpenId(row.id ?? row.password ?? null); }}
+                                    onClick={(e) => { e.stopPropagation(); setLogEmailOpenId(row.id ?? row.email ?? null); }}
                                     style={{ background: "transparent", border: `1px solid ${S.lineStrong}`, borderRadius: S.pill, color: S.clay, fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px", cursor: "pointer" }}
                                   >+ Log Email</button>
                                 )}
                               </div>
-                              {logEmailOpenId === (row.id ?? row.password) ? (
+                              {logEmailOpenId === (row.id ?? row.email) ? (
                                 <LogEmailForm
                                   account={row}
                                   onDone={() => setLogEmailOpenId(null)}

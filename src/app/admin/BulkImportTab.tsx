@@ -37,40 +37,53 @@ type ParsedAccount = {
   email: string;
   company: string;
   title: string;
-  password: string;
+  point_of_contact: string;
 };
 
 type ImportResult = ParsedAccount & { success: boolean; error?: string };
 
-function generatePassword(name: string): string {
-  const first = name.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z]/g, "") || "vip";
-  const num = Math.floor(1000 + Math.random() * 9000);
-  return `${first}${num}`;
-}
 
 function parseCSV(raw: string): { accounts: ParsedAccount[]; parseError: string } {
   const lines = raw.trim().split("\n").map((l) => l.trim()).filter(Boolean);
-  if (lines.length === 0) return { accounts: [], parseError: "No rows found." };
+  if (lines.length < 2) return { accounts: [], parseError: "Need at least a header row and one data row." };
 
-  const firstLower = lines[0].toLowerCase();
-  const hasHeaders = firstLower.includes("name") || firstLower.includes("email") || firstLower.includes("company");
-  const dataLines = hasHeaders ? lines.slice(1) : lines;
-  if (dataLines.length === 0) return { accounts: [], parseError: "Only a header row was found — no data rows." };
+  const headers = splitCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
+
+  const col = (names: string[]) => {
+    for (const n of names) {
+      const idx = headers.findIndex((h) => h === n || h.startsWith(n));
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  };
+
+  const nameIdx    = col(["name"]);
+  const emailIdx   = col(["email address", "email"]);
+  const companyIdx = col(["brand/agency", "brand", "agency", "company"]);
+  const accountIdx = col(["account"]);
+  const titleIdx   = col(["title"]);
+  const sellerIdx  = col(["seller"]);
+
+  if (nameIdx === -1) return { accounts: [], parseError: "Could not find a 'Name' column." };
+  if (emailIdx === -1) return { accounts: [], parseError: "Could not find an 'Email Address' column." };
 
   const accounts: ParsedAccount[] = [];
-  for (const line of dataLines) {
+  for (const line of lines.slice(1)) {
     const cols = splitCSVLine(line);
-    const [name = "", email = "", company = "", title = "", password = ""] = cols;
-    if (!name.trim() || !email.trim()) continue;
-    accounts.push({
-      name: name.trim(),
-      email: email.trim(),
-      company: company.trim(),
-      title: title.trim(),
-      password: password.trim() || generatePassword(name),
-    });
+    const name  = cols[nameIdx]?.trim() ?? "";
+    const email = cols[emailIdx]?.trim() ?? "";
+    if (!name || !email) continue;
+
+    // Brand/Agency preferred over Account as company; fall back to Account
+    const company = (companyIdx !== -1 ? cols[companyIdx]?.trim() : "") ||
+                    (accountIdx !== -1 ? cols[accountIdx]?.trim() : "") || "";
+    const title   = titleIdx  !== -1 ? (cols[titleIdx]?.trim()  ?? "") : "";
+    const seller  = sellerIdx !== -1 ? (cols[sellerIdx]?.trim() ?? "") : "";
+
+    accounts.push({ name, email, company, title, point_of_contact: seller });
   }
-  if (accounts.length === 0) return { accounts: [], parseError: "No valid rows found. Make sure each row has at least Name and Email." };
+
+  if (accounts.length === 0) return { accounts: [], parseError: "No valid rows found. Make sure each row has Name and Email Address." };
   return { accounts, parseError: "" };
 }
 
@@ -89,10 +102,10 @@ function splitCSVLine(line: string): string[] {
 }
 
 function downloadCSV(rows: (ParsedAccount | ImportResult)[], filename: string) {
-  const header = "Name,Email,Company,Title,Password,Status";
+  const header = "Name,Email,Company,Title,Seller,Status";
   const lines = rows.map((r) => {
     const status = "success" in r ? (r.success ? "Imported" : `Failed: ${r.error ?? "unknown"}`) : "Pending";
-    return `"${r.name}","${r.email}","${r.company}","${r.title}","${r.password}","${status}"`;
+    return `"${r.name}","${r.email}","${r.company}","${r.title}","${r.point_of_contact}","${status}"`;
   });
   const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -109,6 +122,7 @@ export default function BulkImportTab() {
   const [results, setResults] = useState<ImportResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [parseError, setParseError] = useState("");
+
 
   const handleParse = () => {
     const { accounts, parseError: err } = parseCSV(csvText);
@@ -132,13 +146,6 @@ export default function BulkImportTab() {
     }
   };
 
-  const updatePassword = (index: number, value: string) => {
-    if (!parsed) return;
-    const updated = [...parsed];
-    updated[index] = { ...updated[index], password: value };
-    setParsed(updated);
-  };
-
   const successCount = results?.filter((r) => r.success).length ?? 0;
   const failCount = results?.filter((r) => !r.success).length ?? 0;
 
@@ -149,7 +156,7 @@ export default function BulkImportTab() {
           Bulk Import VIP Accounts
         </h2>
         <p style={{ fontFamily: S.fontMono, fontSize: "12px", color: S.clay, margin: 0 }}>
-          Paste a CSV with columns: <span style={{ color: S.silver }}>Name, Email, Company, Title</span> — passwords are auto-generated if omitted.
+          Paste your CSV export — expects columns: <span style={{ color: S.silver }}>Brand/Agency, Account, Name, Title, Email Address, Cell Phone, Seller</span>. Passwords are auto-generated.
         </p>
       </div>
 
@@ -159,9 +166,9 @@ export default function BulkImportTab() {
           {/* Format example */}
           <div style={{ background: S.night, border: `1px solid ${S.line}`, borderRadius: "8px", padding: "14px 18px", marginBottom: "16px", fontFamily: S.fontMono, fontSize: "11px", color: S.clay, lineHeight: 1.7 }}>
             <div style={{ color: S.volt, marginBottom: "4px", fontSize: "9px", letterSpacing: "0.1em", textTransform: "uppercase" }}>Expected format</div>
-            <div>Name,Email,Company,Title</div>
-            <div>John Smith,john@nike.com,Nike,VP Marketing</div>
-            <div>Jane Doe,jane@pepsi.com,PepsiCo,SVP Brand Strategy</div>
+            <div>Brand/Agency,Account,Name,Title,Email Address,Cell Phone,Seller</div>
+            <div>Nike,Omnicom,John Smith,VP Marketing,john@nike.com,555-1234,Tom Defina</div>
+            <div>PepsiCo,Publicis,Jane Doe,SVP Brand,jane@pepsi.com,,Gabby Davino</div>
           </div>
 
           <textarea
@@ -216,7 +223,7 @@ export default function BulkImportTab() {
                 {parsed.length} account{parsed.length !== 1 ? "s" : ""} ready
               </span>
               <span style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.clay, marginLeft: "12px" }}>
-                Edit passwords below before importing
+                Review before importing
               </span>
             </div>
             <div style={{ display: "flex", gap: "8px" }}>
@@ -246,7 +253,7 @@ export default function BulkImportTab() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["Name", "Email", "Company", "Title", "Password (editable)"].map((h) => (
+                  {["Name", "Email", "Company", "Title", "AE / Seller"].map((h) => (
                     <th key={h} style={headCell}>{h}</th>
                   ))}
                 </tr>
@@ -258,16 +265,8 @@ export default function BulkImportTab() {
                     <td style={{ ...cell, color: S.clay }}>{acc.email}</td>
                     <td style={cell}>{acc.company}</td>
                     <td style={{ ...cell, color: S.clay }}>{acc.title}</td>
-                    <td style={cell}>
-                      <input
-                        value={acc.password}
-                        onChange={(e) => updatePassword(i, e.target.value)}
-                        style={{
-                          background: S.night, border: `1px solid ${S.lineStrong}`,
-                          borderRadius: "6px", color: S.volt, fontFamily: S.fontMono,
-                          fontSize: "12px", padding: "5px 10px", width: "140px", outline: "none",
-                        }}
-                      />
+                    <td style={{ ...cell, color: acc.point_of_contact ? S.volt : S.lineStrong }}>
+                      {acc.point_of_contact || "—"}
                     </td>
                   </tr>
                 ))}
@@ -298,10 +297,10 @@ export default function BulkImportTab() {
                 Import More
               </button>
               <button
-                onClick={() => downloadCSV(results, "wave-vip-credentials.csv")}
+                onClick={() => downloadCSV(results, "wave-vip-import-results.csv")}
                 style={{ background: S.volt, color: S.night, border: "none", fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "10px 22px", borderRadius: S.pill, cursor: "pointer" }}
               >
-                Download Credentials CSV
+                Download Results CSV
               </button>
             </div>
           </div>
@@ -310,7 +309,7 @@ export default function BulkImportTab() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["Name", "Email", "Company", "Password", "Status"].map((h) => (
+                  {["Name", "Email", "Company", "Seller", "Status"].map((h) => (
                     <th key={h} style={headCell}>{h}</th>
                   ))}
                 </tr>
@@ -321,7 +320,7 @@ export default function BulkImportTab() {
                     <td style={cell}>{r.name}</td>
                     <td style={{ ...cell, color: S.clay }}>{r.email}</td>
                     <td style={cell}>{r.company}</td>
-                    <td style={{ ...cell, fontFamily: S.fontMono, fontSize: "12px", color: S.volt }}>{r.password}</td>
+                    <td style={{ ...cell, color: r.point_of_contact ? S.volt : S.lineStrong }}>{r.point_of_contact || "—"}</td>
                     <td style={cell}>
                       {r.success ? (
                         <span style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, color: "#0BDD65", background: "rgba(11,221,101,0.1)", border: "1px solid rgba(11,221,101,0.25)", borderRadius: S.pill, padding: "3px 10px" }}>Imported</span>

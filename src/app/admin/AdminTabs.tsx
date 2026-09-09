@@ -38,7 +38,7 @@ type Props = {
   logins: { id?: string; created_at: string; password_used?: string; ip?: string; user_agent?: string }[];
   rsvps: { id?: string; created_at: string; name: string; email: string; company: string; title: string }[] | null;
   events: { id?: string; created_at: string; type: string; password_used?: string; metadata?: Record<string, string> }[];
-  vipAccounts: { id?: string; name: string; email: string; company: string; title: string; password: string; created_at: string; point_of_contact?: string; past_deals?: string; notes?: string; client_status?: string }[];
+  vipAccounts: { id?: string; name: string; email: string; company: string; title: string; created_at: string; point_of_contact?: string; past_deals?: string; notes?: string; client_status?: string }[];
   passwordToName: Record<string, string>;
   emailLog: { id: string; recipient_email: string; recipient_name: string; type: string; sent_by: string; notes?: string; created_at: string }[];
   engagementByUser: Record<string, {

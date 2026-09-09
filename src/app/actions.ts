@@ -240,31 +240,30 @@ export async function submitRsvp(
 type VipAccountState = {
   error: string;
   success: boolean;
-  account?: { id?: string; name: string; email: string; company: string; title: string; password: string; created_at: string };
+  account?: { id?: string; name: string; email: string; company: string; title: string; created_at: string };
 };
 
 export async function createVipAccount(
   _prevState: VipAccountState,
   formData: FormData
 ): Promise<VipAccountState> {
-  const name     = (formData.get("name")     as string | null)?.trim() ?? "";
-  const email    = (formData.get("email")    as string | null)?.trim() ?? "";
-  const company  = (formData.get("company")  as string | null)?.trim() ?? "";
-  const title    = (formData.get("title")    as string | null)?.trim() ?? "";
-  const password = (formData.get("password") as string | null)?.trim() ?? "";
+  const name    = (formData.get("name")    as string | null)?.trim() ?? "";
+  const email   = (formData.get("email")   as string | null)?.trim() ?? "";
+  const company = (formData.get("company") as string | null)?.trim() ?? "";
+  const title   = (formData.get("title")   as string | null)?.trim() ?? "";
 
-  if (!name || !email || !company || !title || !password) {
+  if (!name || !email || !company || !title) {
     return { error: "All fields are required.", success: false };
   }
 
   const { data, error } = await supabase
     .from("vip_accounts")
-    .insert({ name, email, company, title, password })
+    .insert({ name, email, company, title, password: "" })
     .select()
     .single();
 
   if (error) {
-    if (error.code === "23505") return { error: "That password is already in use. Choose another.", success: false };
+    if (error.code === "23505") return { error: "An account with that email already exists.", success: false };
     return { error: "Failed to create account. Try again.", success: false };
   }
 
@@ -288,7 +287,7 @@ export async function deleteVipAccount(id: string): Promise<{ error: string; suc
 
 export async function updateVipAccount(
   id: string,
-  data: { name: string; email: string; company: string; title: string; password: string }
+  data: { name: string; email: string; company: string; title: string }
 ): Promise<{ error: string; success: boolean }> {
   const { error } = await supabase
     .from("vip_accounts")
@@ -296,7 +295,7 @@ export async function updateVipAccount(
     .eq("id", id);
 
   if (error) {
-    if (error.code === "23505") return { error: "That password is already in use.", success: false };
+    if (error.code === "23505") return { error: "An account with that email already exists.", success: false };
     return { error: "Failed to update account.", success: false };
   }
 
@@ -316,21 +315,21 @@ export async function logEmail(data: {
 }
 
 export async function bulkCreateVipAccounts(
-  accounts: { name: string; email: string; company: string; title: string; password: string }[]
-): Promise<{ results: { name: string; email: string; company: string; title: string; password: string; success: boolean; error?: string }[] }> {
+  accounts: { name: string; email: string; company: string; title: string; point_of_contact: string }[]
+): Promise<{ results: { name: string; email: string; company: string; title: string; point_of_contact: string; success: boolean; error?: string }[] }> {
   const results = await Promise.all(
     accounts.map(async (acc) => {
       const { error } = await supabase
         .from("vip_accounts")
-        .insert({ name: acc.name, email: acc.email, company: acc.company, title: acc.title, password: acc.password });
+        .insert({ name: acc.name, email: acc.email, company: acc.company, title: acc.title, point_of_contact: acc.point_of_contact || null, password: "" });
       if (error) {
         return {
           name: acc.name, email: acc.email, company: acc.company, title: acc.title,
-          password: acc.password, success: false,
-          error: error.code === "23505" ? "Password already in use" : error.message,
+          point_of_contact: acc.point_of_contact, success: false,
+          error: error.code === "23505" ? "Email already exists" : error.message,
         };
       }
-      return { name: acc.name, email: acc.email, company: acc.company, title: acc.title, password: acc.password, success: true };
+      return { name: acc.name, email: acc.email, company: acc.company, title: acc.title, point_of_contact: acc.point_of_contact, success: true };
     })
   );
   return { results };

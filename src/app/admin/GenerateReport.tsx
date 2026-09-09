@@ -23,7 +23,7 @@ type Props = {
   }[];
   rsvps: { name: string; email: string; company: string; title: string; created_at: string }[] | null;
   logins: { created_at: string; password_used?: string; ip?: string }[];
-  vipAccounts: { name: string; email: string; company: string; title: string; password: string; created_at: string }[];
+  vipAccounts: { name: string; email: string; company: string; title: string; created_at: string }[];
 };
 
 const SECTIONS = [
@@ -86,8 +86,8 @@ export default function GenerateReport({ stats, sortedShows, userBreakdownData, 
         ...(rsvps ?? []).map((r) => [r.name, r.email, r.company, r.title, new Date(r.created_at).toLocaleString()]), []);
     }
     if (sel.vipAccounts) {
-      rows.push(["VIP ACCOUNTS"], ["Name", "Title", "Email", "Company", "Password", "Created"],
-        ...vipAccounts.map((a) => [a.name, a.title, a.email, a.company, a.password, new Date(a.created_at).toLocaleDateString()]), []);
+      rows.push(["VIP ACCOUNTS"], ["Name", "Title", "Email", "Company", "Created"],
+        ...vipAccounts.map((a) => [a.name, a.title, a.email, a.company, new Date(a.created_at).toLocaleDateString()]), []);
     }
     if (sel.logins) {
       rows.push(["LOGIN LOG"], ["Time", "Password Used", "IP Address"],
@@ -197,7 +197,6 @@ export default function GenerateReport({ stats, sortedShows, userBreakdownData, 
       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#374151">${a.title}</td>
       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#374151">${a.email}</td>
       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#374151">${a.company}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-family:monospace;color:#374151">${a.password}</td>
     </tr>`).join("")}</tbody>
   </table>` : ""}
 
