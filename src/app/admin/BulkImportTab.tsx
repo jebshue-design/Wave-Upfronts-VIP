@@ -156,7 +156,7 @@ export default function BulkImportTab() {
           Bulk Import VIP Accounts
         </h2>
         <p style={{ fontFamily: S.fontMono, fontSize: "12px", color: S.clay, margin: 0 }}>
-          Paste your CSV export — expects columns: <span style={{ color: S.silver }}>Brand/Agency, Account, Name, Title, Email Address, Cell Phone, Seller</span>. Passwords are auto-generated.
+          Paste your CSV export — expects columns: <span style={{ color: S.silver }}>Brand/Agency, Account, Name, Title, Email Address, Cell Phone, Seller</span>.
         </p>
       </div>
 
