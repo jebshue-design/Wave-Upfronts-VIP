@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/admin/login"];
+const PUBLIC_PATHS = ["/", "/login", "/admin/login"];
 const STATIC_PREFIXES = ["/_next/", "/fonts/", "/assets/", "/thumbnails/", "/headshots/", "/favicon.ico"];
 
 export function proxy(request: NextRequest) {
@@ -28,7 +28,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthed && isPublic) {
+  if (isAuthed && isPublic && pathname !== "/") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

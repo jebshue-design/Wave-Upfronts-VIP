@@ -9,6 +9,8 @@ import RsvpModal from "./components/RsvpModal";
 import TextIntro from "./components/TextIntro";
 import ShowCard from "./components/ShowCard";
 import ShowModalManager from "./components/ShowModalManager";
+import VipAccessForm from "./components/VipAccessForm";
+import SlateCarousel from "./components/SlateCarousel";
 
 /* =========================================================
    SHOW DATA — swap in real content here
@@ -20,13 +22,16 @@ const shows = [
     category: "COMEDY",
     categoryColor: "#D12670",
     tagline: "They never made the cut. They never stopped trying.",
-    description: "Placeholder — replace with show description.",
+    description: "Almost Athletes with Dude Perfect is (almost) a sports podcast. Co-hosted by Garrett Hilbert and Sparky, with the rest of the Dudes, their wives, and the DP crew popping in throughout the week. Sports takes, celebrity guests, athlete interviews, fan voicemails, and the kind of chaos you'd expect from the Dude Perfect family.",
     specs: "WEEKLY · ~60 MIN · AUDIO + VIDEO",
     season: "SEASON 2 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–34 · Male-Leaning",
     thumbnailPath: "/thumbnails/almost-athletes.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Almost Athletes.jpg",
+    detailNavTone: "dark",
+    talent: "Dude Perfect",
     youtubeUrl: "https://www.youtube.com/@almostathletes",
     audioUrl: "https://open.spotify.com/show/55gaQm31JIbp6td7QtYsPU",
   },
@@ -36,13 +41,15 @@ const shows = [
     category: "INTERVIEW",
     categoryColor: "#0AC2FF",
     tagline: "Real conversations. No script.",
-    description: "Placeholder — replace with show description.",
+    description: "Nothing’s scripted. Nothing’s safe. On Open Thoughts, Funny Marco sits down with some of the biggest names in the game for the most unpredictable conversations on the internet.",
     specs: "BIWEEKLY · ~50 MIN · AUDIO + VIDEO",
     season: "SEASON 1 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "25–44 · Mixed",
     thumbnailPath: "/thumbnails/open-thoughts.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Open Thoughts.jpg",
+    talent: "Funny Marco",
     youtubeUrl: "https://www.youtube.com/@OpenThoughts0",
     audioUrl: "https://open.spotify.com/show/7AwnOVezHIfHVbNVINNlQL",
   },
@@ -52,13 +59,15 @@ const shows = [
     category: "LIFESTYLE",
     categoryColor: "#FFC421",
     tagline: "Drinks, stories, and the people who make them.",
-    description: "Placeholder — replace with show description.",
+    description: "Comedian Andrew Santino interviews friends in and out of the entertainment industry as they reflect on deviant stories of their past; while sipping whiskey.",
     specs: "WEEKLY · ~55 MIN · AUDIO + VIDEO",
     season: "SEASON 5 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "21–45 · Mixed",
     thumbnailPath: "/thumbnails/whiskey-ginger.jpg",
+    slateImagePath: "/assets/Slides BG_Santino.jpg",
+    talent: "Andrew Santino",
     youtubeUrl: "https://www.youtube.com/@AndrewSantinoWhiskeyGinger",
     audioUrl: "https://open.spotify.com/show/2QoIpuCjh332VOeDYxLr3A",
   },
@@ -75,6 +84,21 @@ const shows = [
     oneSheetPath: null as string | null,
     demo: "18–30 · Female-Leaning",
     thumbnailPath: "/thumbnails/ngl.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Not Gonna Lie.png",
+    accoladeLogoPath: "/assets/accolades/3x/webby@3x.png",
+    accolades: [
+      "2026|PODCAST OF|THE YEAR",
+      "2026|BEST NEW PODCAST,|ENTERTAINMENT",
+      "2026|BEST PARTNERSHIP|OR COLLABORATION",
+      "2026|BEST INDIVIDUAL|EPISODE",
+    ],
+    talent: "Kylie Kelce",
+    detailTopics: ["Entertainment", "Motherhood", "Women in Sports"],
+    detailDescription: "Armed with one mic and zero f*cks, Kylie is ready to open up — on her own terms. Join her as she sets the record straight on gossip and speaks her truths on topics like modern parenting, social media trends, women in sports and more.",
+    detailDemographics: "18-30\nFEMALE-LEANING",
+    detailCadence: "WEEKLY\nMON / THU",
+    detailFormat: "00:30M-1:00H\nAUDIO & VIDEO",
+    detailPartnerships: "KEY PARTNERSHIPS AND EPISODES",
     youtubeUrl: "https://www.youtube.com/@nglwithkylie",
     audioUrl: "https://open.spotify.com/show/0RgXbSGGmwpzAyeLHbDqUD",
   },
@@ -84,13 +108,32 @@ const shows = [
     category: "COMEDY",
     categoryColor: "#0AC2FF",
     tagline: "Placeholder — replace with tagline.",
-    description: "Placeholder — replace with show description.",
+    description: "A weekly podcast from beloved gay comedian Caleb Hearon. Basically, just getting into it and sorting it all out and kind of identifying what’s really real.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–34 · Mixed",
     thumbnailPath: "/thumbnails/so-true.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_So True.jpg",
+    accoladeGroups: [
+      {
+        logoPath: "/assets/accolades/3x/iHeart@3x.png",
+        logoAlt: "iHeartRadio",
+        accolades: ["2026|BEST PODCAST|HOST"],
+      },
+      {
+        logoPath: "/assets/accolades/3x/Queerties@3x.png",
+        logoAlt: "The Queerties",
+        accolades: ["2026|PODCAST OF THE|YEAR NOMINEE"],
+      },
+      {
+        logoPath: "/assets/accolades/3x/webby@3x.png",
+        logoAlt: "The Webby Awards",
+        accolades: ["2025|OFFICIAL WEBBY|HONOREE"],
+      },
+    ],
+    talent: "Caleb Hearon",
     youtubeUrl: "https://www.youtube.com/@sooootruepod",
     audioUrl: "https://open.spotify.com/show/3EgXpWE5vz6JkRtjhenVOU",
   },
@@ -100,13 +143,15 @@ const shows = [
     category: "SPORTS",
     categoryColor: "#0BDD65",
     tagline: "Placeholder — replace with tagline.",
-    description: "Placeholder — replace with show description.",
+    description: "Welcome to Wingmen, hosted by NHL brothers Matthew & Brady Tkachuk. Your all-access pass into the world of hockey, brotherhood, and behind-the-scenes stories you won’t hear anywhere else.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–35 · Male-Leaning",
     thumbnailPath: "/thumbnails/wingmen.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Wingmen.jpg",
+    talent: "Matthew & Brady Tkachuk",
     youtubeUrl: "https://www.youtube.com/@Wingmenpod",
     audioUrl: "https://open.spotify.com/show/0phWiahC5nLC7azlkhe8hh",
   },
@@ -116,13 +161,20 @@ const shows = [
     category: "SPORTS",
     categoryColor: "#FF5C35",
     tagline: "Placeholder — replace with tagline.",
-    description: "Placeholder — replace with show description.",
+    description: "Hoops, culture, and conversation collide at 7PM. Carmelo Anthony sits with a rotating all star crew of The Kid Mero, Rudy Gay, Monica McNutt, and Kazeem Famuyide to tap into the game, the culture, and the stories that shape both.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–35 · Male-Leaning",
     thumbnailPath: "/thumbnails/7pm-brooklyn.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_7PM in Brooklyn.jpg",
+    accoladeLogoPath: "/assets/accolades/3x/webby@3x.png",
+    accolades: [
+      "2026|BEST SPORTS|SHOW FINALIST",
+      "2026|BEST FEATURED|GUEST NOMINEE",
+    ],
+    talent: "Carmelo Anthony",
     youtubeUrl: "https://www.youtube.com/@7PMinBrooklyn",
     audioUrl: "https://open.spotify.com/show/4sEy5p87mJ002F3NGsKIpq",
   },
@@ -132,13 +184,15 @@ const shows = [
     category: "COMEDY",
     categoryColor: "#D12670",
     tagline: "Placeholder — replace with tagline.",
-    description: "Placeholder — replace with show description.",
+    description: "Cudi invites his favorite people in culture and entertainment to come kick it. He puts you on to dope s**t, and taps into the real journey behind his and his guests' biggest successes.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–34 · Mixed",
     thumbnailPath: "/thumbnails/big-bro.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Big Bro.jpg",
+    talent: "Kid Cudi",
     youtubeUrl: "https://www.youtube.com/@BigBroCudi",
     audioUrl: null as string | null,
   },
@@ -148,31 +202,72 @@ const shows = [
     category: "COMEDY",
     categoryColor: "#FFC421",
     tagline: "Placeholder — replace with tagline.",
-    description: "Placeholder — replace with show description.",
+    description: "Bad Friends.... a podcast with Bobby Lee and Andrew Santino.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
     demo: "18–35 · Mixed",
     thumbnailPath: "/thumbnails/house-of-maher.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_House of Maher.jpg",
+    detailNavTone: "dark",
+    talent: "Ilona Maher",
     youtubeUrl: "https://www.youtube.com/@HouseofMaher",
     audioUrl: "https://open.spotify.com/show/5kQkbgxHPgvBc0wcb9qhNK",
   },
   {
-    id: "the-right-time",
-    title: "The Right Time with Bomani Jones",
-    category: "SPORTS",
-    categoryColor: "#0BDD65",
+    id: "power-hour",
+    title: "Power Hour",
+    category: "LIFESTYLE",
+    categoryColor: "#69EDE9",
+    tagline: "Placeholder — replace with tagline.",
+    description: "This ain't your average fitness show. Here, we champion three things: Strength, pushing boundaries, and looking good while doing it. Ilona Maher brings some of the biggest names in sports and entertainment into the gym to test their limits.",
+    specs: "Placeholder — replace with specs.",
+    season: "2026",
+    videoPath: null as string | null,
+    oneSheetPath: null as string | null,
+    demo: "18–35 · Mixed",
+    thumbnailPath: "/thumbnails/open-thoughts.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Power Hour.jpg",
+    talent: "Ilona Maher",
+    youtubeUrl: null as string | null,
+    audioUrl: null as string | null,
+  },
+  {
+    id: "my-momma-told-me",
+    title: "My Momma Told Me",
+    category: "COMEDY",
+    categoryColor: "#0AC2FF",
     tagline: "Placeholder — replace with tagline.",
     description: "Placeholder — replace with show description.",
     specs: "Placeholder — replace with specs.",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
-    demo: "25–44 · Male-Leaning",
-    thumbnailPath: "/thumbnails/the-right-time.jpg",
-    youtubeUrl: "https://www.youtube.com/@righttimebomani",
-    audioUrl: "https://open.spotify.com/show/6N7fDvgNz2EPDIOm49aj7M",
+    demo: "18–35 · Mixed",
+    thumbnailPath: "/thumbnails/so-true.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_My Momma Told Me.jpg",
+    talent: "Langston Kerman & David Gborie",
+    youtubeUrl: null as string | null,
+    audioUrl: null as string | null,
+  },
+  {
+    id: "bad-friends",
+    title: "Bad Friends",
+    category: "COMEDY",
+    categoryColor: "#FFC421",
+    tagline: "Placeholder — replace with tagline.",
+    description: "Placeholder — replace with show description.",
+    specs: "Placeholder — replace with specs.",
+    season: "2026",
+    videoPath: null as string | null,
+    oneSheetPath: null as string | null,
+    demo: "18–35 · Mixed",
+    thumbnailPath: "/thumbnails/big-bro.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Bad Friends.jpg",
+    talent: "Andrew Santino & Bobby Lee",
+    youtubeUrl: null as string | null,
+    audioUrl: null as string | null,
   },
 ];
 
@@ -216,7 +311,30 @@ const S = {
 /* =========================================================
    PAGE
    ========================================================= */
-export default async function VipPage() {
+export default async function LandingPage() {
+  const cookieStore = await cookies();
+
+  if (cookieStore.has("wave-auth")) {
+    return <SlateCarousel shows={[...shows].sort((first, second) => Number(second.id === "ngl") - Number(first.id === "ngl"))} />;
+  }
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        background: "linear-gradient(180deg, #000000 0%, #1f2921 100%)",
+        color: "#ffffff",
+        padding: "24px",
+      }}
+    >
+      <VipAccessForm />
+    </main>
+  );
+}
+
+async function VipPage() {
   const cookieStore = await cookies();
   const vipName = cookieStore.get("wave-name")?.value ?? null;
   return (
@@ -660,7 +778,7 @@ export default async function VipPage() {
               marginTop: "24px",
             }}
           >
-            Files marked "Upload pending" will be available before the event.
+            Files marked &quot;Upload pending&quot; will be available before the event.
           </p>
         </div>
       </section>
