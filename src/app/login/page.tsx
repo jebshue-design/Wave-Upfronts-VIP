@@ -101,14 +101,14 @@ export default function LoginPage() {
                 lineHeight: 1.5,
               }}
             >
-              Enter your access code to continue.
+              Enter your email address to continue.
             </p>
           </div>
 
           <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label
-                htmlFor="password"
+                htmlFor="email"
                 style={{
                   fontFamily: '"Space Grotesk", monospace',
                   fontSize: "10px",
@@ -118,15 +118,15 @@ export default function LoginPage() {
                   color: "#94958B",
                 }}
               >
-                Access Code
+                Email Address
               </label>
               <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 autoFocus
-                placeholder="••••••••••"
+                placeholder="you@company.com"
                 style={{
                   background: "#0B0909",
                   border: state?.error ? "1px solid #FA3842" : "1px solid #3F4640",

@@ -18,6 +18,25 @@ const S = {
   fontSans: '"Space Grotesk", system-ui, sans-serif',
 };
 
+type AudienceData = {
+  followers: string;
+  monthlyViews: string;
+  monthlyDownloads: string;
+  genderSkew: string;
+  persona: string;
+  quickHits: string[];
+  guestExamples: string[];
+  ages: { label: string; pct: number }[];
+  hhi100k: string;
+  usShare: string;
+  topGeos: string[];
+  devices: { label: string; pct: number }[];
+  avgWatchTime: string;
+  viewerBehavior: { new: number; casual: number; regular: number };
+  interests: string[];
+  audienceOverlap: string[];
+};
+
 type Show = {
   id: string;
   title: string;
@@ -33,7 +52,25 @@ type Show = {
   thumbnailPath: string;
   youtubeUrl: string;
   audioUrl: string | null;
+  audience?: AudienceData | null;
 };
+
+function parseGenderSplit(skew: string): { female: number; male: number } {
+  const slashMatch = skew.match(/(\d+)\/(\d+)\s+(Male|Female)/i);
+  if (slashMatch) {
+    const a = parseInt(slashMatch[1]);
+    const b = parseInt(slashMatch[2]);
+    const gender = slashMatch[3].toLowerCase();
+    return gender === "female" ? { female: a, male: b } : { female: b, male: a };
+  }
+  const pctMatch = skew.match(/(\d+)%?\s+(Male|Female)/i);
+  if (pctMatch) {
+    const pct = parseInt(pctMatch[1]);
+    const gender = pctMatch[2].toLowerCase();
+    return gender === "female" ? { female: pct, male: 100 - pct } : { female: 100 - pct, male: pct };
+  }
+  return { female: 50, male: 50 };
+}
 
 export default function ShowModalManager({ shows }: { shows: Show[] }) {
   const [activeShow, setActiveShow] = useState<Show | null>(null);
@@ -59,7 +96,6 @@ export default function ShowModalManager({ shows }: { shows: Show[] }) {
     const handler = (e: Event) => {
       const id = (e as CustomEvent<{ id: string }>).detail.id;
       const show = shows.find((s) => s.id === id) ?? null;
-      // If switching shows, log duration for the previous one first
       if (activeShowRef.current) logDuration(activeShowRef.current);
       activeShowRef.current = show;
       openTimeRef.current = show ? Date.now() : null;
@@ -73,6 +109,8 @@ export default function ShowModalManager({ shows }: { shows: Show[] }) {
   }, [shows]);
 
   if (!activeShow) return null;
+
+  const aud = activeShow.audience ?? null;
 
   return (
     <div
@@ -92,41 +130,68 @@ export default function ShowModalManager({ shows }: { shows: Show[] }) {
           border: `1px solid ${S.line}`,
           borderRadius: "16px",
           width: "100%",
-          maxWidth: "780px",
-          maxHeight: "88vh",
-          overflowY: "auto",
+          maxWidth: "960px",
+          height: "88vh",
           display: "grid",
-          gridTemplateColumns: "260px 1fr",
+          gridTemplateColumns: "240px 1fr",
+          overflow: "hidden",
           position: "relative",
         }}
       >
-        {/* Left — poster */}
-        <div style={{ borderRadius: "16px 0 0 16px", overflow: "hidden", position: "relative", minHeight: "380px", background: "#161A16", flexShrink: 0 }}>
+        {/* Left — poster (stays fixed while right scrolls) */}
+        <div style={{ position: "relative", background: "#161A16", overflow: "hidden" }}>
           {activeShow.thumbnailPath && (
             <Image src={activeShow.thumbnailPath} alt={activeShow.title} fill unoptimized style={{ objectFit: "cover" }} />
           )}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, transparent 60%, " + S.slate + ")" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, transparent 55%, " + S.slate + ")" }} />
+          <div style={{ position: "absolute", top: "16px", left: "16px" }}>
+            <span style={{
+              fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700,
+              letterSpacing: "0.12em", textTransform: "uppercase",
+              color: S.night, background: activeShow.categoryColor,
+              padding: "4px 10px", borderRadius: S.pill,
+            }}>{activeShow.category}</span>
+          </div>
         </div>
 
-        {/* Right — info */}
-        <div style={{ padding: "36px 36px 36px 28px", display: "flex", flexDirection: "column" }}>
+        {/* Right — info panel (scrolls independently) */}
+        <div style={{ overflowY: "auto", padding: "32px 32px 32px 28px", display: "flex", flexDirection: "column" }}>
 
+          {/* Close button */}
           <button
             onClick={handleClose}
             style={{ position: "absolute", top: "16px", right: "16px", background: "transparent", border: "none", cursor: "pointer", color: S.clay, fontSize: "20px", lineHeight: 1, padding: "4px" }}
           >✕</button>
 
-          <h2 style={{ fontFamily: S.fontDisplay, fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 700, letterSpacing: "-0.02em", color: S.silver, margin: "0 0 8px", lineHeight: 1.05 }}>
+          {/* Title + tagline */}
+          <h2 style={{ fontFamily: S.fontDisplay, fontSize: "clamp(20px, 2.2vw, 30px)", fontWeight: 700, letterSpacing: "-0.02em", color: S.silver, margin: "0 40px 8px 0", lineHeight: 1.05 }}>
             {activeShow.title}
           </h2>
-
-          <p style={{ fontFamily: S.fontSans, fontSize: "14px", color: S.clay, margin: "0 0 24px", lineHeight: 1.5 }}>
+          <p style={{ fontFamily: S.fontSans, fontSize: "13px", color: S.clay, margin: "0 0 20px", lineHeight: 1.5 }}>
             {activeShow.tagline}
           </p>
 
-          <div style={{ height: "1px", background: S.line, marginBottom: "24px" }} />
+          {/* Key metrics — only if audience data exists */}
+          {aud && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+              {[
+                { label: "Total Followers", value: aud.followers },
+                { label: "Monthly Views", value: aud.monthlyViews },
+                { label: "Mnthly Downloads", value: aud.monthlyDownloads },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: S.night, border: `1px solid ${S.line}`, borderRadius: "10px", padding: "12px 14px" }}>
+                  <div style={{ fontFamily: S.fontDisplay, fontSize: "20px", fontWeight: 700, letterSpacing: "-0.02em", color: S.volt, lineHeight: 1 }}>{value}</div>
+                  <div style={{ fontFamily: S.fontMono, fontSize: "8px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginTop: "5px" }}>{label}</div>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 24px", marginBottom: "24px" }}>
+          {/* Divider */}
+          <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+          {/* Meta grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px 16px", marginBottom: "18px" }}>
             {([
               { label: "Target Demo", value: activeShow.demo },
               { label: "Format", value: activeShow.specs },
@@ -134,16 +199,199 @@ export default function ShowModalManager({ shows }: { shows: Show[] }) {
             ] as { label: string; value: string }[]).map(({ label, value }) => (
               <div key={label}>
                 <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: S.clay, marginBottom: "5px" }}>{label}</div>
-                <div style={{ fontFamily: S.fontSans, fontSize: "14px", color: S.silver, lineHeight: 1.3 }}>{value}</div>
+                <div style={{ fontFamily: S.fontSans, fontSize: "13px", color: S.silver, lineHeight: 1.3 }}>{value}</div>
               </div>
             ))}
           </div>
 
-          <p style={{ fontFamily: S.fontSans, fontSize: "14px", lineHeight: 1.7, color: S.clay, margin: "0 0 28px" }}>
+          {/* Description */}
+          <p style={{ fontFamily: S.fontSans, fontSize: "13px", lineHeight: 1.7, color: S.clay, margin: "0 0 20px" }}>
             {activeShow.description}
           </p>
 
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", marginTop: "auto" }}>
+          {/* ── AUDIENCE DATA ─────────────────────────────── */}
+          {aud && (
+            <>
+              <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+              {/* PERSONA */}
+              <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.volt, marginBottom: "10px" }}>Persona</div>
+              <div style={{ borderLeft: `2px solid ${S.volt}`, paddingLeft: "12px", marginBottom: "14px" }}>
+                <p style={{ fontFamily: S.fontSans, fontSize: "13px", lineHeight: 1.6, color: S.silver, margin: 0, fontStyle: "italic" }}>
+                  {aud.persona}
+                </p>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "24px" }}>
+                {aud.quickHits.map((tag) => (
+                  <span key={tag} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.clay, background: S.night, border: `1px solid ${S.line}`, borderRadius: S.pill, padding: "4px 10px" }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+              {/* DEMOGRAPHICS */}
+              <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.volt, marginBottom: "14px" }}>Demographics</div>
+
+              {/* Gender */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Gender</div>
+                {(() => {
+                  const { female, male } = parseGenderSplit(aud.genderSkew);
+                  const total = female + male || 100;
+                  const femalePct = Math.round((female / total) * 100);
+                  return (
+                    <>
+                      <div style={{ display: "flex", height: "8px", borderRadius: "4px", overflow: "hidden" }}>
+                        <div style={{ width: `${femalePct}%`, background: "#FF6FAE" }} />
+                        <div style={{ flex: 1, background: S.volt }} />
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
+                        <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: "#FF6FAE", fontWeight: 600 }}>{female}% Female</span>
+                        <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.volt, fontWeight: 600 }}>{male}% Male</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* Age breakdown */}
+              <div style={{ marginBottom: "20px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Age Breakdown</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  {aud.ages.map(({ label, pct }) => (
+                    <div key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.clay, width: "40px", flexShrink: 0 }}>{label}</span>
+                      <div style={{ flex: 1, height: "4px", background: S.line, borderRadius: "2px", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: S.volt, borderRadius: "2px" }} />
+                      </div>
+                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.silver, width: "36px", flexShrink: 0, textAlign: "right" }}>{pct.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+              {/* REACH */}
+              <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.volt, marginBottom: "14px" }}>Reach</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px" }}>
+                {[
+                  { label: "HHI $100K+", value: aud.hhi100k },
+                  { label: "US Audience Share", value: aud.usShare },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ background: S.night, border: `1px solid ${S.line}`, borderRadius: "10px", padding: "14px 16px" }}>
+                    <div style={{ fontFamily: S.fontDisplay, fontSize: "22px", fontWeight: 700, color: S.volt, lineHeight: 1 }}>{value}</div>
+                    <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginTop: "6px" }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Top Markets */}
+              <div style={{ marginBottom: "20px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Top Markets</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {aud.topGeos.map((geo) => (
+                    <span key={geo} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.clay, background: S.night, border: `1px solid ${S.line}`, borderRadius: S.pill, padding: "4px 10px" }}>
+                      {geo}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+              {/* CONSUMPTION */}
+              <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.volt, marginBottom: "14px" }}>Consumption</div>
+
+              {/* Devices */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Device Breakdown</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  {aud.devices.map(({ label, pct }) => (
+                    <div key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.clay, width: "62px", flexShrink: 0 }}>{label}</span>
+                      <div style={{ flex: 1, height: "4px", background: S.line, borderRadius: "2px", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: S.volt, borderRadius: "2px" }} />
+                      </div>
+                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.silver, width: "36px", flexShrink: 0, textAlign: "right" }}>{pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Avg Watch Time */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "6px" }}>Avg Watch / Listen Time</div>
+                <div style={{ fontFamily: S.fontSans, fontSize: "13px", color: S.silver }}>{aud.avgWatchTime}</div>
+              </div>
+
+              {/* Viewer Behavior */}
+              <div style={{ marginBottom: "20px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Viewer Behavior</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                  {[
+                    { label: "New", value: aud.viewerBehavior.new },
+                    { label: "Casual", value: aud.viewerBehavior.casual },
+                    { label: "Regular", value: aud.viewerBehavior.regular },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ background: S.night, border: `1px solid ${S.line}`, borderRadius: "8px", padding: "12px 14px", textAlign: "center" }}>
+                      <div style={{ fontFamily: S.fontDisplay, fontSize: "18px", fontWeight: 700, color: value > 0 ? S.volt : S.lineStrong, lineHeight: 1 }}>
+                        {value > 0 ? `${value}%` : "—"}
+                      </div>
+                      <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginTop: "4px" }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
+
+              {/* AFFINITIES */}
+              <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.volt, marginBottom: "14px" }}>Affinities</div>
+
+              {/* Interests */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Top Interests</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {aud.interests.map((interest) => (
+                    <span key={interest} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.silver, background: S.night, border: `1px solid ${S.lineStrong}`, borderRadius: S.pill, padding: "4px 10px" }}>
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notable Guests */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Notable Guests</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {aud.guestExamples.map((guest) => (
+                    <span key={guest} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.volt, background: "rgba(227,246,67,0.08)", border: "1px solid rgba(227,246,67,0.25)", borderRadius: S.pill, padding: "4px 10px" }}>
+                      {guest}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Audience Overlap */}
+              <div style={{ marginBottom: "28px" }}>
+                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Audience Overlap</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {aud.audienceOverlap.map((show) => (
+                    <span key={show} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.clay, background: S.night, border: `1px solid ${S.line}`, borderRadius: S.pill, padding: "4px 10px" }}>
+                      {show}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Action buttons */}
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", marginTop: "auto", paddingTop: "20px", borderTop: `1px solid ${S.line}` }}>
             {activeShow.videoPath ? (
               <a href={activeShow.videoPath} onClick={() => trackEvent("show_sizzle", { show_id: activeShow.id, show_title: activeShow.title })}
                 style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: S.night, background: S.volt, textDecoration: "none", padding: "12px 22px", borderRadius: S.pill, flexShrink: 0 }}>▶ Sizzle Reel</a>

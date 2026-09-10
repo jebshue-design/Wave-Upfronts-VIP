@@ -20,7 +20,6 @@ export type VipAccount = {
   email: string;
   company: string;
   title: string;
-  password: string;
   created_at: string;
   point_of_contact?: string;
   past_deals?: string;
@@ -176,7 +175,7 @@ export default function VipInfoTab({ initialAccounts, engagementByUser }: { init
               <tr><td colSpan={6} style={{ padding: "32px 16px", color: S.clay, textAlign: "center" }}>{accounts.length === 0 ? "No VIP accounts yet. Create them in the Accounts tab." : "No results match your search."}</td></tr>
             ) : filtered.map((acc) => (
               <tr
-                key={acc.id ?? acc.password}
+                key={acc.id ?? acc.email}
                 style={{ borderBottom: `1px solid ${S.line}`, cursor: "pointer", transition: "background 0.15s" }}
                 onClick={() => openModal(acc)}
                 onMouseEnter={(e) => (e.currentTarget.style.background = S.slate)}
@@ -230,20 +229,19 @@ export default function VipInfoTab({ initialAccounts, engagementByUser }: { init
             {/* Account details strip */}
             <div style={{ padding: "16px 28px", borderBottom: `1px solid ${S.line}`, display: "flex", gap: "32px", flexWrap: "wrap" }}>
               {[
-                { label: "Email",    value: modal.account.email },
-                { label: "Password", value: modal.account.password },
-                { label: "Added",    value: new Date(modal.account.created_at).toLocaleDateString() },
+                { label: "Email", value: modal.account.email },
+                { label: "Added", value: new Date(modal.account.created_at).toLocaleDateString() },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <div style={{ fontSize: "10px", letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, marginBottom: "3px" }}>{label}</div>
-                  <div style={{ fontSize: "12px", fontFamily: label === "Password" ? "monospace" : S.fontMono, color: label === "Password" ? S.volt : S.silver }}>{value}</div>
+                  <div style={{ fontSize: "12px", fontFamily: S.fontMono, color: S.silver }}>{value}</div>
                 </div>
               ))}
             </div>
 
             {/* Engagement stats */}
             {(() => {
-              const eng = engagementByUser[modal.account.password];
+              const eng = engagementByUser[modal.account.email.toLowerCase()];
               if (!eng) return (
                 <div style={{ padding: "16px 28px", borderBottom: `1px solid ${S.line}` }}>
                   <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Engagement</div>
