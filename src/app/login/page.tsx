@@ -10,19 +10,19 @@ export default function LoginPage() {
     <main style={{ minHeight: "100vh", background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
       <style>{`
         @keyframes gate-in {
-          from { opacity: 0; transform: translateY(14px); }
+          from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes gate-out {
-          from { opacity: 1; transform: translateY(0) scale(1); }
-          to   { opacity: 0; transform: translateY(-10px) scale(0.98); }
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(-6px); }
         }
         .gate-content {
           display: contents;
-          animation: gate-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: gate-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         .gate-content.is-leaving {
-          animation: gate-out 0.45s cubic-bezier(0.7, 0, 0.84, 0) both;
+          animation: gate-out 0.18s ease-out both;
         }
       `}</style>
 

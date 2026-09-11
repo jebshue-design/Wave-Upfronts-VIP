@@ -500,7 +500,7 @@ export default function SlateCarousel({ shows }: { shows: SlateItem[] }) {
           to   { opacity: 1; }
         }
         .slate-page {
-          animation: slate-page-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: slate-page-in 0.3s ease-out both;
         }
         .slate-page {
           --slate-bg: #000000;
