@@ -402,14 +402,19 @@ export async function submitRsvp(
     return { error: "Please enter a valid email address.", success: false };
   }
 
-  // Prevent duplicate RSVPs
+  // Prevent duplicate RSVPs — but still send confirmation so they have the details
   const { data: existing } = await supabase
     .from("rsvps")
     .select("id")
     .eq("email", email.toLowerCase())
     .maybeSingle();
   if (existing) {
-    return { error: "", success: true }; // silent success — don't reveal who's on the list
+    // Re-send confirmation quietly, then return success
+    const { data: vipMatch2 } = await supabase.from("vip_accounts").select("point_of_contact").eq("email", email).maybeSingle();
+    const aeName2 = vipMatch2?.point_of_contact ?? null;
+    const aeEmailAddr2 = aeName2 ? (AE_EMAILS[aeName2] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
+    await sendCampaignEmail({ recipientEmail: email, recipientName: name, recipientCompany: company, emailType: "rsvp_confirmation", aeName: aeName2, sentBy: "system" }).catch(() => {});
+    return { error: "", success: true };
   }
 
   const { error: dbError } = await supabase.from("rsvps").insert({ name, email: email.toLowerCase(), company, title });
@@ -457,7 +462,7 @@ export async function submitRsvp(
   }).catch(() => {});
 
   // Confirmation to the attendee using new template
-  sendCampaignEmail({
+  await sendCampaignEmail({
     recipientEmail: email,
     recipientName: name,
     recipientCompany: company,
