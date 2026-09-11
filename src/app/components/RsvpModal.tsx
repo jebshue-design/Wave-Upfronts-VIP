@@ -29,6 +29,20 @@ export default function RsvpModal() {
       setOpen(true);
     };
     window.addEventListener("open-rsvp", openModal);
+
+    // Auto-open once per session after the carousel has settled
+    if (!sessionStorage.getItem("rsvp-shown")) {
+      const t = setTimeout(() => {
+        sessionStorage.setItem("rsvp-shown", "1");
+        openModal();
+      }, 1400);
+      return () => {
+        clearTimeout(t);
+        window.removeEventListener("open-rsvp", openModal);
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+      };
+    }
+
     return () => {
       window.removeEventListener("open-rsvp", openModal);
       if (closeTimer.current) clearTimeout(closeTimer.current);
