@@ -501,7 +501,7 @@ export async function createVipAccount(
 
   if (error) {
     if (error.code === "23505") return { error: "An account with that email already exists.", success: false };
-    return { error: "Failed to create account. Try again.", success: false };
+    return { error: `Failed to create account: ${error.message} (${error.code})`, success: false };
   }
 
   return { error: "", success: true, account: data };
