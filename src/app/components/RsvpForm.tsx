@@ -42,7 +42,9 @@ const labelStyle: React.CSSProperties = {
   display: "none",
 };
 
-export default function RsvpForm({ onSuccess }: { onSuccess?: () => void } = {}) {
+type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
+
+export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; user?: UserPrefill } = {}) {
   const [state, formAction, isPending] = useActionState(submitRsvp, { error: "", success: false });
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -173,23 +175,23 @@ export default function RsvpForm({ onSuccess }: { onSuccess?: () => void } = {})
       >
         <div>
           <label style={labelStyle}>First Name</label>
-          <input name="firstName" type="text" required placeholder="First Name" aria-label="First Name" style={inputStyle(false)} />
+          <input name="firstName" type="text" required placeholder="First Name" aria-label="First Name" defaultValue={user?.firstName} style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Last Name</label>
-          <input name="lastName" type="text" required placeholder="Last Name" aria-label="Last Name" style={inputStyle(false)} />
+          <input name="lastName" type="text" required placeholder="Last Name" aria-label="Last Name" defaultValue={user?.lastName} style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Email Address</label>
-          <input name="email" type="email" required placeholder="Email Address" aria-label="Email Address" style={inputStyle(false)} />
+          <input name="email" type="email" required placeholder="Email Address" aria-label="Email Address" defaultValue={user?.email} style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Company</label>
-            <input name="company" type="text" required placeholder="Company" aria-label="Company" style={inputStyle(false)} />
+          <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Title</label>
-          <input name="title" type="text" required placeholder="Title" aria-label="Title" style={inputStyle(false)} />
+          <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} style={inputStyle(false)} />
         </div>
       </div>
 

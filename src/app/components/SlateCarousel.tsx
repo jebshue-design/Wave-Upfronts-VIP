@@ -31,7 +31,9 @@ export type SlateItem = {
   detailPartnerships?: string;
 };
 
-export default function SlateCarousel({ shows }: { shows: SlateItem[] }) {
+type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
+
+export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; user?: UserPrefill }) {
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -310,7 +312,7 @@ export default function SlateCarousel({ shows }: { shows: SlateItem[] }) {
 
   return (
     <main className={`slate-page${expandedShow ? " has-detail" : ""}${isReturning ? " is-returning" : ""}${expandedShow?.detailNavTone === "dark" ? " detail-nav-dark" : ""}`}>
-      <RsvpModal />
+      <RsvpModal user={user} />
       {expandedShow && (
         <section
           className={`slate-detail${isClosing ? " is-closing" : ""}`}

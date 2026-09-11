@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { cookies } from "next/headers";
 import { logout } from "./actions";
+import { supabase } from "@/lib/supabase";
 import IntroOverlay from "./components/IntroOverlay";
 import AnimateCards from "./components/AnimateCards";
 import NavLinks from "./components/NavLinks";
@@ -565,7 +566,26 @@ export default async function LandingPage() {
   const cookieStore = await cookies();
 
   if (cookieStore.has("wave-auth")) {
-    return <SlateCarousel shows={[...shows].sort((first, second) => Number(second.id === "ngl") - Number(first.id === "ngl"))} />;
+    const email = cookieStore.get("wave-user")?.value ?? "";
+    let user: { firstName: string; lastName: string; email: string; company: string; title: string } | undefined;
+    if (email) {
+      const { data } = await supabase
+        .from("vip_accounts")
+        .select("name, email, company, title")
+        .eq("email", email)
+        .maybeSingle();
+      if (data) {
+        const parts = (data.name ?? "").trim().split(/\s+/);
+        user = {
+          firstName: parts[0] ?? "",
+          lastName: parts.slice(1).join(" "),
+          email: data.email ?? email,
+          company: data.company ?? "",
+          title: data.title ?? "",
+        };
+      }
+    }
+    return <SlateCarousel shows={[...shows].sort((first, second) => Number(second.id === "ngl") - Number(first.id === "ngl"))} user={user} />;
   }
 
   return (
