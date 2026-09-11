@@ -582,7 +582,7 @@ export default function SlateCarousel({ shows }: { shows: SlateItem[] }) {
           to { opacity: 0; transform: translateX(-20px); }
         }
         .slate-detail-header > img { width: 121px; height: auto; }
-        .slate-detail-header nav { display: flex; align-items: center; gap: 28px; font: 400 12px "Pragmatica Book", "Zalando Sans", sans-serif; letter-spacing: -.025em; color: #fff; mix-blend-mode: difference; }
+        .slate-detail-header nav { margin-left: auto; display: flex; align-items: center; gap: 28px; font: 400 12px "Pragmatica Book", "Zalando Sans", sans-serif; letter-spacing: -.025em; color: #fff; mix-blend-mode: difference; }
         .slate-detail-header nav button { border: 0; border-radius: 999px; padding: 5px 16px; background: #e3f643; color: #0b0909; font: 700 12px "Zalando Sans", sans-serif; letter-spacing: -.025em; cursor: pointer; mix-blend-mode: normal; }
         .slate-page.detail-nav-dark .slate-detail-header nav {
           color: #0b0909;
