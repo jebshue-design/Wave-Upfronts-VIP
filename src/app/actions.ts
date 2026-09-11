@@ -495,7 +495,7 @@ export async function createVipAccount(
 
   const { data, error } = await supabaseAdmin
     .from("vip_accounts")
-    .insert({ name, email, company, title, password: "" })
+    .insert({ name, email, company, title, password: null })
     .select()
     .single();
 
