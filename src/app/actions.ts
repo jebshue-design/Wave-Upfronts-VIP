@@ -495,13 +495,13 @@ export async function createVipAccount(
 
   const { data, error } = await supabaseAdmin
     .from("vip_accounts")
-    .insert({ name, email, company, title, password: null })
+    .insert({ name, email, company, title, password: name.replace(/\s+/g, "") + "-WaveUpfronts" })
     .select()
     .single();
 
   if (error) {
     if (error.code === "23505") return { error: "An account with that email already exists.", success: false };
-    return { error: `Failed to create account: ${error.message} (${error.code})`, success: false };
+    return { error: "Failed to create account. Try again.", success: false };
   }
 
   return { error: "", success: true, account: data };
