@@ -2,7 +2,7 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import nodemailer from "nodemailer";
 
 // ── AE roster ──────────────────────────────────────────────────────────────
@@ -288,7 +288,7 @@ export async function login(
     return { error: "Please enter your email address." } as { error: string };
   }
 
-  const { data: vipAccount } = await supabase
+  const { data: vipAccount } = await supabaseAdmin
     .from("vip_accounts")
     .select("id, name, email, password")
     .eq("email", email)
@@ -403,27 +403,27 @@ export async function submitRsvp(
   }
 
   // Prevent duplicate RSVPs — but still send confirmation so they have the details
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from("rsvps")
     .select("id")
     .eq("email", email.toLowerCase())
     .maybeSingle();
   if (existing) {
     // Re-send confirmation quietly, then return success
-    const { data: vipMatch2 } = await supabase.from("vip_accounts").select("point_of_contact").eq("email", email).maybeSingle();
+    const { data: vipMatch2 } = await supabaseAdmin.from("vip_accounts").select("point_of_contact").eq("email", email).maybeSingle();
     const aeName2 = vipMatch2?.point_of_contact ?? null;
     const aeEmailAddr2 = aeName2 ? (AE_EMAILS[aeName2] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
     await sendCampaignEmail({ recipientEmail: email, recipientName: name, recipientCompany: company, emailType: "rsvp_confirmation", aeName: aeName2, sentBy: "system" }).catch(() => {});
     return { error: "", success: true };
   }
 
-  const { error: dbError } = await supabase.from("rsvps").insert({ name, email: email.toLowerCase(), company, title });
+  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), company, title });
   if (dbError) {
     return { error: "Something went wrong. Please try again.", success: false };
   }
 
   // Look up assigned AE
-  const { data: vipMatch } = await supabase
+  const { data: vipMatch } = await supabaseAdmin
     .from("vip_accounts")
     .select("point_of_contact")
     .eq("email", email)
@@ -493,7 +493,7 @@ export async function createVipAccount(
     return { error: "All fields are required.", success: false };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("vip_accounts")
     .insert({ name, email, company, title, password: "" })
     .select()
@@ -511,13 +511,13 @@ export async function updateVipInfo(
   id: string,
   data: { point_of_contact: string; past_deals: string; notes: string; client_status: string }
 ): Promise<{ error: string; success: boolean }> {
-  const { error } = await supabase.from("vip_accounts").update(data).eq("id", id);
+  const { error } = await supabaseAdmin.from("vip_accounts").update(data).eq("id", id);
   if (error) return { error: "Failed to save.", success: false };
   return { error: "", success: true };
 }
 
 export async function deleteVipAccount(id: string): Promise<{ error: string; success: boolean }> {
-  const { error } = await supabase.from("vip_accounts").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("vip_accounts").delete().eq("id", id);
   if (error) return { error: "Failed to delete account.", success: false };
   return { error: "", success: true };
 }
@@ -526,7 +526,7 @@ export async function updateVipAccount(
   id: string,
   data: { name: string; email: string; company: string; title: string }
 ): Promise<{ error: string; success: boolean }> {
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("vip_accounts")
     .update(data)
     .eq("id", id);
@@ -611,7 +611,7 @@ export async function bulkCreateVipAccounts(
 ): Promise<{ results: { name: string; email: string; company: string; title: string; point_of_contact: string; success: boolean; error?: string }[] }> {
   const results = await Promise.all(
     accounts.map(async (acc) => {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from("vip_accounts")
         .insert({ name: acc.name, email: acc.email, company: acc.company, title: acc.title, point_of_contact: acc.point_of_contact || null, password: "" });
       if (error) {
