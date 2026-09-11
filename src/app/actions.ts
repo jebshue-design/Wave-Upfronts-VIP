@@ -386,12 +386,14 @@ export async function submitRsvp(
   _prevState: { error: string; success: boolean },
   formData: FormData
 ): Promise<{ error: string; success: boolean }> {
-  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const firstName = (formData.get("firstName") as string | null)?.trim() ?? "";
+  const lastName = (formData.get("lastName") as string | null)?.trim() ?? "";
+  const name = [firstName, lastName].filter(Boolean).join(" ");
   const email = (formData.get("email") as string | null)?.trim() ?? "";
   const company = (formData.get("company") as string | null)?.trim() ?? "";
   const title = (formData.get("title") as string | null)?.trim() ?? "";
 
-  if (!name || !email || !company || !title) {
+  if (!firstName || !lastName || !email || !company || !title) {
     return { error: "Please fill in all fields.", success: false };
   }
 
