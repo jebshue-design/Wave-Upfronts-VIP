@@ -29,7 +29,7 @@ type Show = {
   videoPath: string | null;
   oneSheetPath: string | null;
   thumbnailPath: string;
-  youtubeUrl: string;
+  youtubeUrl: string | null;
   audioUrl: string | null;
 };
 

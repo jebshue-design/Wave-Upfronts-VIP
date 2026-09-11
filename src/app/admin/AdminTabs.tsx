@@ -9,6 +9,7 @@ import VipInfoTab from "./VipInfoTab";
 import BulkImportTab from "./BulkImportTab";
 import PipelineTab from "./PipelineTab";
 import EmailLogTab from "./EmailLogTab";
+import CampaignTab from "./CampaignTab";
 
 const S = {
   night:       "#0B0909",
@@ -52,7 +53,7 @@ type Props = {
   }>;
 };
 
-const TABS = ["Pipeline", "Overview", "Shows", "Users", "RSVPs", "Accounts", "VIP Info", "Logins", "Emails", "Import"] as const;
+const TABS = ["Pipeline", "Campaign", "Overview", "Shows", "Users", "RSVPs", "Accounts", "VIP Info", "Logins", "Emails", "Import"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
@@ -286,6 +287,14 @@ export default function AdminTabs(props: Props) {
           logins={logins}
           rsvps={rsvps}
           engagementByUser={engagementByUser}
+        />
+      )}
+
+      {activeTab === "Campaign" && (
+        <CampaignTab
+          vipAccounts={vipAccounts}
+          emailLog={emailLog}
+          rsvps={rsvps ?? []}
         />
       )}
 

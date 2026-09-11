@@ -1,221 +1,110 @@
 "use client";
 
 import { useActionState } from "react";
-import Image from "next/image";
 import { login } from "../actions";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(login, { error: "" });
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#0B0909",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Volt accent line — top */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "2px",
-          background: "#E3F643",
-        }}
+    <main style={{ minHeight: "100vh", background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <style>{`
+        @keyframes gate-in {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes gate-out {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to   { opacity: 0; transform: translateY(-10px) scale(0.98); }
+        }
+        .gate-content {
+          display: contents;
+          animation: gate-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .gate-content.is-leaving {
+          animation: gate-out 0.45s cubic-bezier(0.7, 0, 0.84, 0) both;
+        }
+      `}</style>
+
+      <div className={`gate-content${isPending ? " is-leaving" : ""}`} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+      {/* Logo */}
+      <img
+        src="/assets/Wave Logo.svg"
+        alt="Wave Sports & Entertainment"
+        style={{ width: "121px", height: "auto", marginBottom: "52px" }}
       />
 
+      {/* Headline */}
+      <p style={{ margin: "0 0 10px", fontFamily: '"Zalando Sans Expanded", sans-serif', fontSize: "10px", fontWeight: 700, letterSpacing: "-0.025em", textTransform: "uppercase", color: "rgba(244,245,240,0.4)", textAlign: "center" }}>
+        VIP Access
+      </p>
+      <h1 style={{ margin: "0 0 40px", fontFamily: '"Zalando Sans Expanded", sans-serif', fontSize: "clamp(28px, 6vw, 52px)", fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 0.92, color: "#f4f5f0", textAlign: "center" }}>
+        Wave Upfronts 2027
+      </h1>
 
-      {/* Card */}
-      <div
+      {/* Pill form */}
+      <form
+        action={formAction}
         style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "440px",
           display: "flex",
-          flexDirection: "column",
-          gap: "48px",
+          alignItems: "center",
+          width: "min(100%, 286px)",
+          height: "31px",
+          padding: "0 8px 0 16px",
+          border: state?.error ? "1px solid #ff6b6b" : "1px solid rgba(255,255,255,0.82)",
+          borderRadius: "999px",
+          transition: "border-color 180ms ease",
         }}
       >
-        {/* Logo */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Image
-            src="/assets/wave-primary-lockup-white.svg"
-            alt="Wave Sports & Entertainment"
-            width={220}
-            height={21}
-            priority
-          />
-        </div>
-
-        {/* Form block */}
-        <div
+        <label htmlFor="login-email" style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+          Email address
+        </label>
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          autoFocus
+          placeholder="ENTER YOUR EMAIL"
+          disabled={isPending}
           style={{
-            border: "1px solid #2E332E",
-            background: "#212922",
-            padding: "40px",
+            minWidth: 0,
+            flex: 1,
+            border: 0,
+            outline: 0,
+            background: "transparent",
+            color: "#ffffff",
+            padding: 0,
+            fontFamily: '"Zalando Sans Expanded", sans-serif',
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "-0.025em",
+            lineHeight: 1,
           }}
+        />
+        <button
+          type="submit"
+          aria-label="Submit"
+          disabled={isPending}
+          style={{ display: "grid", placeItems: "center", flexShrink: 0, width: "24px", height: "24px", padding: 0, border: 0, background: "transparent", cursor: isPending ? "wait" : "pointer" }}
         >
-          <div style={{ marginBottom: "32px" }}>
-            <div
-              style={{
-                fontFamily: '"Space Grotesk", monospace',
-                fontSize: "11px",
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "#E3F643",
-                marginBottom: "12px",
-              }}
-            >
-              VIP Access
-            </div>
-            <h1
-              style={{
-                fontFamily: '"Zalando Sans Expanded", system-ui, sans-serif',
-                fontSize: "28px",
-                fontWeight: 600,
-                letterSpacing: "-0.025em",
-                lineHeight: 1.05,
-                color: "#FAF7F4",
-                margin: 0,
-              }}
-            >
-              Wave Upfronts 2026
-            </h1>
-            <p
-              style={{
-                fontFamily: '"Zalando Sans", system-ui, sans-serif',
-                fontSize: "15px",
-                color: "#94958B",
-                marginTop: "12px",
-                marginBottom: 0,
-                lineHeight: 1.5,
-              }}
-            >
-              Enter your email address to continue.
-            </p>
-          </div>
+          <img src="/assets/site-arrow.svg" alt="" width="18" height="13" />
+        </button>
+      </form>
 
-          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label
-                htmlFor="email"
-                style={{
-                  fontFamily: '"Space Grotesk", monospace',
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#94958B",
-                }}
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                autoFocus
-                placeholder="you@company.com"
-                style={{
-                  background: "#0B0909",
-                  border: state?.error ? "1px solid #FA3842" : "1px solid #3F4640",
-                  color: "#FAF7F4",
-                  fontFamily: '"Space Grotesk", monospace',
-                  fontSize: "15px",
-                  letterSpacing: "0.04em",
-                  padding: "14px 16px",
-                  outline: "none",
-                  width: "100%",
-                  transition: "border-color 200ms",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#E3F643";
-                }}
-                onBlur={(e) => {
-                  if (!state?.error) e.currentTarget.style.borderColor = "#3F4640";
-                }}
-              />
-              {state?.error && (
-                <div
-                  style={{
-                    fontFamily: '"Space Grotesk", monospace',
-                    fontSize: "12px",
-                    letterSpacing: "0.04em",
-                    color: "#FA3842",
-                  }}
-                >
-                  {state.error}
-                </div>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              style={{
-                background: isPending ? "#2A332B" : "#E3F643",
-                color: "#0B0909",
-                border: "none",
-                borderRadius: "999px",
-                fontFamily: '"Space Grotesk", monospace',
-                fontSize: "12px",
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                padding: "16px 24px",
-                cursor: isPending ? "not-allowed" : "pointer",
-                transition: "background 200ms",
-                width: "100%",
-              }}
-              onMouseEnter={(e) => {
-                if (!isPending) e.currentTarget.style.background = "#f0ff5a";
-              }}
-              onMouseLeave={(e) => {
-                if (!isPending) e.currentTarget.style.background = "#E3F643";
-              }}
-            >
-              {isPending ? "Verifying..." : "Enter"}
-            </button>
-          </form>
-        </div>
-
-        {/* Footer note */}
-        <p
-          style={{
-            fontFamily: '"Space Grotesk", monospace',
-            fontSize: "11px",
-            letterSpacing: "0.04em",
-            color: "#4B504A",
-            textAlign: "center",
-            margin: 0,
-          }}
-        >
-          For access, contact your Wave representative.
+      {state?.error && (
+        <p style={{ margin: "14px 0 0", color: "#ffb0b0", fontFamily: '"Zalando Sans", sans-serif', fontSize: "11px", letterSpacing: "-0.025em" }}>
+          {state.error}
         </p>
-      </div>
+      )}
 
-      {/* Volt accent line — bottom */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: "#2E332E",
-        }}
-      />
-    </div>
+      </div>{/* end gate-content */}
+
+      {/* Footer — stays put while content animates out */}
+      <p style={{ position: "fixed", bottom: "20px", fontFamily: '"Zalando Sans", sans-serif', fontSize: "11px", color: "rgba(244,245,240,0.28)", letterSpacing: "-0.025em" }}>
+        © 2026 Wave Sports &amp; Entertainment
+      </p>
+    </main>
   );
 }

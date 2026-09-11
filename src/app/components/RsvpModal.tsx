@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import RsvpForm from "./RsvpForm";
 
 const S = {
@@ -11,53 +11,74 @@ const S = {
   clay: "#94958B",
   line: "#2E332E",
   pill: "999px",
-  fontMono: '"Space Grotesk", ui-monospace, monospace',
+  fontMono: '"Zalando Sans", system-ui, sans-serif',
   fontDisplay: '"Zalando Sans Expanded", system-ui, sans-serif',
 };
 
 export default function RsvpModal() {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setOpen(true);
+    const openModal = () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+      setClosing(false);
+      setConfirmed(false);
+      setOpen(true);
+    };
+    window.addEventListener("open-rsvp", openModal);
+    return () => {
+      window.removeEventListener("open-rsvp", openModal);
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
   }, []);
+
+  const closeModal = () => {
+    setClosing(true);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 620);
+  };
 
   return (
     <>
-      {/* Floating RSVP button */}
-      <button
-        onClick={() => setOpen(true)}
-        style={{
-          position: "fixed",
-          bottom: "32px",
-          right: "32px",
-          zIndex: 999,
-          background: S.volt,
-          color: S.night,
-          border: "none",
-          borderRadius: S.pill,
-          fontFamily: S.fontMono,
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          padding: "16px 28px",
-          cursor: "pointer",
-          boxShadow: "0 4px 24px rgba(227,246,67,0.35)",
-        }}
-      >
-        RSVP Now
-      </button>
-
+      <style>{`
+        @keyframes rsvp-overlay-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes rsvp-panel-in {
+          from { opacity: 0; transform: translateY(42px) scale(.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .rsvp-overlay { animation: rsvp-overlay-in .3s ease-out both; }
+        .rsvp-panel { animation: rsvp-panel-in .62s cubic-bezier(.16,1,.3,1) both; }
+        @keyframes rsvp-overlay-out {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes rsvp-panel-out {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to { opacity: 0; transform: translateY(42px) scale(.98); }
+        }
+        .rsvp-overlay.is-closing { animation: rsvp-overlay-out .62s cubic-bezier(.7,0,.84,0) both; }
+        .rsvp-panel.is-closing { animation: rsvp-panel-out .62s cubic-bezier(.7,0,.84,0) both; }
+      `}</style>
       {!open ? null : (
     <div
-      onClick={() => setOpen(false)}
+      className={`rsvp-overlay${closing ? " is-closing" : ""}`}
+      onClick={closeModal}
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 1000,
-        background: "rgba(11, 9, 9, 0.85)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(11, 9, 9, 0.48)",
+        backdropFilter: "blur(18px) saturate(130%)",
+        WebkitBackdropFilter: "blur(18px) saturate(130%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -65,11 +86,14 @@ export default function RsvpModal() {
       }}
     >
       <div
+        className={`rsvp-panel${closing ? " is-closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: S.slate,
-          border: `1px solid ${S.line}`,
-          borderRadius: "12px",
+          background: "rgba(33, 41, 34, 0.35)",
+          border: "1px solid rgba(250,247,244,.28)",
+          backdropFilter: "blur(22px) saturate(125%)",
+          WebkitBackdropFilter: "blur(22px) saturate(125%)",
+          borderRadius: "28px",
           width: "100%",
           maxWidth: "640px",
           maxHeight: "90vh",
@@ -77,45 +101,42 @@ export default function RsvpModal() {
           position: "relative",
         }}
       >
-        {/* Volt top bar */}
-        <div style={{ height: "3px", background: S.volt, borderRadius: "12px 12px 0 0" }} />
-
         {/* Close button */}
         <button
-          onClick={() => setOpen(false)}
+          onClick={closeModal}
           style={{
             position: "absolute",
             top: "20px",
             right: "20px",
-            background: "transparent",
+            background: "rgba(250,247,244,.12)",
+            borderRadius: "50%",
+            width: "36px",
+            height: "36px",
             border: "none",
             cursor: "pointer",
             color: S.clay,
-            padding: "4px",
+            padding: 0,
             lineHeight: 1,
-            fontSize: "20px",
+            fontSize: "18px",
           }}
           aria-label="Close"
         >
           ✕
         </button>
 
-        <div style={{ padding: "40px" }}>
-          {/* Eyebrow */}
-          <div style={{
-            fontFamily: S.fontMono,
-            fontSize: "10px",
+          <div style={{ padding: "44px" }}>
+          {!confirmed && <div style={{
+            fontFamily: '"Space Grotesk", system-ui, sans-serif',
+            fontSize: "clamp(19px, 2.5vw, 25px)",
             fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
+            letterSpacing: "-0.025em",
             color: S.volt,
             marginBottom: "12px",
+            textAlign: "center",
           }}>
-            Wave Upfronts 2026
-          </div>
-
-          {/* Heading */}
-          <h2 style={{
+            10.27.2026
+          </div>}
+          {!confirmed && <h2 style={{
             fontFamily: S.fontDisplay,
             fontSize: "clamp(28px, 4vw, 40px)",
             fontWeight: 700,
@@ -123,41 +144,23 @@ export default function RsvpModal() {
             color: S.silver,
             margin: "0 0 8px",
             lineHeight: 1.05,
+            textAlign: "center",
           }}>
-            Join us in New York.
-          </h2>
+            Join us in New York
+          </h2>}
 
-          <p style={{
-            fontFamily: S.fontMono,
+          {!confirmed && <p style={{
+            fontFamily: '"Zalando Sans", system-ui, sans-serif',
             fontSize: "13px",
             color: S.clay,
-            margin: "0 0 36px",
+            margin: "0 auto 36px",
             lineHeight: 1.6,
+            textAlign: "center",
           }}>
             Confirm your attendance below. We&apos;ll follow up with event details.
-          </p>
+          </p>}
 
-          <RsvpForm onSuccess={() => setTimeout(() => setOpen(false), 2500)} />
-
-          <button
-            onClick={() => setOpen(false)}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: S.fontMono,
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: S.clay,
-              marginTop: "20px",
-              padding: 0,
-              display: "block",
-            }}
-          >
-            Skip for now →
-          </button>
+          <RsvpForm onSuccess={() => setConfirmed(true)} />
         </div>
       </div>
     </div>
