@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase";
 import AdminTabs from "./AdminTabs";
 
 export const revalidate = 0;
