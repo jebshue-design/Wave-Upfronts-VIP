@@ -427,23 +427,23 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   alt={["whiskey-ginger", "so-true", "my-momma-told-me", "bad-friends"].includes(show.id) ? "Wave" : "Wave Originals"}
                   draggable={false}
                 />
-                {(show.youtubeUrl || show.audioUrl) && (
-                  <div className="slate-card-channels" onPointerDown={(e) => e.stopPropagation()}>
-                    {show.youtubeUrl && (
-                      <a className="slate-channel-btn" href={show.youtubeUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_youtube", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
-                        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M13.7 1.56A1.75 1.75 0 0 0 12.47.31C11.37 0 7 0 7 0S2.63 0 1.53.31A1.75 1.75 0 0 0 .3 1.56C0 2.67 0 5 0 5s0 2.33.3 3.44a1.75 1.75 0 0 0 1.23 1.25C2.63 10 7 10 7 10s4.37 0 5.47-.31a1.75 1.75 0 0 0 1.23-1.25C14 7.33 14 5 14 5s0-2.33-.3-3.44ZM5.6 7.14V2.86L9.24 5 5.6 7.14Z" fill="currentColor"/></svg>
-                        YouTube
-                      </a>
-                    )}
-                    {show.audioUrl && (
-                      <a className="slate-channel-btn" href={show.audioUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_spotify", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="6" fill="currentColor" opacity=".15"/><path d="M8.6 8.2a.4.4 0 0 1-.55.13C6.74 7.33 5.12 7.13 3.2 7.58a.4.4 0 1 1-.18-.78C5 6.33 6.8 6.56 8.47 7.65a.4.4 0 0 1 .13.55Zm.55-1.22a.5.5 0 0 1-.69.16C6.6 6.02 4.67 5.75 2.88 6.26a.5.5 0 1 1-.28-.96C4.6 4.74 6.74 5.04 9 6.27a.5.5 0 0 1 .15.71Zm.05-1.27C6.85 4.3 4.38 4.22 2.73 4.7a.6.6 0 1 1-.35-1.15C4.25 3.02 6.99 3.11 9.4 4.56a.6.6 0 1 1-.6 1.04-.6.6 0 0 1-.2-.09Z" fill="currentColor" opacity=".9"/></svg>
-                        Audio
-                      </a>
-                    )}
-                  </div>
-                )}
               </div>
+              {(show.youtubeUrl || show.audioUrl) && (
+                <div className="slate-card-channels" onPointerDown={(e) => e.stopPropagation()}>
+                  {show.youtubeUrl && (
+                    <a className="slate-channel-btn" href={show.youtubeUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_youtube", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
+                      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M13.7 1.56A1.75 1.75 0 0 0 12.47.31C11.37 0 7 0 7 0S2.63 0 1.53.31A1.75 1.75 0 0 0 .3 1.56C0 2.67 0 5 0 5s0 2.33.3 3.44a1.75 1.75 0 0 0 1.23 1.25C2.63 10 7 10 7 10s4.37 0 5.47-.31a1.75 1.75 0 0 0 1.23-1.25C14 7.33 14 5 14 5s0-2.33-.3-3.44ZM5.6 7.14V2.86L9.24 5 5.6 7.14Z" fill="currentColor"/></svg>
+                      YouTube
+                    </a>
+                  )}
+                  {show.audioUrl && (
+                    <a className="slate-channel-btn" href={show.audioUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_spotify", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="6" fill="currentColor" opacity=".15"/><path d="M8.6 8.2a.4.4 0 0 1-.55.13C6.74 7.33 5.12 7.13 3.2 7.58a.4.4 0 1 1-.18-.78C5 6.33 6.8 6.56 8.47 7.65a.4.4 0 0 1 .13.55Zm.55-1.22a.5.5 0 0 1-.69.16C6.6 6.02 4.67 5.75 2.88 6.26a.5.5 0 1 1-.28-.96C4.6 4.74 6.74 5.04 9 6.27a.5.5 0 0 1 .15.71Zm.05-1.27C6.85 4.3 4.38 4.22 2.73 4.7a.6.6 0 1 1-.35-1.15C4.25 3.02 6.99 3.11 9.4 4.56a.6.6 0 1 1-.6 1.04-.6.6 0 0 1-.2-.09Z" fill="currentColor" opacity=".9"/></svg>
+                      Audio
+                    </a>
+                  )}
+                </div>
+              )}
               <div className="slate-card-info">
                 <div>
                   <span className="slate-category">{show.category}</span>
@@ -766,11 +766,11 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         }
         .slate-card-channels {
           position: absolute;
-          bottom: 16px;
-          left: 16px;
+          top: 20px;
+          right: 20px;
           display: flex;
           gap: 8px;
-          z-index: 2;
+          z-index: 4;
         }
         .slate-channel-btn {
           display: inline-flex;
