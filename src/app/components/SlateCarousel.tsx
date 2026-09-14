@@ -470,8 +470,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           </div>
           <div className="slate-audience-metrics">
             {[
-              ["0M+", "MONTHLY LISTENERS"],
-              ["0%", "18–34 AUDIENCE SHARE"],
+              ["1B+", "VIEWS PER MONTH"],
+              ["75%", "UNDER 35 AVERAGE AGE"],
               ["0+", "PARTNER BRANDS"],
               ["0M+", "SOCIAL REACH"],
             ].map(([value, label]) => (
