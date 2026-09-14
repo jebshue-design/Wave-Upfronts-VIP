@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RsvpModal from "./RsvpModal";
-import { trackEvent } from "@/app/actions";
+import { trackEvent, logout } from "@/app/actions";
 
 const arrowAsset = "/assets/Site Arrow.svg";
 
@@ -371,6 +371,9 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           <Link className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} href="/#assets" onClick={selectAssets}>ASSETS</Link>
           <button type="button" className="slate-rsvp" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>RSVP</button>
           <span className="slate-nav-indicator" style={{ left: navIndicator.left, width: navIndicator.width }} />
+          <form action={logout} style={{ display: "contents" }}>
+            <button type="submit" className="slate-logout">Log Out</button>
+          </form>
         </nav>
       </header>
 
@@ -743,6 +746,17 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           letter-spacing: -.025em;
           cursor: pointer;
         }
+        .slate-logout {
+          border: 0;
+          background: none;
+          color: rgba(255,255,255,0.45);
+          font: 400 11px "Pragmatica Book", sans-serif;
+          letter-spacing: -0.025em;
+          cursor: pointer;
+          padding: 0;
+          mix-blend-mode: normal;
+        }
+        .slate-logout:hover { color: rgba(255,255,255,0.75); }
         .slate-stage { height: 100vh; padding-top: 55px; padding-bottom: 57px; }
         .slate-audience {
           min-height: 520px;
