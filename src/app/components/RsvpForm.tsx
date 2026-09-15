@@ -18,17 +18,17 @@ const S = {
 };
 
 const inputStyle = (hasError: boolean): React.CSSProperties => ({
-  background: "rgba(255,255,255,0.06)",
-  border: `1px solid ${hasError ? "#FA3842" : "rgba(250,247,244,0.18)"}`,
+  background: S.night,
+  border: `1px solid ${hasError ? "#FA3842" : S.lineStrong}`,
   color: S.silver,
   fontFamily: S.fontSans,
   fontSize: "15px",
-  height: "52px",
-  padding: "0 16px",
+  height: "48px",
+  padding: "0 18px",
   outline: "none",
   width: "100%",
-  borderRadius: "12px",
-  textAlign: "left",
+  borderRadius: "999px",
+  textAlign: "center",
   boxSizing: "border-box",
 });
 
@@ -39,8 +39,7 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.1em",
   textTransform: "uppercase",
   color: S.clay,
-  display: "block",
-  marginBottom: "6px",
+  display: "none",
 };
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
@@ -167,27 +166,12 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           to { opacity: 0; transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
         }
       `}</style>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
-        <div>
-          <label style={labelStyle}>First Name</label>
-          <input name="firstName" type="text" required placeholder="First name" aria-label="First Name" defaultValue={user?.firstName} className="rsvp-field" style={inputStyle(false)} />
-        </div>
-        <div>
-          <label style={labelStyle}>Last Name</label>
-          <input name="lastName" type="text" required placeholder="Last name" aria-label="Last Name" defaultValue={user?.lastName} className="rsvp-field" style={inputStyle(false)} />
-        </div>
-        <div>
-          <label style={labelStyle}>Email</label>
-          <input name="email" type="email" required placeholder="you@company.com" aria-label="Email Address" defaultValue={user?.email} className="rsvp-field" style={inputStyle(false)} />
-        </div>
-        <div>
-          <label style={labelStyle}>Company</label>
-          <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} className="rsvp-field" style={inputStyle(false)} />
-        </div>
-        <div>
-          <label style={labelStyle}>Title</label>
-          <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} className="rsvp-field" style={inputStyle(false)} />
-        </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
+        <input name="firstName" type="text" required placeholder="First Name" aria-label="First Name" defaultValue={user?.firstName} className="rsvp-field" style={inputStyle(false)} />
+        <input name="lastName" type="text" required placeholder="Last Name" aria-label="Last Name" defaultValue={user?.lastName} className="rsvp-field" style={inputStyle(false)} />
+        <input name="email" type="email" required placeholder="Email Address" aria-label="Email Address" defaultValue={user?.email} className="rsvp-field" style={inputStyle(false)} />
+        <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} className="rsvp-field" style={inputStyle(false)} />
+        <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} className="rsvp-field" style={inputStyle(false)} />
       </div>
 
       {state.error && (
