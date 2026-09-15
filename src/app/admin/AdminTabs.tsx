@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PipelineTab from "./PipelineTab";
 import VipAccountManager from "./VipAccountManager";
+import BulkImportTab from "./BulkImportTab";
 
 const S = {
   night:       "#0B0909",
@@ -47,7 +48,7 @@ type Props = {
   }[];
 };
 
-const TABS = ["Pipeline", "Users", "RSVPs", "Logins"] as const;
+const TABS = ["Pipeline", "Users", "Import", "RSVPs", "Logins"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
@@ -98,6 +99,11 @@ export default function AdminTabs(props: Props) {
       {/* ── USERS ── */}
       {activeTab === "Users" && (
         <VipAccountManager initialAccounts={vipAccounts} />
+      )}
+
+      {/* ── IMPORT ── */}
+      {activeTab === "Import" && (
+        <BulkImportTab />
       )}
 
       {/* ── RSVPs ── */}
