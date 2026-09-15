@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PipelineTab from "./PipelineTab";
+import VipAccountManager from "./VipAccountManager";
 
 const S = {
   night:       "#0B0909",
@@ -31,7 +32,7 @@ type ShowActivity = {
 
 type Props = {
   logins: { id?: string; created_at: string; password_used?: string; ip?: string; user_agent?: string }[];
-  rsvps: { id?: string; created_at: string; name: string; email: string; company: string; title: string }[] | null;
+  rsvps: { id?: string; created_at: string; name: string; email: string; company: string; title: string; rsvp_type?: string }[] | null;
   vipAccounts: { id?: string; name: string; email: string; company: string; title: string; created_at: string; point_of_contact?: string; past_deals?: string; notes?: string; client_status?: string }[];
   passwordToName: Record<string, string>;
   engagementByUser: Record<string, {
@@ -46,7 +47,7 @@ type Props = {
   }[];
 };
 
-const TABS = ["Pipeline", "RSVPs", "Logins"] as const;
+const TABS = ["Pipeline", "Users", "RSVPs", "Logins"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
@@ -94,26 +95,39 @@ export default function AdminTabs(props: Props) {
         />
       )}
 
+      {/* ── USERS ── */}
+      {activeTab === "Users" && (
+        <VipAccountManager initialAccounts={vipAccounts} />
+      )}
+
       {/* ── RSVPs ── */}
       {activeTab === "RSVPs" && (
         <div>
           <div style={{ border: `1px solid ${S.line}`, borderRadius: "8px", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
-                <tr>{["Time", "Name", "Email", "Company", "Title"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
+                <tr>{["Time", "Name", "Email", "Company", "Title", "Type"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {!rsvps || rsvps.length === 0 ? (
-                  <tr><td colSpan={5} style={{ ...cell, color: S.clay, textAlign: "center" }}>No RSVPs yet</td></tr>
-                ) : rsvps.map((r, i) => (
+                  <tr><td colSpan={6} style={{ ...cell, color: S.clay, textAlign: "center" }}>No RSVPs yet</td></tr>
+                ) : rsvps.map((r, i) => {
+                  const isDecline = r.rsvp_type === "decline";
+                  return (
                   <tr key={r.id ?? i} style={{ borderBottom: `1px solid ${S.line}` }}>
                     <td style={{ ...cell, color: S.clay, whiteSpace: "nowrap" }}>{new Date(r.created_at).toLocaleString()}</td>
                     <td style={{ ...cell, fontWeight: 600, color: S.silver }}>{r.name}</td>
                     <td style={{ ...cell, color: S.volt }}>{r.email}</td>
                     <td style={{ ...cell, color: S.clay }}>{r.company}</td>
                     <td style={{ ...cell, color: S.clay }}>{r.title}</td>
+                    <td style={{ ...cell }}>
+                      <span style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: isDecline ? S.clay : S.volt }}>
+                        {isDecline ? "Decline" : "Confirm"}
+                      </span>
+                    </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
