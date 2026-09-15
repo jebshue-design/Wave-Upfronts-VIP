@@ -115,6 +115,7 @@ const shows = [
     demo: "21–45 · Mixed",
     thumbnailPath: "/thumbnails/whiskey-ginger.jpg",
     slateImagePath: "/assets/Slides BG_Santino.jpg",
+    detailImagePath: "/assets/Images/Slate/Detail_Whiskey Ginger.jpg",
     talent: "Andrew Santino",
     youtubeUrl: "https://www.youtube.com/@AndrewSantinoWhiskeyGinger",
     audioUrl: "https://open.spotify.com/show/2QoIpuCjh332VOeDYxLr3A",
