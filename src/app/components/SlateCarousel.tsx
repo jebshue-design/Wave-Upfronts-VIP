@@ -1172,7 +1172,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           width: calc(100% + 4px);
           height: calc(100% + 4px);
           object-fit: cover;
-          object-position: center 25%;
+          object-position: center 15%;
           transform: translate3d(calc(var(--parallax-x, 0px) * .78), 0, 0) scale(1.08);
           transition: none;
           will-change: transform;
