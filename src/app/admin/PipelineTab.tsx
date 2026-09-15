@@ -64,6 +64,7 @@ type ShowActivity = {
   spotifyClicks: number;
   onesheetClicks: number;
   audienceExpands: number;
+  assetDownloads: number;
   lastSeen: string;
 };
 
@@ -371,8 +372,17 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", fontFamily: S.fontMono }}>
                                   <thead>
                                     <tr>
-                                      {["Show", "Views", "YouTube", "Spotify", "One-Sheet", "Aud. Expands", "Last Seen"].map((h) => (
-                                        <th key={h} style={{ padding: "6px 10px", textAlign: h === "Show" || h === "Last Seen" ? "left" : "center", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
+                                      {([
+                                        { label: "Show", tip: null },
+                                        { label: "Views", tip: "How many times they opened this show card" },
+                                        { label: "YouTube", tip: "Clicked the YouTube trailer link" },
+                                        { label: "Spotify", tip: "Clicked the Spotify / audio link" },
+                                        { label: "One-Sheet", tip: "Opened or downloaded the one-sheet PDF" },
+                                        { label: "Aud. Expands", tip: "Expanded the audience demographics section" },
+                                        { label: "Assets", tip: "Downloaded a file from the assets tab" },
+                                        { label: "Last Seen", tip: "Most recent time they opened this show" },
+                                      ] as { label: string; tip: string | null }[]).map(({ label, tip }) => (
+                                        <th key={label} title={tip ?? undefined} style={{ padding: "6px 10px", textAlign: label === "Show" || label === "Last Seen" ? "left" : "center", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}`, cursor: tip ? "help" : "default" }}>{label}{tip && <span style={{ marginLeft: "3px", opacity: 0.5 }}>?</span>}</th>
                                       ))}
                                     </tr>
                                   </thead>
@@ -385,6 +395,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                                         <td style={{ padding: "8px 10px", textAlign: "center", color: s.spotifyClicks > 0 ? S.silver : S.lineStrong }}>{s.spotifyClicks || "—"}</td>
                                         <td style={{ padding: "8px 10px", textAlign: "center", color: s.onesheetClicks > 0 ? S.silver : S.lineStrong }}>{s.onesheetClicks || "—"}</td>
                                         <td style={{ padding: "8px 10px", textAlign: "center", color: s.audienceExpands > 0 ? S.silver : S.lineStrong }}>{s.audienceExpands || "—"}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: s.assetDownloads > 0 ? S.silver : S.lineStrong }}>{s.assetDownloads || "—"}</td>
                                         <td style={{ padding: "8px 10px", color: S.clay, whiteSpace: "nowrap" }}>{s.lastSeen}</td>
                                       </tr>
                                     ))}

@@ -25,6 +25,7 @@ type ShowActivity = {
   spotifyClicks: number;
   onesheetClicks: number;
   audienceExpands: number;
+  assetDownloads: number;
   lastSeen: string;
 };
 

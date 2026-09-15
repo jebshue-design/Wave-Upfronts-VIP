@@ -98,6 +98,7 @@ export default async function AdminPage() {
             spotifyClicks:     showEvents.filter((e) => e.type === "show_spotify").length,
             onesheetClicks:    showEvents.filter((e) => e.type === "show_onesheet" || e.type === "onesheet_download").length,
             audienceExpands:   showEvents.filter((e) => e.type === "audience_expand").length,
+            assetDownloads:    showEvents.filter((e) => e.type === "asset_download").length,
             lastSeen:          lastSeen ? new Date(lastSeen).toLocaleString() : "—",
           };
         })
@@ -122,10 +123,10 @@ export default async function AdminPage() {
   }> = {};
 
   for (const u of userBreakdownData) {
-    const totalClicks = u.shows.reduce((s, sh) => s + sh.youtubeClicks + sh.spotifyClicks + sh.onesheetClicks + sh.audienceExpands, 0);
+    const totalClicks = u.shows.reduce((s, sh) => s + sh.youtubeClicks + sh.spotifyClicks + sh.onesheetClicks + sh.audienceExpands + sh.assetDownloads, 0);
     const topViewed   = u.shows.reduce<typeof u.shows[0] | null>((best, s) => !best || s.views > best.views ? s : best, null);
     const topClicked  = u.shows.reduce<{ title: string; clicks: number } | null>((best, s) => {
-      const clicks = s.youtubeClicks + s.spotifyClicks + s.onesheetClicks + s.audienceExpands;
+      const clicks = s.youtubeClicks + s.spotifyClicks + s.onesheetClicks + s.audienceExpands + s.assetDownloads;
       return !best || clicks > best.clicks ? { title: s.title, clicks } : best;
     }, null);
 

@@ -12,7 +12,7 @@ const S = {
   fontMono: '"Space Grotesk", monospace',
 };
 
-type ShowRow = { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; lastSeen: string };
+type ShowRow = { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; assetDownloads: number; lastSeen: string };
 type UserData = { user: string; totalViews: number; firstSeen: string; lastSeen: string; shows: ShowRow[] };
 
 export default function UserBreakdown({ users, passwordToName }: { users: UserData[]; passwordToName: Record<string, string> }) {

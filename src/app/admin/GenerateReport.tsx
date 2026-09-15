@@ -19,7 +19,7 @@ type Props = {
   sortedShows: [string, number][];
   userBreakdownData: {
     user: string; totalViews: number; firstSeen: string; lastSeen: string;
-    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; lastSeen: string }[];
+    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; assetDownloads: number; lastSeen: string }[];
   }[];
   rsvps: { name: string; email: string; company: string; title: string; created_at: string }[] | null;
   logins: { created_at: string; password_used?: string; ip?: string }[];
