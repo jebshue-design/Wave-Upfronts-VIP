@@ -4,6 +4,7 @@ import { useState } from "react";
 import PipelineTab from "./PipelineTab";
 import VipAccountManager from "./VipAccountManager";
 import BulkImportTab from "./BulkImportTab";
+import FollowUpTab from "./FollowUpTab";
 
 const S = {
   night:       "#0B0909",
@@ -35,6 +36,7 @@ type Props = {
   logins: { id?: string; created_at: string; password_used?: string; ip?: string; user_agent?: string }[];
   rsvps: { id?: string; created_at: string; name: string; email: string; company: string; title: string; rsvp_type?: string }[] | null;
   vipAccounts: { id?: string; name: string; email: string; company: string; title: string; created_at: string; point_of_contact?: string; past_deals?: string; notes?: string; client_status?: string }[];
+  emailLog: { recipient_email: string; type: string; created_at: string }[];
   passwordToName: Record<string, string>;
   engagementByUser: Record<string, {
     topViewedShow:  { title: string; views: number }  | null;
@@ -48,12 +50,12 @@ type Props = {
   }[];
 };
 
-const TABS = ["Pipeline", "Users", "Import", "RSVPs", "Logins"] as const;
+const TABS = ["Pipeline", "Follow Up", "Users", "Import", "RSVPs", "Logins"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("Pipeline");
-  const { logins, rsvps, vipAccounts, passwordToName, engagementByUser, userBreakdownData } = props;
+  const { logins, rsvps, vipAccounts, emailLog, passwordToName, engagementByUser, userBreakdownData } = props;
 
   return (
     <>
@@ -93,6 +95,16 @@ export default function AdminTabs(props: Props) {
           engagementByUser={engagementByUser}
           userBreakdownData={userBreakdownData}
           passwordToName={passwordToName}
+        />
+      )}
+
+      {/* ── FOLLOW UP ── */}
+      {activeTab === "Follow Up" && (
+        <FollowUpTab
+          vipAccounts={vipAccounts}
+          rsvps={rsvps}
+          emailLog={emailLog}
+          logins={logins}
         />
       )}
 

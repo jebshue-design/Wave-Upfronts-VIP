@@ -269,7 +269,10 @@ function getMailer() {
 }
 
 function sendMail(opts: { to: string | string[]; subject: string; html: string }) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return Promise.resolve();
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.error("[sendMail] GMAIL_USER or GMAIL_APP_PASSWORD env var is not set — email not sent:", opts.subject);
+    return Promise.resolve();
+  }
   return getMailer().sendMail({
     from: `Wave Upfronts <${process.env.GMAIL_USER}>`,
     to: Array.isArray(opts.to) ? opts.to.join(", ") : opts.to,
@@ -277,6 +280,7 @@ function sendMail(opts: { to: string | string[]; subject: string; html: string }
     html: opts.html,
   });
 }
+
 
 export async function login(
   _prevState: { error: string },
@@ -373,7 +377,7 @@ export async function login(
         </div>
       </div>
     `,
-  }).catch(() => {});
+  }).catch((err) => { console.error("[sendMail] VIP login alert failed:", err); });
 
   redirect("/");
 }
@@ -443,6 +447,7 @@ export async function submitRsvp(
   const aeEmailAddr = aeName ? (AE_EMAILS[aeName] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
 
   // Alert Wave team
+  console.log(`[submitRsvp] Sending ${rsvpType} notification for ${email} to jeb.shue@wave.tv`);
   await sendMail({
     to: "jeb.shue@wave.tv",
     subject: `${rsvpType === "decline" ? "Decline" : "New RSVP"}: ${name} · ${company}`,
@@ -470,7 +475,7 @@ export async function submitRsvp(
     </table>
   </td></tr>
 </table></body></html>`,
-  }).catch(() => {});
+  }).catch((err) => { console.error("[sendMail] RSVP team notification failed:", err); });
 
   // Confirmation to the attendee — only for confirmed RSVPs
   if (rsvpType !== "decline") {
@@ -481,7 +486,7 @@ export async function submitRsvp(
       emailType: "rsvp_confirmation",
       aeName,
       sentBy: "system",
-    }).catch(() => {});
+    }).catch((err) => { console.error("[sendMail] RSVP confirmation to attendee failed:", err); });
   }
 
   return { error: "", success: true, rsvpType };
@@ -617,6 +622,42 @@ export async function sendCampaignEmail(data: {
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Send failed.", success: false };
   }
+}
+
+export async function adminRsvp(data: {
+  name: string;
+  email: string;
+  company: string;
+  title: string;
+}): Promise<{ error: string; success: boolean }> {
+  const { name, email, company, title } = data;
+
+  const { data: existing } = await supabaseAdmin
+    .from("rsvps")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+
+  if (existing) return { error: "", success: true };
+
+  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({
+    name,
+    email: email.toLowerCase(),
+    company,
+    title,
+    rsvp_type: "confirm",
+  });
+
+  if (dbError) return { error: dbError.message, success: false };
+
+  // Notify Wave team
+  await sendMail({
+    to: "jeb.shue@wave.tv",
+    subject: `Admin RSVP: ${name} · ${company}`,
+    html: `<p>An admin RSVP'd <strong>${name}</strong> (${email}) from ${company} on their behalf.</p>`,
+  }).catch(() => {});
+
+  return { error: "", success: true };
 }
 
 export async function bulkCreateVipAccounts(

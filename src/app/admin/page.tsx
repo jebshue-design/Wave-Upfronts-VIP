@@ -175,6 +175,7 @@ export default async function AdminPage() {
           logins={logins}
           rsvps={rsvps}
           vipAccounts={vipAccounts ?? []}
+          emailLog={emailLog ?? []}
           passwordToName={passwordToName}
           engagementByUser={engagementByUser}
           userBreakdownData={userBreakdownData}
