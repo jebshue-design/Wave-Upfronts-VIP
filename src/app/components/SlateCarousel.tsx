@@ -831,7 +831,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-body {
           position: absolute;
           left: 30px;
-          top: clamp(220px, 31vh, 300px);
+          top: clamp(160px, 22vh, 240px);
           bottom: 40px;
           width: min(620px, calc(100vw - 60px));
           display: flex;
@@ -849,9 +849,9 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-category, .slate-detail-tags, .slate-detail-specs span { font: 700 10px "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-category { display: none; margin-bottom: 14px; color: rgba(244,245,240,.8); }
         .slate-detail-content h1 { margin: 0; font: 700 clamp(42px, 6vw, 88px)/.9 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
-        .slate-detail-talent { margin: 20px 0 0; font: 500 clamp(24px, 3vw, 42px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
-        .slate-detail-tags { display: flex; gap: 22px; margin-top: 34px; color: rgba(244,245,240,.72); }
-        .slate-detail-description { max-width: 500px; margin: 32px 0 0; color: rgba(244,245,240,.88); font-size: 16px; line-height: 1.3; }
+        .slate-detail-talent { margin: 14px 0 0; font: 500 clamp(24px, 3vw, 42px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
+        .slate-detail-tags { display: flex; gap: 22px; margin-top: 22px; color: rgba(244,245,240,.72); }
+        .slate-detail-description { max-width: 500px; margin: 20px 0 0; color: rgba(244,245,240,.88); font-size: 16px; line-height: 1.3; }
         .slate-detail-channels { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; flex-shrink: 0; }
         .slate-detail-channel-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(244,245,240,.25); color: rgba(244,245,240,.8); font: 600 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; text-decoration: none; transition: border-color .15s, color .15s; }
         .slate-detail-channel-btn:hover { border-color: #e3f643; color: #e3f643; }
