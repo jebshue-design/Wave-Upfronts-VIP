@@ -1286,13 +1286,82 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .explore-label { display: inline-flex; align-items: center; gap: 10px; border: 2px solid rgba(244,245,240,.72); border-radius: 999px; padding: 7px 11px 7px 13px; background: transparent; color: inherit; font-family: "Zalando Sans Expanded", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: -.025em; cursor: pointer; }
         .explore-label img { width: 16px; height: 11px; }
         @media (max-width: 700px) {
+          /* ── Layout foundations ── */
           .slate-header, .slate-footer { padding: 16px 18px; }
-          .slate-mark { width: 92px; }
+          .slate-mark { width: 88px; }
           .slate-logout { display: none; }
-          .slate-nav, .slate-detail-header nav { gap: 4px; }
           .slate-footer span:first-child { display: none; }
-          .slate-float-rsvp { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); right: max(20px, env(safe-area-inset-right)); padding: 12px 24px; font-size: 11px; }
+          .slate-footer { font-size: 8px; }
+
+          /* ── Carousel ── */
           .slate-stage { padding-top: 48px; padding-bottom: 50px; }
+          .slate-rail { gap: 16px; }
+          .slate-spacer { flex-basis: 10vw; }
+          .slate-card { flex-basis: min(88vw, calc((100dvh - 136px) * 1.6)); aspect-ratio: 16 / 10; height: auto; }
+          .slate-frame { border-radius: 22px; }
+          .slate-card-info { right: 18px; bottom: 18px; left: 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
+          .slate-card-meta { flex-direction: row; align-items: center; align-self: flex-end; }
+          .frame-brand { top: 20px; right: 20px; }
+          .slate-accolades { top: 20px; left: 20px; width: 130px; gap: 14px; }
+          .slate-accolade-group { gap: 8px; }
+          .slate-accolade-group > img { width: 72px; }
+          .slate-accolade-list { gap: 9px; }
+          .slate-accolade span { font-size: 8px; }
+          .slate-accolade strong { font-size: 10px; }
+
+          /* ── Detail panel ── */
+          .slate-detail-header { padding: 14px 18px; }
+          .slate-detail-header > img { width: 88px; }
+          .slate-detail-header nav { gap: 4px; }
+          .slate-detail-header nav .nav-event,
+          .slate-detail-header nav .nav-assets { display: none; }
+          .slate-detail-image { object-position: 70% center; transform: scale(1.06) translateX(2%); }
+
+          /* Back button sits below header (~60px tall), leave 8px gap */
+          .slate-detail-back { top: 68px; left: 18px; width: 108px; height: 32px; }
+
+          /* Body starts below back button + 12px breathing room */
+          .slate-detail-body {
+            top: 118px;
+            left: 18px;
+            right: 18px;
+            width: auto;
+            bottom: max(28px, calc(env(safe-area-inset-bottom) + 16px));
+          }
+
+          /* Scrollable content — pad bottom so last item clears specs bar */
+          .slate-detail-content { padding-bottom: 16px; }
+          .slate-detail-content h1 { font-size: clamp(26px, 7.5vw, 40px); overflow-wrap: anywhere; line-height: 1.05; }
+          .slate-detail-talent { font-size: clamp(15px, 4.5vw, 22px); }
+          .slate-detail-description { font-size: 13px; line-height: 1.55; }
+          .slate-detail-channels { gap: 8px; margin-top: 14px; }
+          .slate-detail-channel-btn { font-size: 12px; padding: 10px 16px; }
+
+          /* Specs row */
+          .slate-detail-specs { gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-bottom: 4px; }
+
+          /* Audience data */
+          .detail-audience { margin-top: 20px; gap: 16px; }
+          .detail-audience-stats { gap: 20px; }
+          .detail-audience-demo { flex-direction: column; gap: 20px; }
+          .detail-demo-gender,
+          .detail-demo-age,
+          .detail-demo-race { width: 100%; }
+          .detail-gender-track,
+          .detail-age-track,
+          .detail-race-track { width: 100%; }
+          .detail-audience-geos { margin-top: 14px; }
+          .detail-geo-list { flex-wrap: wrap; gap: 6px; }
+
+          /* Float RSVP */
+          .slate-float-rsvp {
+            bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
+            right: max(18px, env(safe-area-inset-right));
+            padding: 11px 22px;
+            font-size: 11px;
+          }
+
+          /* Event & assets sections */
           .slate-event-section { padding: 60px 18px; }
           .slate-event-venue-img { width: 100%; max-height: 220px; }
           .slate-audience { padding: 80px 18px 100px; }
@@ -1305,33 +1374,10 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-assets { padding: 80px 18px 100px; }
           .slate-asset-row { align-items: flex-start; flex-direction: column; gap: 8px; }
           .slate-asset-type { align-self: flex-start; margin-left: 0; }
-          .slate-rail { gap: 16px; }
-          .slate-spacer { flex-basis: 10vw; }
-          .slate-card { flex-basis: min(92vw, calc((100vh - 136px) * 1.6)); aspect-ratio: 16 / 10; height: auto; }
-          .slate-card-info { right: 20px; bottom: 20px; left: 20px; flex-direction: column; align-items: flex-start; }
-          .slate-card-meta { flex-direction: row; align-items: center; align-self: flex-end; }
-          .slate-frame { border-radius: 22px; }
-          .frame-brand { top: 22px; right: 22px; }
-          .slate-accolades { top: 22px; left: 22px; width: 145px; gap: 16px; }
-          .slate-accolade-group { gap: 9px; }
-          .slate-accolade-group > img { width: 78px; }
-          .slate-accolade-list { gap: 10px; }
-          .slate-accolade span { font-size: 8px; }
-          .slate-accolade strong { font-size: 10px; }
-          .slate-footer { font-size: 8px; }
-          .slate-detail-back { top: 100px; left: 18px; width: 112px; height: 33px; }
-          .slate-detail-header { padding: 16px 18px; }
-          .slate-detail-header > img { width: 92px; }
-          .slate-detail-header nav .nav-event, .slate-detail-header nav .nav-assets { display: none; }
-          .slate-detail-image { object-position: 72% center; transform: scale(1.04) translateX(1%); }
-          .slate-detail-body { top: 175px; left: 18px; bottom: max(24px, calc(env(safe-area-inset-bottom) + 8px)); width: calc(100vw - 36px); }
-          .slate-detail-content h1 { font-size: clamp(28px, 8vw, 42px); overflow-wrap: anywhere; }
-          .slate-detail-talent { font-size: clamp(16px, 5vw, 24px); }
-          .slate-detail-description { font-size: 14px; }
-          .slate-detail-specs { gap: 18px; flex-wrap: wrap; margin-top: 28px; padding-bottom: 0; }
-          .detail-audience-demo { flex-wrap: wrap; gap: 16px; }
-          .onesheet-lightbox img { height: auto; max-height: 75vh; max-width: 92vw; }
-          .onesheet-lightbox-actions { top: 12px; right: 12px; }
+
+          /* Onesheet lightbox */
+          .onesheet-lightbox img { height: auto; max-height: 78dvh; max-width: 94vw; }
+          .onesheet-lightbox-actions { top: max(12px, env(safe-area-inset-top)); right: 12px; }
           .onesheet-lightbox-download { padding: 6px 12px; font-size: 10px; }
         }
         @keyframes rsvp-float {
