@@ -861,11 +861,11 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .onesheet-lightbox-download:hover { opacity: .85; }
         .onesheet-lightbox-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(244,245,240,.1); border: 1px solid rgba(244,245,240,.15); color: rgba(244,245,240,.7); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
         .onesheet-lightbox-close:hover { background: rgba(244,245,240,.18); color: #f4f5f0; }
-        .slate-detail-specs { display: flex; gap: 42px; margin-top: 48px; }
+        .slate-detail-specs { display: flex; gap: 42px; margin-top: 48px; position: sticky; bottom: 0; padding-bottom: 32px; padding-top: 24px; background: linear-gradient(to top, rgba(0,0,0,.85) 60%, transparent 100%); }
         .slate-detail-specs div { display: grid; gap: 8px; }
         .slate-detail-specs span { color: rgba(244,245,240,.58); }
         .slate-detail-specs strong { max-width: 180px; white-space: pre-line; font: 500 13px/1.2 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
-        .slate-detail-content { overflow-y: auto; max-height: calc(100dvh - clamp(220px,31vh,300px) - 40px); padding-bottom: 60px; scrollbar-width: none; }
+        .slate-detail-content { overflow-y: auto; max-height: calc(100dvh - clamp(220px,31vh,300px) - 40px); padding-bottom: 0; scrollbar-width: none; }
         .slate-detail-content::-webkit-scrollbar { display: none; }
         .slate-detail-audience-btn { cursor: pointer; border: 1px solid rgba(227,246,67,.35); border-radius: 6px; padding: 10px 14px; transition: border-color .2s, background .2s; }
         .slate-detail-audience-btn:hover { border-color: rgba(227,246,67,.7); background: rgba(227,246,67,.06); }
