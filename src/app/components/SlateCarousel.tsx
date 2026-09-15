@@ -659,7 +659,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   {(aud.interests?.length || aud.topGeos?.length) ? (
                     <div className="detail-audience-geos">
                       <span className="detail-demo-label">{aud.interests?.length ? "TOP INTERESTS" : "TOP MARKETS"}</span>
-                      <div className="detail-geo-list">{(aud.interests ?? aud.topGeos)!.map((g) => <span key={g}>{g}</span>)}</div>
+                      <div className="detail-geo-list">{(aud.interests ?? aud.topGeos)!.map((g) => { const label = aud.interests?.length ? g.replace(/\s*[\d.]+%$/, "").trim() : g; return <span key={g}>{label}</span>; })}</div>
                     </div>
                   ) : null}
                   </div>
