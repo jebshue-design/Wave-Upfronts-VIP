@@ -879,8 +879,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-audience-btn:hover { border-color: rgba(227,246,67,.7); background: rgba(227,246,67,.06); }
         .slate-detail-audience-btn.is-open { border-color: #e3f643; background: rgba(227,246,67,.08); }
         .slate-detail-audience-btn strong { color: #e3f643 !important; font-size: 11px !important; letter-spacing: .04em; }
-        .detail-audience { display: flex; flex-direction: column; gap: 20px; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(244,245,240,.1); animation: audience-in .45s cubic-bezier(.16,1,.3,1) both; }
-        @keyframes audience-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .detail-audience { display: flex; flex-direction: column; gap: 20px; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(244,245,240,.1); animation: audience-in .8s cubic-bezier(.16,1,.3,1) both; }
+        @keyframes audience-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         .detail-audience-stats { display: flex; gap: 32px; flex-wrap: wrap; }
         .detail-stat { display: flex; flex-direction: column; gap: 5px; }
         .detail-stat strong { font: 700 clamp(16px,1.8vw,24px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.03em; color: #e3f643; }
