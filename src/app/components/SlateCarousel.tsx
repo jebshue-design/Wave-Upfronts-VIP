@@ -61,6 +61,13 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const [lightboxUrl, setLightboxUrl] = useState<{ img: string; pdf: string } | null>(null);
   const [isReturning, setIsReturning] = useState(false);
   const [activeNav, setActiveNav] = useState<"slate" | "event" | "audience" | "assets">("slate");
+  const navLocked = useRef(false);
+  const navLockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lockNav = () => {
+    navLocked.current = true;
+    if (navLockTimer.current) clearTimeout(navLockTimer.current);
+    navLockTimer.current = setTimeout(() => { navLocked.current = false; }, 700);
+  };
   const [audienceExpanded, setAudienceExpanded] = useState(false);
   const detailNavRef = useRef<HTMLElement>(null);
   const detailContentRef = useRef<HTMLDivElement>(null);
@@ -286,28 +293,28 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     }, 1000);
   };
   const selectAudience = () => {
-    setActiveNav("audience");
+    lockNav(); setActiveNav("audience");
     const page = document.querySelector<HTMLElement>(".slate-page");
     const audience = document.getElementById("audience");
     if (page && audience) page.scrollTo({ top: audience.offsetTop, behavior: "smooth" });
     trackEvent("nav_audience").catch(() => {});
   };
   const selectEvent = () => {
-    setActiveNav("event");
+    lockNav(); setActiveNav("event");
     const page = document.querySelector<HTMLElement>(".slate-page");
     const event = document.getElementById("event");
     if (page && event) page.scrollTo({ top: event.offsetTop, behavior: "smooth" });
     trackEvent("nav_event").catch(() => {});
   };
   const selectAssets = () => {
-    setActiveNav("assets");
+    lockNav(); setActiveNav("assets");
     const page = document.querySelector<HTMLElement>(".slate-page");
     const assets = document.getElementById("assets");
     if (page && assets) page.scrollTo({ top: assets.offsetTop, behavior: "smooth" });
     trackEvent("nav_assets").catch(() => {});
   };
   const selectSlate = () => {
-    setActiveNav("slate");
+    lockNav(); setActiveNav("slate");
     const page = document.querySelector<HTMLElement>(".slate-page");
     page?.scrollTo({ top: 0, behavior: "smooth" });
     trackEvent("nav_slate").catch(() => {});
@@ -367,7 +374,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     const page = document.querySelector<HTMLElement>(".slate-page");
     if (!page) return;
     const update = () => {
-      if (expandedShow) return;
+      if (expandedShow || navLocked.current) return;
       const vh = window.innerHeight;
       const stage = stageRef.current;
       const eventEl = document.getElementById("event");
