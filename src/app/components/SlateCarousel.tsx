@@ -317,13 +317,16 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     let rafId: number;
     const updateIndicator = () => {
       cancelAnimationFrame(rafId);
+      // Double rAF: first frame commits DOM changes, second frame lets layout settle
       rafId = requestAnimationFrame(() => {
-        const nav = expandedShow ? detailNavRef.current : siteNavRef.current;
-        const target = nav?.querySelector<HTMLElement>(`.nav-${activeNav}`);
-        if (!nav || !target) return;
-        const navRect = nav.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        setNavIndicator({ left: targetRect.left - navRect.left, width: targetRect.width });
+        rafId = requestAnimationFrame(() => {
+          const nav = expandedShow ? detailNavRef.current : siteNavRef.current;
+          const target = nav?.querySelector<HTMLElement>(`.nav-${activeNav}`);
+          if (!nav || !target) return;
+          const navRect = nav.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          setNavIndicator({ left: targetRect.left - navRect.left, width: targetRect.width });
+        });
       });
     };
     updateIndicator();
@@ -491,7 +494,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setActiveNav("slate"); }}>SLATE</button>
               <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectEvent, 350); }}>EVENT</button>
               <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectAssets, 350); }}>ASSETS</button>
-              <span className="slate-nav-indicator" style={{ left: navIndicator.left, width: navIndicator.width }} />
+              <span className="slate-nav-indicator" style={{ transform: `translateX(${navIndicator.left}px)`, width: navIndicator.width }} />
               <form action={logout} style={{ display: "contents" }}>
                 <button type="submit" className="slate-logout">Log Out</button>
               </form>
@@ -651,7 +654,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={selectSlate}>SLATE</button>
           <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={selectEvent}>EVENT</button>
           <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={selectAssets}>ASSETS</button>
-          <span className="slate-nav-indicator" style={{ left: navIndicator.left, width: navIndicator.width }} />
+          <span className="slate-nav-indicator" style={{ transform: `translateX(${navIndicator.left}px)`, width: navIndicator.width }} />
           <form action={logout} style={{ display: "contents" }}>
             <button type="submit" className="slate-logout">Log Out</button>
           </form>
@@ -1102,10 +1105,12 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           position: absolute;
           top: 4px;
           bottom: 4px;
+          left: 0;
           border-radius: 999px;
           background: #e3f643;
-          transition: left 0.3s cubic-bezier(.16,1,.3,1), width 0.3s cubic-bezier(.16,1,.3,1);
+          transition: transform 0.22s cubic-bezier(.16,1,.3,1), width 0.22s cubic-bezier(.16,1,.3,1);
           pointer-events: none;
+          will-change: transform, width;
         }
         .slate-rsvp {
           border: 0;
