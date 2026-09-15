@@ -579,21 +579,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                           const scroll = detailScrollRef.current;
                           const target = detailContentRef.current;
                           if (!scroll || !target) return;
-                          const start = scroll.scrollTop;
-                          const end = target.offsetTop - 24;
-                          const dist = end - start;
-                          if (Math.abs(dist) < 4) return;
-                          const duration = 480;
-                          let t0: number | null = null;
-                          const step = (ts: number) => {
-                            if (t0 === null) t0 = ts;
-                            const elapsed = ts - t0;
-                            const p = Math.min(elapsed / duration, 1);
-                            const ease = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-                            scroll.scrollTop = start + dist * ease;
-                            if (p < 1) requestAnimationFrame(step);
-                          };
-                          requestAnimationFrame(step);
+                          scroll.scrollTo({ top: target.offsetTop - 24, behavior: "smooth" });
                         });
                       });
                     }
