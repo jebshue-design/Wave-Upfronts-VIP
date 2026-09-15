@@ -53,8 +53,8 @@ type VipAccount = {
 type EngagementStats = {
   totalShowsViewed: number;
   totalClicks: number;
-  totalTimeSeconds: number;
-  showTimeBreakdown: { title: string; seconds: number }[];
+  topViewedShow:  { title: string; views: number }  | null;
+  topClickedShow: { title: string; clicks: number } | null;
 };
 
 type Props = {
@@ -77,11 +77,6 @@ function relativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function formatSecs(s: number): string {
-  if (s < 60) return `${s}s`;
-  if (s < 3600) return `${Math.floor(s / 60)}m`;
-  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
-}
 
 export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvps, engagementByUser }: Props) {
   const [accounts, setAccounts] = useState<VipAccount[]>(initialAccounts);
@@ -304,7 +299,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                       {row.eng ? (
                         <>
                           <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.silver }}>{row.eng.totalShowsViewed} show{row.eng.totalShowsViewed !== 1 ? "s" : ""}</div>
-                          <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginTop: "2px" }}>{formatSecs(row.eng.totalTimeSeconds)} watched</div>
+                          <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginTop: "2px" }}>{row.eng.totalClicks} action{row.eng.totalClicks !== 1 ? "s" : ""}</div>
                         </>
                       ) : (
                         <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.lineStrong }}>—</span>
@@ -356,19 +351,20 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                           {/* Show engagement */}
                           <div>
                             <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.volt, marginBottom: "10px" }}>Show Engagement</div>
-                            {row.eng?.showTimeBreakdown?.length ? (
+                            {row.eng?.topViewedShow || row.eng?.topClickedShow ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                {row.eng.showTimeBreakdown.slice(0, 4).map(({ title, seconds }) => (
-                                  <div key={title}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
-                                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.silver }}>{title}</span>
-                                      <span style={{ fontFamily: S.fontMono, fontSize: "10px", color: S.volt }}>{formatSecs(seconds)}</span>
-                                    </div>
-                                    <div style={{ height: "3px", background: S.line, borderRadius: "2px" }}>
-                                      <div style={{ height: "100%", width: `${Math.round((seconds / (row.eng?.totalTimeSeconds ?? 1)) * 100)}%`, background: S.volt, borderRadius: "2px" }} />
-                                    </div>
+                                {row.eng.topViewedShow && (
+                                  <div>
+                                    <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginBottom: "2px" }}>Most Viewed</div>
+                                    <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.silver }}>{row.eng.topViewedShow.title} <span style={{ color: S.volt }}>×{row.eng.topViewedShow.views}</span></div>
                                   </div>
-                                ))}
+                                )}
+                                {row.eng.topClickedShow && (
+                                  <div>
+                                    <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginBottom: "2px" }}>Most Clicked</div>
+                                    <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.silver }}>{row.eng.topClickedShow.title} <span style={{ color: S.volt }}>{row.eng.topClickedShow.clicks} click{row.eng.topClickedShow.clicks !== 1 ? "s" : ""}</span></div>
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.lineStrong }}>No engagement yet</div>

@@ -33,7 +33,7 @@ type Props = {
   showViewerData: { title: string; viewers: { user: string; views: number; lastSeen: string }[] }[];
   userBreakdownData: {
     user: string; totalViews: number; firstSeen: string; lastSeen: string;
-    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; sizzleClicks: number; onesheetClicks: number; lastSeen: string }[];
+    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; onesheetClicks: number; audienceExpands: number; lastSeen: string }[];
   }[];
   userShowMap: Record<string, Record<string, number>>;
   logins: { id?: string; created_at: string; password_used?: string; ip?: string; user_agent?: string }[];
@@ -45,11 +45,8 @@ type Props = {
   engagementByUser: Record<string, {
     topViewedShow:  { title: string; views: number }  | null;
     topClickedShow: { title: string; clicks: number } | null;
-    topTimeShow:    { title: string; seconds: number } | null;
     totalShowsViewed: number;
     totalClicks: number;
-    totalTimeSeconds: number;
-    showTimeBreakdown: { title: string; seconds: number }[];
   }>;
 };
 
@@ -66,8 +63,8 @@ export default function AdminTabs(props: Props) {
         .map((u) => {
           const s = u.shows.find((s) => s.title === selectedShow);
           if (!s) return null;
-          const totalClicks = s.youtubeClicks + s.spotifyClicks + s.sizzleClicks + s.onesheetClicks;
-          return { displayName: passwordToName[u.user] ?? u.user, views: s.views, youtubeClicks: s.youtubeClicks, spotifyClicks: s.spotifyClicks, sizzleClicks: s.sizzleClicks, onesheetClicks: s.onesheetClicks, totalClicks };
+          const totalClicks = s.youtubeClicks + s.spotifyClicks + s.onesheetClicks + s.audienceExpands;
+          return { displayName: passwordToName[u.user] ?? u.user, views: s.views, youtubeClicks: s.youtubeClicks, spotifyClicks: s.spotifyClicks, onesheetClicks: s.onesheetClicks, audienceExpands: s.audienceExpands, totalClicks };
         })
         .filter((x): x is NonNullable<typeof x> => x !== null)
         .sort((a, b) => b.totalClicks - a.totalClicks || b.views - a.views)
@@ -335,8 +332,8 @@ export default function AdminTabs(props: Props) {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                   <thead>
                     <tr style={{ background: S.night, borderRadius: "6px" }}>
-                      {["#", "User", "Views", "YouTube", "Spotify", "Sizzle", "One-Sheet", "Total Clicks"].map((h) => (
-                        <th key={h} style={{ padding: "10px 12px", textAlign: h === "#" || h === "Total Clicks" || h === "Views" || h === "YouTube" || h === "Spotify" || h === "Sizzle" || h === "One-Sheet" ? "center" : "left", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
+                      {["#", "User", "Views", "YouTube", "Spotify", "Aud. Expands", "One-Sheet", "Total Clicks"].map((h) => (
+                        <th key={h} style={{ padding: "10px 12px", textAlign: h === "#" || h === "Total Clicks" || h === "Views" || h === "YouTube" || h === "Spotify" || h === "Aud. Expands" || h === "One-Sheet" ? "center" : "left", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -348,7 +345,7 @@ export default function AdminTabs(props: Props) {
                         <td style={{ padding: "12px", textAlign: "center", color: S.clay }}>{row.views}</td>
                         <td style={{ padding: "12px", textAlign: "center", color: row.youtubeClicks > 0 ? S.silver : S.line }}>{row.youtubeClicks || "—"}</td>
                         <td style={{ padding: "12px", textAlign: "center", color: row.spotifyClicks > 0 ? S.silver : S.line }}>{row.spotifyClicks || "—"}</td>
-                        <td style={{ padding: "12px", textAlign: "center", color: row.sizzleClicks > 0 ? S.silver : S.line }}>{row.sizzleClicks || "—"}</td>
+                        <td style={{ padding: "12px", textAlign: "center", color: row.audienceExpands > 0 ? S.silver : S.line }}>{row.audienceExpands || "—"}</td>
                         <td style={{ padding: "12px", textAlign: "center", color: row.onesheetClicks > 0 ? S.silver : S.line }}>{row.onesheetClicks || "—"}</td>
                         <td style={{ padding: "12px", textAlign: "center" }}>
                           <span style={{ background: row.totalClicks > 0 ? S.volt : S.line, color: row.totalClicks > 0 ? S.night : S.clay, fontWeight: 700, fontSize: "12px", padding: "3px 10px", borderRadius: "999px" }}>

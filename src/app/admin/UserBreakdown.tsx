@@ -12,7 +12,7 @@ const S = {
   fontMono: '"Space Grotesk", monospace',
 };
 
-type ShowRow = { title: string; views: number; youtubeClicks: number; spotifyClicks: number; sizzleClicks: number; onesheetClicks: number; lastSeen: string };
+type ShowRow = { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; lastSeen: string };
 type UserData = { user: string; totalViews: number; firstSeen: string; lastSeen: string; shows: ShowRow[] };
 
 export default function UserBreakdown({ users, passwordToName }: { users: UserData[]; passwordToName: Record<string, string> }) {
@@ -118,7 +118,7 @@ export default function UserBreakdown({ users, passwordToName }: { users: UserDa
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
           <thead>
             <tr style={{ background: S.slate }}>
-              {["Show", "Views", "YouTube", "Spotify", "Sizzle", "One-Sheet", "Last Viewed"].map((h) => (
+              {["Show", "Views", "YouTube", "Spotify", "Aud. Expands", "One-Sheet", "Last Viewed"].map((h) => (
                 <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
               ))}
             </tr>
@@ -136,7 +136,7 @@ export default function UserBreakdown({ users, passwordToName }: { users: UserDa
                 <td style={{ padding: "12px 16px", color: S.volt, fontWeight: 700 }}>{s.views}</td>
                 <td style={{ padding: "12px 16px", color: s.youtubeClicks > 0 ? S.silver : S.line }}>{s.youtubeClicks || "—"}</td>
                 <td style={{ padding: "12px 16px", color: s.spotifyClicks > 0 ? S.silver : S.line }}>{s.spotifyClicks || "—"}</td>
-                <td style={{ padding: "12px 16px", color: s.sizzleClicks > 0 ? S.silver : S.line }}>{s.sizzleClicks || "—"}</td>
+                <td style={{ padding: "12px 16px", color: s.audienceExpands > 0 ? S.silver : S.line }}>{s.audienceExpands || "—"}</td>
                 <td style={{ padding: "12px 16px", color: s.onesheetClicks > 0 ? S.silver : S.line }}>{s.onesheetClicks || "—"}</td>
                 <td style={{ padding: "12px 16px", color: S.clay }}>{s.lastSeen}</td>
               </tr>

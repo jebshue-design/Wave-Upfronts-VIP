@@ -19,7 +19,7 @@ type Props = {
   sortedShows: [string, number][];
   userBreakdownData: {
     user: string; totalViews: number; firstSeen: string; lastSeen: string;
-    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; sizzleClicks: number; onesheetClicks: number; lastSeen: string }[];
+    shows: { title: string; views: number; youtubeClicks: number; spotifyClicks: number; audienceExpands: number; onesheetClicks: number; lastSeen: string }[];
   }[];
   rsvps: { name: string; email: string; company: string; title: string; created_at: string }[] | null;
   logins: { created_at: string; password_used?: string; ip?: string }[];
@@ -75,9 +75,9 @@ export default function GenerateReport({ stats, sortedShows, userBreakdownData, 
     if (sel.engagement) {
       rows.push(
         ["USER SHOW ENGAGEMENT"],
-        ["User", "Show", "Views", "YouTube Clicks", "Spotify Clicks", "Sizzle Plays", "One-Sheet Downloads", "Last Viewed"],
+        ["User", "Show", "Views", "YouTube Clicks", "Spotify Clicks", "Audience Expands", "One-Sheet Downloads", "Last Viewed"],
         ...userBreakdownData.flatMap((u) =>
-          u.shows.map((s) => [u.user, s.title, String(s.views), String(s.youtubeClicks), String(s.spotifyClicks), String(s.sizzleClicks), String(s.onesheetClicks), s.lastSeen])
+          u.shows.map((s) => [u.user, s.title, String(s.views), String(s.youtubeClicks), String(s.spotifyClicks), String(s.audienceExpands), String(s.onesheetClicks), s.lastSeen])
         ), []
       );
     }
