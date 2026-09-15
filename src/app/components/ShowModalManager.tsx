@@ -289,17 +289,21 @@ export default function ShowModalManager({ shows }: { shows: Show[] }) {
                 ))}
               </div>
 
-              {/* Top Markets */}
-              <div style={{ marginBottom: "20px" }}>
-                <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>Top Markets</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {aud.topGeos.map((geo) => (
-                    <span key={geo} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.clay, background: S.night, border: `1px solid ${S.line}`, borderRadius: S.pill, padding: "4px 10px" }}>
-                      {geo}
-                    </span>
-                  ))}
+              {/* Top Interests / Top Markets */}
+              {(aud.interests ?? aud.topGeos) && (
+                <div style={{ marginBottom: "20px" }}>
+                  <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: S.clay, marginBottom: "8px" }}>
+                    {aud.interests ? "Top Interests" : "Top Markets"}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {(aud.interests ?? aud.topGeos)!.map((item) => (
+                      <span key={item} style={{ fontFamily: S.fontMono, fontSize: "10px", fontWeight: 600, letterSpacing: "0.04em", color: S.clay, background: S.night, border: `1px solid ${S.line}`, borderRadius: S.pill, padding: "4px 10px" }}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div style={{ height: "1px", background: S.line, marginBottom: "20px" }} />
 
