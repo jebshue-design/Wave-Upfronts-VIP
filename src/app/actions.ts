@@ -510,8 +510,8 @@ export async function createVipAccount(
   const account          = (formData.get("account")          as string | null)?.trim() || null;
   const point_of_contact = (formData.get("point_of_contact") as string | null)?.trim() || null;
 
-  if (!name || !email || !company || !title) {
-    return { error: "All fields are required.", success: false };
+  if (!name || !email || !company) {
+    return { error: "Name, email, and company are required.", success: false };
   }
 
   const { data, error } = await supabaseAdmin

@@ -153,7 +153,7 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
             </div>
             <div>
               <label style={labelStyle}>Title</label>
-              <input name="title" type="text" placeholder="VP of Sales" required style={inputStyle} />
+              <input name="title" type="text" placeholder="VP of Sales" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Cell Phone</label>

@@ -69,6 +69,7 @@ function parseCSV(raw: string): { accounts: ParsedAccount[]; parseError: string 
 
   if (nameIdx === -1) return { accounts: [], parseError: "Could not find a 'Name' column." };
   if (emailIdx === -1) return { accounts: [], parseError: "Could not find an 'Email Address' column." };
+  if (companyIdx === -1) return { accounts: [], parseError: "Could not find a 'Brand/Agency' or 'Company' column." };
 
   const accounts: ParsedAccount[] = [];
   for (const line of lines.slice(1)) {
