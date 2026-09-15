@@ -1135,6 +1135,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           overflow-y: hidden;
           padding-top: 40px;
           margin-top: -40px;
+          padding-bottom: 40px;
+          margin-bottom: -40px;
           cursor: url("/assets/Swipe Cursor.svg") 32 32, grab;
           scrollbar-width: none;
           touch-action: pan-x;
