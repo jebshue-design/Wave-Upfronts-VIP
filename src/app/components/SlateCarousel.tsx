@@ -494,7 +494,10 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             "--origin-left": `${detailOrigin.left}px`,
           } as React.CSSProperties}
         >
-          <img className="slate-detail-image" src={expandedShow.detailImagePath ?? expandedShow.slateImagePath} alt="" />
+          <img className="slate-detail-image" src={expandedShow.slateImagePath} alt="" />
+          {expandedShow.detailImagePath && (
+            <img className="slate-detail-image slate-detail-image-crossfade" src={expandedShow.detailImagePath} alt="" />
+          )}
           <div className="slate-detail-shade" />
           <header className="slate-detail-header">
             <img src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
@@ -852,6 +855,13 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           object-position: 80% center;
           transform: scale(1.18) translateX(12%);
           transform-origin: center right;
+        }
+        .slate-detail-image-crossfade {
+          animation: detail-image-crossfade .7s .25s ease both;
+        }
+        @keyframes detail-image-crossfade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         .slate-detail-shade {
           position: absolute;
