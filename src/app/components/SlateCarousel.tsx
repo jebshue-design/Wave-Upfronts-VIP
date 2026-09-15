@@ -338,7 +338,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setIsClosing(false);
     setExpandedShow(show);
-    trackEvent("show_open", { show_id: show.id, show_title: show.title }).catch(() => {});
+    trackEvent("show_view", { show_id: show.id, show_title: show.title }).catch(() => {});
   };
 
   useEffect(() => {
