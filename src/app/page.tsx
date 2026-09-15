@@ -21,6 +21,7 @@ const shows = [
     demo: "18–30 · Female-Leaning",
     thumbnailPath: "/thumbnails/ngl.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_Not Gonna Lie.png",
+    detailImagePath: "/assets/Images/Slate/Detail_Not Gonna Lie.jpg",
     accoladeLogoPath: "/assets/accolades/3x/webby@3x.png",
     accolades: [
       "2026|PODCAST OF|THE YEAR",

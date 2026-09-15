@@ -14,6 +14,7 @@ export type SlateItem = {
   categoryColor: string;
   season: string;
   slateImagePath?: string;
+  detailImagePath?: string;
   detailNavTone?: string;
   accoladeLogoPath?: string;
   accolades?: string[];
@@ -493,7 +494,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             "--origin-left": `${detailOrigin.left}px`,
           } as React.CSSProperties}
         >
-          <img className="slate-detail-image" src={expandedShow.slateImagePath} alt="" />
+          <img className="slate-detail-image" src={expandedShow.detailImagePath ?? expandedShow.slateImagePath} alt="" />
           <div className="slate-detail-shade" />
           <header className="slate-detail-header">
             <img src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
