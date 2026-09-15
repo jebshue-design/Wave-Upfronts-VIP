@@ -962,7 +962,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         }
         .slate-detail-category, .slate-detail-tags, .slate-detail-specs span { font: 700 10px "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-category { display: none; margin-bottom: 14px; color: rgba(244,245,240,.8); }
-        .slate-detail-info h1 { margin: 0; font: 700 clamp(42px, 6vw, 88px)/.9 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
+        .slate-detail-fixed h1, .slate-detail-info h1 { margin: 0; font: 700 clamp(42px, 6vw, 88px)/.9 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-talent { margin: 14px 0 0; font: 500 clamp(24px, 3vw, 42px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-tags { display: flex; gap: 22px; margin-top: 22px; color: rgba(244,245,240,.72); }
         .slate-detail-description { max-width: 500px; margin: 20px 0 0; color: rgba(244,245,240,.88); font-size: 16px; line-height: 1.3; }
