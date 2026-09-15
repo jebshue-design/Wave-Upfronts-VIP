@@ -305,7 +305,7 @@ export async function login(
   const ip = headerStore.get("x-forwarded-for") ?? headerStore.get("x-real-ip") ?? "unknown";
   const userAgent = headerStore.get("user-agent") ?? "unknown";
 
-  await supabase.from("events").insert({
+  await supabaseAdmin.from("events").insert({
     type: "login",
     password_used: identifier,
     ip,
@@ -379,7 +379,7 @@ export async function logout() {
 export async function trackEvent(type: string, metadata?: Record<string, string>) {
   const cookieStore = await cookies();
   const user = cookieStore.get("wave-user")?.value ?? "unknown";
-  await supabase.from("events").insert({ type, password_used: user, metadata });
+  await supabaseAdmin.from("events").insert({ type, password_used: user, metadata });
 }
 
 export async function submitRsvp(
