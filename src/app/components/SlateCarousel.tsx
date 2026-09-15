@@ -72,6 +72,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const [audienceExpanded, setAudienceExpanded] = useState(false);
   const detailNavRef = useRef<HTMLElement>(null);
   const detailContentRef = useRef<HTMLDivElement>(null);
+  const detailScrollRef = useRef<HTMLDivElement>(null);
   const siteNavRef = useRef<HTMLElement>(null);
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0 });
   const [downloadedAssets, setDownloadedAssets] = useState<Set<string>>(new Set());
@@ -521,7 +522,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <h1>{expandedShow.id === "ngl" ? "Not Gonna Lie" : expandedShow.title}</h1>
             <p className="slate-detail-talent">{expandedShow.talent ?? expandedShow.category}</p>
           </div>
-          <div className="slate-detail-scroll">
+          <div className="slate-detail-scroll" ref={detailScrollRef}>
           <div className="slate-detail-info">
             <div className="slate-detail-tags">
               {(expandedShow.detailTopics ?? [expandedShow.category]).map((topic) => <span key={topic}>{topic}</span>)}
@@ -571,7 +572,31 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   onClick={() => {
                     const next = !audienceExpanded;
                     setAudienceExpanded(next);
-                    if (next) trackEvent("audience_expand", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {});
+                    if (next) {
+                      trackEvent("audience_expand", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {});
+                      requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                          const scroll = detailScrollRef.current;
+                          const target = detailContentRef.current;
+                          if (!scroll || !target) return;
+                          const start = scroll.scrollTop;
+                          const end = target.offsetTop - 24;
+                          const dist = end - start;
+                          if (Math.abs(dist) < 4) return;
+                          const duration = 480;
+                          let t0: number | null = null;
+                          const step = (ts: number) => {
+                            if (t0 === null) t0 = ts;
+                            const elapsed = ts - t0;
+                            const p = Math.min(elapsed / duration, 1);
+                            const ease = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+                            scroll.scrollTop = start + dist * ease;
+                            if (p < 1) requestAnimationFrame(step);
+                          };
+                          requestAnimationFrame(step);
+                        });
+                      });
+                    }
                   }}
                   role="button"
                   tabIndex={0}
