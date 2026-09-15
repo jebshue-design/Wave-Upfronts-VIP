@@ -95,6 +95,7 @@ const shows = [
     demo: "18–35 · Mixed",
     thumbnailPath: "/thumbnails/big-bro.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_Bad Friends.jpg",
+    detailImagePath: "/assets/Images/Slate/Detail_Bad Friends.jpg",
     talent: "Andrew Santino & Bobby Lee",
     youtubeUrl: "https://www.youtube.com/@BadFriends",
     audioUrl: "https://open.spotify.com/show/3gaGfrqgnVqUBNDdtv5p3S",
