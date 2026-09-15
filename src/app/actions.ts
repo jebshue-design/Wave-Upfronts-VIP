@@ -419,7 +419,7 @@ export async function submitRsvp(
   }
 
   const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), company, title, rsvp_type: rsvpType });
-  if (dbError) {
+  if (dbError && rsvpType !== "decline") {
     return { error: "Something went wrong. Please try again.", success: false };
   }
 
