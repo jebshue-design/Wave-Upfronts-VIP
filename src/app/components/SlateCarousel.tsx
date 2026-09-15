@@ -386,7 +386,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <img className="back-outline-art" src="/assets/Back Arrow@3x.png" alt="" draggable={false} />
             <img className="pill-fill-art" src="/assets/Back Fill.png" alt="" draggable={false} />
           </button>
-          <div ref={detailContentRef} className={`slate-detail-content${audienceExpanded ? " is-audience-view" : ""}`}>
+          <div className={`slate-detail-body${audienceExpanded ? " is-audience-view" : ""}`}>
+          <div ref={detailContentRef} className="slate-detail-content">
             <span className="slate-detail-category">{expandedShow.category}</span>
             <h1>{expandedShow.id === "ngl" ? "Not Gonna Lie" : expandedShow.title}</h1>
             <p className="slate-detail-talent">{expandedShow.talent ?? expandedShow.category}</p>
@@ -431,6 +432,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                 </div>
               );
             })()}
+          </div>
             <div className="slate-detail-specs">
               {expandedShow.audience ? (
                 <div
@@ -765,7 +767,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           to { opacity: 1; transform: translateY(0); }
         }
         .slate-detail.is-closing { animation: detail-shrink .82s .18s cubic-bezier(.16, 1, .3, 1) both; }
-        .slate-detail.is-closing .slate-detail-content,
+        .slate-detail.is-closing .slate-detail-body,
         .slate-detail.is-closing .slate-detail-header,
         .slate-detail.is-closing .slate-detail-back { animation: detail-copy-out .45s ease both; }
         @keyframes detail-shrink {
@@ -826,13 +828,19 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           background: transparent;
           color: transparent;
         }
-        .slate-detail-content {
+        .slate-detail-body {
           position: absolute;
           left: 30px;
           top: clamp(220px, 31vh, 300px);
-          bottom: auto;
+          bottom: 40px;
           width: min(620px, calc(100vw - 60px));
+          display: flex;
+          flex-direction: column;
           animation: detail-copy-in .62s .58s cubic-bezier(.16, 1, .3, 1) both;
+        }
+        .slate-detail-content {
+          flex: 1;
+          min-height: 0;
         }
         @keyframes detail-copy-in {
           from { opacity: 0; transform: translateX(-34px); }
@@ -861,11 +869,11 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .onesheet-lightbox-download:hover { opacity: .85; }
         .onesheet-lightbox-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(244,245,240,.1); border: 1px solid rgba(244,245,240,.15); color: rgba(244,245,240,.7); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
         .onesheet-lightbox-close:hover { background: rgba(244,245,240,.18); color: #f4f5f0; }
-        .slate-detail-specs { display: flex; gap: 42px; margin-top: 48px; position: sticky; bottom: 0; padding-bottom: 32px; padding-top: 24px; background: linear-gradient(to top, rgba(0,0,0,.85) 60%, transparent 100%); }
+        .slate-detail-specs { display: flex; gap: 42px; flex-shrink: 0; padding-top: 28px; padding-bottom: 32px; }
         .slate-detail-specs div { display: grid; gap: 8px; }
         .slate-detail-specs span { color: rgba(244,245,240,.58); }
         .slate-detail-specs strong { max-width: 180px; white-space: pre-line; font: 500 13px/1.2 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
-        .slate-detail-content { overflow-y: auto; max-height: calc(100dvh - clamp(220px,31vh,300px) - 40px); padding-bottom: 0; scrollbar-width: none; }
+        .slate-detail-content { overflow-y: auto; scrollbar-width: none; }
         .slate-detail-content::-webkit-scrollbar { display: none; }
         .slate-detail-audience-btn { cursor: pointer; border: 1px solid rgba(227,246,67,.35); border-radius: 6px; padding: 10px 14px; transition: border-color .2s, background .2s; }
         .slate-detail-audience-btn:hover { border-color: rgba(227,246,67,.7); background: rgba(227,246,67,.06); }
@@ -1308,7 +1316,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-detail-header nav { gap: 12px; }
           .slate-detail-header nav span:nth-child(2), .slate-detail-header nav span:nth-child(3) { display: none; }
           .slate-detail-image { object-position: 72% center; transform: scale(1.04) translateX(1%); }
-          .slate-detail-content { top: 175px; left: 18px; bottom: auto; width: calc(100vw - 36px); max-height: calc(100dvh - 200px); overflow-y: auto; }
+          .slate-detail-body { top: 175px; left: 18px; bottom: 24px; width: calc(100vw - 36px); }
           .slate-detail-description { font-size: 14px; }
           .slate-detail-specs { gap: 18px; flex-wrap: wrap; margin-top: 28px; }
         }
