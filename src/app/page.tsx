@@ -20,7 +20,7 @@ const shows = [
     oneSheetPath: null as string | null,
     demo: "18–30 · Female-Leaning",
     thumbnailPath: "/thumbnails/ngl.jpg",
-    slateImagePath: "/assets/Images/Slate/Slides BG_Not Gonna Lie.jpg",
+    slateImagePath: "/assets/Images/Slate/Slides BG_Not Gonna Lie.png",
     accoladeLogoPath: "/assets/accolades/3x/webby@3x.png",
     accolades: [
       "2026|PODCAST OF|THE YEAR",
