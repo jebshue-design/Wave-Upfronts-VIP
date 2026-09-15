@@ -282,7 +282,17 @@ export async function login(
   _prevState: { error: string },
   formData: FormData
 ) {
-  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const email    = (formData.get("email")    as string | null)?.trim().toLowerCase() ?? "";
+  const password = (formData.get("password") as string | null)?.trim() ?? "";
+
+  if (!password) {
+    return { error: "Please enter the event password." } as { error: string };
+  }
+
+  const gatePassword = process.env.GATE_PASSWORD ?? "";
+  if (gatePassword && password !== gatePassword) {
+    return { error: "Incorrect password." } as { error: string };
+  }
 
   if (!email) {
     return { error: "Please enter your email address." } as { error: string };
