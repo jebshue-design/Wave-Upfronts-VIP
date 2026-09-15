@@ -542,6 +542,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <article
               key={show.id}
               data-slate-card
+              data-color={show.categoryColor}
               className={`slate-card${index === activeIndex ? " is-active" : ""}`}
               style={{ "--accent": show.categoryColor } as React.CSSProperties}
             >
@@ -1007,7 +1008,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         }
         .slate-logout:hover { color: rgba(255,255,255,0.75); }
         .slate-stage { height: 100vh; padding-top: 72px; padding-bottom: 57px; }
-        .slate-event-section { padding: 100px 30px; background: #000000; color: var(--slate-ink); }
+        .slate-event-section { padding: 100px 30px; background: linear-gradient(180deg, #000000 0%, #212922 100%); color: var(--slate-ink); }
         .slate-event-venue-img { flex-shrink: 0; width: 260px; border-radius: 10px; overflow: hidden; align-self: stretch; margin-right: 8px; }
         .slate-event-venue-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
         .slate-event-inner { max-width: 1200px; margin: 0 auto; }
@@ -1171,7 +1172,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           width: calc(100% + 4px);
           height: calc(100% + 4px);
           object-fit: cover;
-          object-position: center;
+          object-position: center 25%;
           transform: translate3d(calc(var(--parallax-x, 0px) * .78), 0, 0) scale(1.08);
           transition: none;
           will-change: transform;
