@@ -938,7 +938,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           left: 30px;
           top: clamp(190px, 26vh, 270px);
           bottom: 40px;
-          width: min(40vw, calc(100vw - 60px));
+          width: min(52vw, calc(100vw - 60px));
           animation: detail-copy-in .62s .58s cubic-bezier(.16, 1, .3, 1) both;
           display: flex;
           flex-direction: column;
