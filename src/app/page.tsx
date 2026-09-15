@@ -43,7 +43,7 @@ const shows = [
     detailDescription: "Armed with one mic and zero f*cks, Kylie is ready to open up — on her own terms. Join her as she sets the record straight on gossip and speaks her truths on topics like modern parenting, social media trends, women in sports and more.",
     detailDemographics: "18-30\nFEMALE-LEANING",
     detailCadence: "WEEKLY\nMON / THU",
-    detailFormat: "00:30M-1:00H\nAUDIO & VIDEO",
+    detailFormat: "Celebrity/personal-story talk show",
     detailPartnerships: "KEY PARTNERSHIPS AND EPISODES",
     youtubeUrl: "https://www.youtube.com/@nglwithkylie",
     audioUrl: "https://open.spotify.com/show/0RgXbSGGmwpzAyeLHbDqUD",
@@ -66,6 +66,15 @@ const shows = [
       ],
       hhi100k: "65.7%",
       usShare: "78%",
+      races: [
+        { label: "Caucasian", pct: 50.4 },
+        { label: "Hispanic", pct: 5.4 },
+        { label: "African American", pct: 3.6 },
+        { label: "Asian", pct: 2.8 },
+        { label: "Middle Eastern", pct: 1.6 },
+        { label: "Native American", pct: 0.2 },
+        { label: "Other", pct: 36.0 },
+      ],
       topGeos: ["California 9.0%", "Texas 6.8%", "Pennsylvania 5.3%", "Florida 4.9%", "New York 4.6%"],
       devices: [
         { label: "Mobile", pct: 49.4 },
@@ -88,6 +97,7 @@ const shows = [
     description: "Comedians Bobby Lee and Andrew Santino bring their goofy, blue, and spontaneous humor to the Bad Friends podcast every week, landing themselves consistently at the top of the charts. Intentionally apolitical, built on their friendship and chemistry, this show attracts viewers from all walks of life for accessible comedy featuring some of today's top comedic voices.",
     detailDescription: "Comedians Bobby Lee and Andrew Santino bring their goofy, blue, and spontaneous humor to the Bad Friends podcast every week, landing themselves consistently at the top of the charts. Intentionally apolitical, built on their friendship and chemistry, this show attracts viewers from all walks of life for accessible comedy featuring some of today's top comedic voices.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Two-host comedy conversation podcast",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -95,8 +105,8 @@ const shows = [
     thumbnailPath: "/thumbnails/big-bro.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_Bad Friends.jpg",
     talent: "Andrew Santino & Bobby Lee",
-    youtubeUrl: null as string | null,
-    audioUrl: null as string | null,
+    youtubeUrl: "https://www.youtube.com/@BadFriends",
+    audioUrl: "https://open.spotify.com/show/3gaGfrqgnVqUBNDdtv5p3S",
   },
   {
     id: "whiskey-ginger",
@@ -106,6 +116,7 @@ const shows = [
     tagline: "Drinks, stories, and the people who make them.",
     description: "Comedian Andrew Santino interviews friends in and out of the entertainment industry as they reflect on deviant stories of their past; while sipping whiskey.",
     specs: "WEEKLY · ~55 MIN · AUDIO + VIDEO",
+    detailFormat: "Comedy interview/conversation show",
     season: "SEASON 5 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -134,6 +145,14 @@ const shows = [
       ],
       hhi100k: "58.7%",
       usShare: "80%",
+      races: [
+        { label: "Caucasian", pct: 46.4 },
+        { label: "Hispanic", pct: 9.7 },
+        { label: "African American", pct: 4.3 },
+        { label: "Asian", pct: 3.8 },
+        { label: "Middle Eastern", pct: 1.4 },
+        { label: "Native American", pct: 0.3 },
+      ],
       topGeos: ["California 9.2%", "Texas 4.5%", "Wisconsin 3.7%", "Illinois 3.0%", "Florida 2.8%"],
       devices: [
         { label: "Mobile", pct: 54.4 },
@@ -155,6 +174,7 @@ const shows = [
     tagline: "They never made the cut. They never stopped trying.",
     description: "Almost Athletes with Dude Perfect is (almost) a sports podcast. Co-hosted by Garrett Hilbert and Sparky, with the rest of the Dudes, their wives, and the DP crew popping in throughout the week. Sports takes, celebrity guests, athlete interviews, fan voicemails, and the kind of chaos you'd expect from the Dude Perfect family.",
     specs: "WEEKLY · ~60 MIN · AUDIO + VIDEO",
+    detailFormat: "Weekly sports recap, hot takes, and guest conversations",
     season: "SEASON 2 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -184,6 +204,14 @@ const shows = [
       ],
       hhi100k: "66.6%",
       usShare: "86%",
+      races: [
+        { label: "Caucasian", pct: 48.9 },
+        { label: "Hispanic", pct: 4.1 },
+        { label: "African American", pct: 3.6 },
+        { label: "Asian", pct: 2.0 },
+        { label: "Middle Eastern", pct: 0.9 },
+        { label: "Native American", pct: 0.3 },
+      ],
       topGeos: ["Texas 10.1%", "California 5.5%", "Florida 4.0%", "Ohio 3.8%", "Pennsylvania 3.5%"],
       devices: [
         { label: "Mobile", pct: 32.1 },
@@ -205,6 +233,7 @@ const shows = [
     tagline: "Real conversations. No script.",
     description: "Nothing's scripted. Nothing's safe. On Open Thoughts, Funny Marco sits down with some of the biggest names in the game for the most unpredictable conversations on the internet.",
     specs: "BIWEEKLY · ~50 MIN · AUDIO + VIDEO",
+    detailFormat: "Celebrity interview show",
     season: "SEASON 1 · 2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -214,7 +243,43 @@ const shows = [
     talent: "Funny Marco",
     youtubeUrl: "https://www.youtube.com/@OpenThoughts0",
     audioUrl: "https://open.spotify.com/show/7AwnOVezHIfHVbNVINNlQL",
-    audience: null,
+    audience: {
+      followers: "1.2M",
+      monthlyViews: "19M",
+      monthlyDownloads: "32M",
+      genderSkew: "60/40 Male",
+      persona: "Culture Voice — Male-leaning, 25–34, predominantly African American, single, driven by hip-hop & R&B",
+      quickHits: ["Comedy", "Celebrity & entertainment", "Hip-hop"],
+      guestExamples: ["Nicki Minaj", "Kevin Hart", "Keke Palmer", "Druski"],
+      ages: [
+        { label: "13–17", pct: 0.60 },
+        { label: "18–24", pct: 11.40 },
+        { label: "25–34", pct: 43.30 },
+        { label: "35–44", pct: 30.70 },
+        { label: "45–54", pct: 10.60 },
+        { label: "55–64", pct: 2.50 },
+        { label: "65+", pct: 0.90 },
+      ],
+      hhi100k: "10%",
+      usShare: "90%",
+      races: [
+        { label: "African American", pct: 75 },
+        { label: "White/Caucasian", pct: 19 },
+        { label: "Hispanic", pct: 4 },
+        { label: "Asian", pct: 2 },
+      ],
+      topGeos: ["Texas 9.0%", "Georgia 6.5%", "California 6.2%", "Illinois 6.2%", "Florida 5.6%"],
+      devices: [
+        { label: "TV", pct: 58.1 },
+        { label: "Mobile", pct: 30.9 },
+        { label: "Computer", pct: 7.0 },
+        { label: "Tablet", pct: 3.9 },
+      ],
+      avgWatchTime: "12 min avg watch · 5 min avg listen",
+      viewerBehavior: { new: 38.5, casual: 49.4, regular: 12.1 },
+      interests: ["Rap & Hip Hop 38%", "R&B 36%", "Basketball 30%", "American Football 26%", "Soul 22%"],
+      audienceOverlap: ["DeenTheGreat", "Revolt", "Deen N AB Updates"],
+    },
   },
   {
     id: "so-true",
@@ -224,6 +289,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "A weekly podcast from beloved gay comedian Caleb Hearon. Basically, just getting into it and sorting it all out and kind of identifying what’s really real.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Comedy and pop-culture guest conversation",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -269,6 +335,14 @@ const shows = [
       ],
       hhi100k: "58.4%",
       usShare: "62%",
+      races: [
+        { label: "Caucasian", pct: 46.4 },
+        { label: "Hispanic", pct: 8.7 },
+        { label: "African American", pct: 6.2 },
+        { label: "Asian", pct: 4.2 },
+        { label: "Middle Eastern", pct: 1.6 },
+        { label: "Native American", pct: 0.2 },
+      ],
       topGeos: ["California 13.5%", "Texas 7.4%", "New York 6.1%", "Florida 4.5%", "Illinois 3.8%"],
       devices: [
         { label: "Mobile", pct: 52.8 },
@@ -290,6 +364,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "Welcome to Wingmen, hosted by NHL brothers Matthew & Brady Tkachuk. Your all-access pass into the world of hockey, brotherhood, and behind-the-scenes stories you won’t hear anywhere else.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Hockey-focused sports talk podcast",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -318,6 +393,14 @@ const shows = [
       ],
       hhi100k: "67.0%",
       usShare: "59%",
+      races: [
+        { label: "Caucasian", pct: 46.3 },
+        { label: "Hispanic", pct: 5.0 },
+        { label: "African American", pct: 3.7 },
+        { label: "Asian", pct: 2.8 },
+        { label: "Middle Eastern", pct: 2.2 },
+        { label: "Native American", pct: 0.5 },
+      ],
       topGeos: ["Ottawa, ON 3.2%", "Toronto, ON 2.5%", "Calgary, AB 1.4%", "New York 0.9%", "Montreal, QC 0.8%"],
       devices: [
         { label: "Mobile", pct: 45.4 },
@@ -339,6 +422,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "Hoops, culture, and conversation collide at 7PM. Carmelo Anthony sits with a rotating all star crew of The Kid Mero, Rudy Gay, Monica McNutt, and Kazeem Famuyide to tap into the game, the culture, and the stories that shape both.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Basketball and culture conversation show",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -372,6 +456,14 @@ const shows = [
       ],
       hhi100k: "50.0%",
       usShare: "80%",
+      races: [
+        { label: "Caucasian", pct: 31.4 },
+        { label: "African American", pct: 15.7 },
+        { label: "Hispanic", pct: 9.5 },
+        { label: "Asian", pct: 4.0 },
+        { label: "Middle Eastern", pct: 1.1 },
+        { label: "Native American", pct: 0.3 },
+      ],
       topGeos: ["New York 10.6%", "California 8.1%", "Texas 7.4%", "Florida 5.8%", "Georgia 5.3%"],
       devices: [
         { label: "Mobile", pct: 41.6 },
@@ -393,6 +485,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "Cudi invites his favorite people in culture and entertainment to come kick it. He puts you on to dope s**t, and taps into the real journey behind his and his guests' biggest successes.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Music and culture interview/commentary show",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -401,7 +494,7 @@ const shows = [
     slateImagePath: "/assets/Images/Slate/Slides BG_Big Bro.jpg",
     talent: "Kid Cudi",
     youtubeUrl: "https://www.youtube.com/@BigBroCudi",
-    audioUrl: null as string | null,
+    audioUrl: "https://open.spotify.com/show/015FnGMuczOXnpFEMbrlu5",
     audience: {
       followers: "62K",
       monthlyViews: "14M",
@@ -421,6 +514,12 @@ const shows = [
       ],
       hhi100k: "12%",
       usShare: "72%",
+      races: [
+        { label: "White/Caucasian", pct: 56.25 },
+        { label: "Hispanic", pct: 19.89 },
+        { label: "African American", pct: 22.77 },
+        { label: "Asian", pct: 1.09 },
+      ],
       topGeos: ["California 16%", "Texas 8.5%", "New York 5.6%", "Florida 5.2%", "Georgia 3.3%"],
       devices: [
         { label: "Mobile", pct: 45.8 },
@@ -442,6 +541,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "Bad Friends.... a podcast with Bobby Lee and Andrew Santino.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Pop-culture and lifestyle talk show",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -471,6 +571,14 @@ const shows = [
       ],
       hhi100k: "64.7%",
       usShare: "76%",
+      races: [
+        { label: "Caucasian", pct: 49.6 },
+        { label: "Hispanic", pct: 6.0 },
+        { label: "African American", pct: 3.8 },
+        { label: "Asian", pct: 3.2 },
+        { label: "Middle Eastern", pct: 1.5 },
+        { label: "Native American", pct: 0.2 },
+      ],
       topGeos: ["California 9.5%", "Texas 6.3%", "New York 4.0%", "Florida 4.0%", "Pennsylvania 3.0%"],
       devices: [
         { label: "Mobile", pct: 52.9 },
@@ -492,6 +600,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "This ain't your average fitness show. Here, we champion three things: Strength, pushing boundaries, and looking good while doing it. Ilona Maher brings some of the biggest names in sports and entertainment into the gym to test their limits.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Fitness and celebrity conversation talk show",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -499,7 +608,7 @@ const shows = [
     thumbnailPath: "/thumbnails/open-thoughts.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_Power Hour.jpg",
     talent: "Ilona Maher",
-    youtubeUrl: null as string | null,
+    youtubeUrl: "https://www.youtube.com/@HouseofMaher",
     audioUrl: null as string | null,
   },
   {
@@ -510,6 +619,7 @@ const shows = [
     tagline: "Placeholder — replace with tagline.",
     description: "Placeholder — replace with show description.",
     specs: "Placeholder — replace with specs.",
+    detailFormat: "Comedy commentary/conversation about cultural conspiracy theories",
     season: "2026",
     videoPath: null as string | null,
     oneSheetPath: null as string | null,
@@ -517,8 +627,8 @@ const shows = [
     thumbnailPath: "/thumbnails/so-true.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_My Momma Told Me.jpg",
     talent: "Langston Kerman & David Gborie",
-    youtubeUrl: null as string | null,
-    audioUrl: null as string | null,
+    youtubeUrl: "https://www.youtube.com/@MyMommaToldMe",
+    audioUrl: "https://open.spotify.com/show/4k3gmSWsZRadfpgyLNcG9B",
   },
 ];
 
@@ -963,10 +1073,152 @@ async function VipPage() {
 
       <div style={{ height: "1px", background: S.line, margin: "0 40px" }} />
 
+      {/* ── EVENT INFORMATION ───────────────────────────── */}
+      <section id="event" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <SectionHeader eyebrow="03 / Event" title="Event information." />
+
+          <div
+            style={{
+              marginTop: "72px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            {/* Date & Time card */}
+            <div
+              style={{
+                background: S.slate,
+                borderRadius: "12px",
+                padding: "56px 48px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                gap: "24px",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: S.fontDisplay,
+                  fontSize: "clamp(36px, 5vw, 64px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.05,
+                  color: S.silver,
+                  whiteSpace: "pre-line",
+                }}
+              >
+                Tuesday{"\n"}October 27, 2026
+              </div>
+              <div
+                style={{
+                  fontFamily: S.fontMono,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  color: "rgba(244,245,240,.55)",
+                }}
+              >
+                5:30 – 9PM EST
+              </div>
+              <a
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2026&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2026+VIP+Presentation&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  marginTop: "8px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "14px 32px",
+                  border: `1px solid ${S.volt}`,
+                  borderRadius: "999px",
+                  color: S.silver,
+                  fontFamily: S.fontMono,
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
+              >
+                ADD TO CALENDAR →
+              </a>
+            </div>
+
+            {/* Venue card */}
+            <div
+              style={{
+                background: S.slate,
+                borderRadius: "12px",
+                padding: "56px 48px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                gap: "24px",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: S.fontDisplay,
+                  fontSize: "clamp(36px, 5vw, 64px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.05,
+                  color: S.silver,
+                  whiteSpace: "pre-line",
+                }}
+              >
+                The Altman{"\n"}Building
+              </div>
+              <div
+                style={{
+                  fontFamily: S.fontMono,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  color: "rgba(244,245,240,.55)",
+                }}
+              >
+                135 WEST 18TH STREET{"  "}NEW YORK, NY 10011
+              </div>
+              <a
+                href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  marginTop: "8px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "14px 32px",
+                  border: `1px solid ${S.volt}`,
+                  borderRadius: "999px",
+                  color: S.silver,
+                  fontFamily: S.fontMono,
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
+              >
+                GET DIRECTIONS →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style={{ height: "1px", background: S.line, margin: "0 40px" }} />
+
       {/* ── AUDIENCE ────────────────────────────────────── */}
       <section id="audience" style={{ padding: "112px 40px", scrollMarginTop: "64px" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-          <SectionHeader eyebrow="03 / Audience" title="Who's watching." />
+          <SectionHeader eyebrow="04 / Audience" title="Who's watching." />
 
           <div
             style={{

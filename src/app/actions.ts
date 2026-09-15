@@ -383,15 +383,16 @@ export async function trackEvent(type: string, metadata?: Record<string, string>
 }
 
 export async function submitRsvp(
-  _prevState: { error: string; success: boolean },
+  _prevState: { error: string; success: boolean; rsvpType?: string },
   formData: FormData
-): Promise<{ error: string; success: boolean }> {
+): Promise<{ error: string; success: boolean; rsvpType?: string }> {
   const firstName = (formData.get("firstName") as string | null)?.trim() ?? "";
   const lastName = (formData.get("lastName") as string | null)?.trim() ?? "";
   const name = [firstName, lastName].filter(Boolean).join(" ");
   const email = (formData.get("email") as string | null)?.trim() ?? "";
   const company = (formData.get("company") as string | null)?.trim() ?? "";
   const title = (formData.get("title") as string | null)?.trim() ?? "";
+  const rsvpType = (formData.get("rsvpType") as string | null) ?? "confirm";
 
   if (!firstName || !lastName || !email || !company || !title) {
     return { error: "Please fill in all fields.", success: false };
@@ -409,15 +410,15 @@ export async function submitRsvp(
     .eq("email", email.toLowerCase())
     .maybeSingle();
   if (existing) {
-    // Re-send confirmation quietly, then return success
-    const { data: vipMatch2 } = await supabaseAdmin.from("vip_accounts").select("point_of_contact").eq("email", email).maybeSingle();
-    const aeName2 = vipMatch2?.point_of_contact ?? null;
-    const aeEmailAddr2 = aeName2 ? (AE_EMAILS[aeName2] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
-    await sendCampaignEmail({ recipientEmail: email, recipientName: name, recipientCompany: company, emailType: "rsvp_confirmation", aeName: aeName2, sentBy: "system" }).catch(() => {});
-    return { error: "", success: true };
+    if (rsvpType !== "decline") {
+      const { data: vipMatch2 } = await supabaseAdmin.from("vip_accounts").select("point_of_contact").eq("email", email).maybeSingle();
+      const aeName2 = vipMatch2?.point_of_contact ?? null;
+      await sendCampaignEmail({ recipientEmail: email, recipientName: name, recipientCompany: company, emailType: "rsvp_confirmation", aeName: aeName2, sentBy: "system" }).catch(() => {});
+    }
+    return { error: "", success: true, rsvpType };
   }
 
-  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), company, title });
+  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), company, title, rsvp_type: rsvpType });
   if (dbError) {
     return { error: "Something went wrong. Please try again.", success: false };
   }
@@ -434,7 +435,7 @@ export async function submitRsvp(
   // Alert Wave team
   await sendMail({
     to: "jeb.shue@wave.tv",
-    subject: `New RSVP: ${name} · ${company}`,
+    subject: `${rsvpType === "decline" ? "Decline" : "New RSVP"}: ${name} · ${company}`,
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#17171A;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#17171A;">
   <tr><td align="center" style="padding:32px 16px;">
@@ -461,17 +462,19 @@ export async function submitRsvp(
 </table></body></html>`,
   }).catch(() => {});
 
-  // Confirmation to the attendee using new template
-  await sendCampaignEmail({
-    recipientEmail: email,
-    recipientName: name,
-    recipientCompany: company,
-    emailType: "rsvp_confirmation",
-    aeName,
-    sentBy: "system",
-  }).catch(() => {});
+  // Confirmation to the attendee — only for confirmed RSVPs
+  if (rsvpType !== "decline") {
+    await sendCampaignEmail({
+      recipientEmail: email,
+      recipientName: name,
+      recipientCompany: company,
+      emailType: "rsvp_confirmation",
+      aeName,
+      sentBy: "system",
+    }).catch(() => {});
+  }
 
-  return { error: "", success: true };
+  return { error: "", success: true, rsvpType };
 }
 
 type VipAccountState = {

@@ -45,7 +45,7 @@ const labelStyle: React.CSSProperties = {
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
 export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; user?: UserPrefill } = {}) {
-  const [state, formAction, isPending] = useActionState(submitRsvp, { error: "", success: false });
+  const [state, formAction, isPending] = useActionState(submitRsvp, { error: "", success: false, rsvpType: "confirm" });
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -122,10 +122,10 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           </svg>
         </div>
         <div style={{ fontFamily: S.fontDisplay, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.02em", color: S.silver }}>
-          Thank You for Confirming!
+          {state.rsvpType === "decline" ? "We'll Miss You!" : "Thank you for Confirming!"}
         </div>
         <div style={{ fontFamily: S.fontSans, fontSize: "14px", color: S.clay, maxWidth: "320px", lineHeight: 1.6 }}>
-          We Can&apos;t Wait to See You There
+          {state.rsvpType === "decline" ? "We hope to see you at a future event." : "We can't wait to see you there."}
         </div>
       </div>
       </>
@@ -201,29 +201,57 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
         </div>
       )}
 
-      <button
-        className="rsvp-confirm"
-        type="submit"
-        disabled={isPending}
-        style={{
-          background: isPending ? S.lineStrong : undefined,
-          color: S.night,
-          border: "none",
-          borderRadius: S.pill,
+      <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <button
+          className="rsvp-confirm"
+          type="submit"
+          name="rsvpType"
+          value="confirm"
+          disabled={isPending}
+          style={{
+            background: isPending ? S.lineStrong : undefined,
+            color: S.night,
+            border: "none",
+            borderRadius: S.pill,
             fontFamily: '"Zalando Sans Expanded", system-ui, sans-serif',
-              fontSize: "15px",
-          fontWeight: 700,
-              letterSpacing: "-0.025em",
-          textTransform: "uppercase",
-          height: "48px",
-          padding: "0 40px",
-          cursor: isPending ? "not-allowed" : "pointer",
-          transition: "background-color .75s cubic-bezier(.16,1,.3,1), color .75s cubic-bezier(.16,1,.3,1)",
-          gridColumn: "1 / -1",
-        }}
-      >
-        {isPending ? "Submitting…" : "Confirm Attendance"}
-      </button>
+            fontSize: "15px",
+            fontWeight: 700,
+            letterSpacing: "-0.025em",
+            textTransform: "uppercase",
+            height: "48px",
+            padding: "0 40px",
+            cursor: isPending ? "not-allowed" : "pointer",
+            transition: "background-color .75s cubic-bezier(.16,1,.3,1), color .75s cubic-bezier(.16,1,.3,1)",
+            width: "100%",
+          }}
+        >
+          {isPending ? "Submitting…" : "Confirm Attendance"}
+        </button>
+        <button
+          type="submit"
+          name="rsvpType"
+          value="decline"
+          disabled={isPending}
+          style={{
+            background: "transparent",
+            color: S.clay,
+            border: `1px solid ${S.lineStrong}`,
+            borderRadius: S.pill,
+            fontFamily: '"Zalando Sans Expanded", system-ui, sans-serif',
+            fontSize: "15px",
+            fontWeight: 700,
+            letterSpacing: "-0.025em",
+            textTransform: "uppercase",
+            height: "48px",
+            padding: "0 40px",
+            cursor: isPending ? "not-allowed" : "pointer",
+            transition: "border-color .2s, color .2s",
+            width: "100%",
+          }}
+        >
+          Decline with Regret
+        </button>
+      </div>
     </form>
   );
 }

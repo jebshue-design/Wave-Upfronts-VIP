@@ -31,6 +31,24 @@ export type SlateItem = {
   detailPartnerships?: string;
   youtubeUrl?: string | null;
   audioUrl?: string | null;
+  audience?: {
+    persona: string;
+    genderSkew?: string;
+    genderFemale?: number;
+    genderMale?: number;
+    ages?: { label?: string; range?: string; pct: number }[];
+    races?: { label: string; pct: number }[];
+    monthlyViews: string;
+    followers: string;
+    monthlyDownloads?: string;
+    interests?: string[];
+    topGeos?: string[];
+    hhi100k?: string;
+    hhiOver100k?: number;
+    usShare?: string;
+    avgWatchTime?: string;
+    audienceOverlap?: string[];
+  } | null;
 };
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
@@ -40,8 +58,10 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<{ img: string; pdf: string } | null>(null);
   const [isReturning, setIsReturning] = useState(false);
-  const [activeNav, setActiveNav] = useState<"slate" | "audience" | "assets">("slate");
+  const [activeNav, setActiveNav] = useState<"slate" | "event" | "audience" | "assets">("slate");
+  const [audienceExpanded, setAudienceExpanded] = useState(false);
   const detailNavRef = useRef<HTMLElement>(null);
   const siteNavRef = useRef<HTMLElement>(null);
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0 });
@@ -141,7 +161,18 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     };
 
     rail.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+
+    const waitForLayout = () => {
+      const cards = Array.from(rail.querySelectorAll<HTMLElement>("[data-slate-card]"));
+      if (cards.length > 0 && cards[0].offsetWidth > 0) {
+        updateParallax();
+        onScroll();
+      } else {
+        requestAnimationFrame(waitForLayout);
+      }
+    };
+    waitForLayout();
+
     return () => {
       rail.removeEventListener("scroll", onScroll);
       if (snapTimer.current) clearTimeout(snapTimer.current);
@@ -244,31 +275,37 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     closeTimer.current = setTimeout(() => {
       setExpandedShow(null);
       setIsClosing(false);
+      setAudienceExpanded(false);
+      setLightboxUrl(null);
       setIsReturning(true);
       if (returnTimer.current) clearTimeout(returnTimer.current);
       returnTimer.current = setTimeout(() => setIsReturning(false), 700);
     }, 1000);
   };
-  const selectAudience = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const selectAudience = () => {
     setActiveNav("audience");
-    const page = event.currentTarget.closest<HTMLElement>(".slate-page");
+    const page = document.querySelector<HTMLElement>(".slate-page");
     const audience = document.getElementById("audience");
     if (page && audience) page.scrollTo({ top: audience.offsetTop, behavior: "smooth" });
     trackEvent("nav_audience").catch(() => {});
   };
-  const selectAssets = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const selectEvent = () => {
+    setActiveNav("event");
+    const page = document.querySelector<HTMLElement>(".slate-page");
+    const event = document.getElementById("event");
+    if (page && event) page.scrollTo({ top: event.offsetTop, behavior: "smooth" });
+    trackEvent("nav_event").catch(() => {});
+  };
+  const selectAssets = () => {
     setActiveNav("assets");
-    const page = event.currentTarget.closest<HTMLElement>(".slate-page");
+    const page = document.querySelector<HTMLElement>(".slate-page");
     const assets = document.getElementById("assets");
     if (page && assets) page.scrollTo({ top: assets.offsetTop, behavior: "smooth" });
     trackEvent("nav_assets").catch(() => {});
   };
-  const selectSlate = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const selectSlate = () => {
     setActiveNav("slate");
-    const page = event.currentTarget.closest<HTMLElement>(".slate-page");
+    const page = document.querySelector<HTMLElement>(".slate-page");
     page?.scrollTo({ top: 0, behavior: "smooth" });
     trackEvent("nav_slate").catch(() => {});
   };
@@ -338,10 +375,9 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           <header className="slate-detail-header">
             <img src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
             <nav ref={detailNavRef} aria-label="Show navigation">
-              <Link className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} href="/" onClick={selectSlate}>SLATE</Link>
-              <Link className={`nav-audience${activeNav === "audience" ? " slate-nav-active" : ""}`} href="/#audience" onClick={selectAudience}>AUDIENCE</Link>
-              <Link className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} href="/#assets" onClick={selectAssets}>ASSETS</Link>
-              <button type="button" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>RSVP</button>
+              <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setActiveNav("slate"); }}>SLATE</button>
+              <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectEvent, 350); }}>EVENT</button>
+              <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={selectAssets}>ASSETS</button>
               <span className="slate-nav-indicator" style={{ left: navIndicator.left, width: navIndicator.width }} />
             </nav>
           </header>
@@ -349,7 +385,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <img className="back-outline-art" src="/assets/Back Arrow@3x.png" alt="" draggable={false} />
             <img className="pill-fill-art" src="/assets/Back Fill.png" alt="" draggable={false} />
           </button>
-          <div className="slate-detail-content">
+          <div className={`slate-detail-content${audienceExpanded ? " is-audience-view" : ""}`}>
             <span className="slate-detail-category">{expandedShow.category}</span>
             <h1>{expandedShow.id === "ngl" ? "Not Gonna Lie" : expandedShow.title}</h1>
             <p className="slate-detail-talent">{expandedShow.talent ?? expandedShow.category}</p>
@@ -357,21 +393,131 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               {(expandedShow.detailTopics ?? [expandedShow.category]).map((topic) => <span key={topic}>{topic}</span>)}
             </div>
             <p className="slate-detail-description">{expandedShow.detailDescription ?? expandedShow.description ?? expandedShow.tagline}</p>
+            {(() => {
+              const oneSheets: Record<string, string> = {
+                "ngl": "/assets/one-sheets/Not Gonna Lie w_ Kylie Kelce _ One Sheet 2026.pdf",
+                "bad-friends": "/assets/one-sheets/Bad Friends _ One Sheet 2026.pdf",
+                "whiskey-ginger": "/assets/one-sheets/Whiskey Ginger with Andrew Santino _ One Sheet 2026.pdf",
+                "almost-athletes": "/assets/one-sheets/Almost Athletes _ One Sheet 2026.pdf",
+                "open-thoughts": "/assets/one-sheets/Open Thoughts _ One Sheet 2026.pdf",
+                "wingmen": "/assets/one-sheets/Wingmen with Matthew & Brady Tkachuk _ One Sheet 2026.pdf",
+                "7pm-brooklyn": "/assets/one-sheets/7PM in Brooklyn _ One Sheet 2026.pdf",
+                "house-of-maher": "/assets/one-sheets/House of Maher _ One Sheet 2026.pdf",
+                "big-bro": "/assets/one-sheets/Big Bro with Kid Cudi _ One Sheet 2026.pdf",
+                "power-hour": "/assets/one-sheets/Power Hour One Sheet _ 2026.pdf",
+                "my-momma-told-me": "/assets/one-sheets/My Momma Told Me One Sheet.pdf",
+              };
+              const showOneSheetUrl = oneSheets[expandedShow.id];
+              const thumbUrl = showOneSheetUrl ? `/assets/one-sheets/thumbs/${expandedShow.id}.png` : null;
+              if (!expandedShow.youtubeUrl && !expandedShow.audioUrl && !showOneSheetUrl) return null;
+              return (
+                <div className="slate-detail-channels">
+                  {expandedShow.youtubeUrl && (
+                    <a className="slate-detail-channel-btn" href={expandedShow.youtubeUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_youtube", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {}); }}>
+                      Watch
+                    </a>
+                  )}
+                  {expandedShow.audioUrl && (
+                    <a className="slate-detail-channel-btn" href={expandedShow.audioUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_spotify", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {}); }}>
+                      Listen
+                    </a>
+                  )}
+                  {thumbUrl && showOneSheetUrl && (
+                    <button type="button" className="slate-detail-channel-btn" onClick={(e) => { e.stopPropagation(); setLightboxUrl({ img: thumbUrl, pdf: showOneSheetUrl }); trackEvent("show_onesheet", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {}); }}>
+                      One Sheet
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
             <div className="slate-detail-specs">
-              <div><span>DEMOGRAPHICS</span><strong>{expandedShow.detailDemographics ?? expandedShow.demo ?? "MIXED"}</strong></div>
+              {expandedShow.audience ? (
+                <div
+                  className={`slate-detail-audience-btn${audienceExpanded ? " is-open" : ""}`}
+                  onClick={() => setAudienceExpanded((v) => !v)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && setAudienceExpanded((v) => !v)}
+                >
+                  <span>AUDIENCE</span>
+                  <strong>{audienceExpanded ? "COLLAPSE ↑" : "VIEW DATA ↓"}</strong>
+                </div>
+              ) : (
+                <div><span>DEMOGRAPHICS</span><strong>{expandedShow.detailDemographics ?? expandedShow.demo ?? "MIXED"}</strong></div>
+              )}
               <div><span>CADENCE</span><strong>{expandedShow.detailCadence ?? "WEEKLY"}</strong></div>
               <div><span>FORMAT</span><strong>{expandedShow.detailFormat ?? expandedShow.specs ?? "WAVE ORIGINALS"}</strong></div>
             </div>
+            {audienceExpanded && expandedShow.audience && (() => {
+              const aud = expandedShow.audience!;
+              const isMaleFirst = aud.genderSkew?.toLowerCase().endsWith("male") && !aud.genderSkew?.toLowerCase().endsWith("female");
+              const gskewA = aud.genderSkew ? parseInt(aud.genderSkew) : null;
+              const gskewB = aud.genderSkew ? parseInt(aud.genderSkew.split("/")[1]) : null;
+              const gF = aud.genderFemale ?? (isMaleFirst ? gskewB : gskewA);
+              const gM = aud.genderMale ?? (isMaleFirst ? gskewA : gskewB);
+              return (
+                <div className="detail-audience">
+                  <div className="detail-audience-stats">
+                    <div className="detail-stat"><strong>{aud.monthlyViews}</strong><span>Monthly Views</span></div>
+                    <div className="detail-stat"><strong>{aud.followers}</strong><span>Total Followers</span></div>
+                    {aud.monthlyDownloads && <div className="detail-stat"><strong>{aud.monthlyDownloads}</strong><span>Monthly Downloads</span></div>}
+                    {aud.hhi100k && <div className="detail-stat"><strong>{aud.hhi100k}</strong><span>HHI $100K+</span></div>}
+                  </div>
+                  {(gF != null || gM != null || (aud.ages && aud.ages.length > 0) || (aud.topGeos && aud.topGeos.length > 0)) && (
+                    <div className="detail-audience-demo">
+                      {(gF != null || gM != null) && (
+                        <div className="detail-demo-gender">
+                          <span className="detail-demo-label">GENDER</span>
+                          <div className="detail-gender-bars">
+                            {gF != null && <div className="detail-gender-row"><span>F</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gM != null && gM > gF) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gF}%` }} /></div><span>{gF}%</span></div>}
+                            {gM != null && <div className="detail-gender-row"><span>M</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gF != null && gF > gM) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gM}%` }} /></div><span>{gM}%</span></div>}
+                          </div>
+                        </div>
+                      )}
+                      {aud.ages && aud.ages.length > 0 && (
+                        <div className="detail-demo-age">
+                          <span className="detail-demo-label">AGE</span>
+                          <div className="detail-age-bars">
+                            {aud.ages.map((a) => { const k = a.label ?? a.range ?? String(a.pct); return (
+                              <div className="detail-age-row" key={k}><span>{k}</span><div className="detail-age-track"><div className="detail-age-fill" style={{ width: `${Math.min(a.pct * 2, 100)}%` }} /></div><span>{a.pct.toFixed(0)}%</span></div>
+                            );})}
+                          </div>
+                        </div>
+                      )}
+                      {aud.races && aud.races.length > 0 && (
+                        <div className="detail-demo-race">
+                          <span className="detail-demo-label">RACE / ETHNICITY</span>
+                          <div className="detail-age-bars">
+                            {[...aud.races].sort((a, b) => b.pct - a.pct).slice(0, 5).map((r) => (
+                              <div className="detail-race-row" key={r.label}>
+                                <span className="detail-race-label">{r.label}</span>
+                                <div className="detail-race-track"><div className="detail-age-fill" style={{ width: `${Math.min(r.pct * 2, 100)}%` }} /></div>
+                                <span className="detail-race-pct">{r.pct % 1 === 0 ? r.pct : r.pct.toFixed(1)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {aud.topGeos && aud.topGeos.length > 0 && (
+                    <div className="detail-audience-geos">
+                      <span className="detail-demo-label">TOP MARKETS</span>
+                      <div className="detail-geo-list">{aud.topGeos.map((g) => <span key={g}>{g}</span>)}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}
       <header className="slate-header">
         <img className="slate-mark" src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
         <nav ref={siteNavRef} className="slate-nav" aria-label="Site navigation">
-          <Link className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} href="/" onClick={selectSlate}>SLATE</Link>
-          <Link className={`nav-audience${activeNav === "audience" ? " slate-nav-active" : ""}`} href="/#audience" onClick={selectAudience}>AUDIENCE</Link>
-          <Link className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} href="/#assets" onClick={selectAssets}>ASSETS</Link>
-          <button type="button" className="slate-rsvp" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>RSVP</button>
+          <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={selectSlate}>SLATE</button>
+          <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={selectEvent}>EVENT</button>
+          <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={selectAssets}>ASSETS</button>
           <span className="slate-nav-indicator" style={{ left: navIndicator.left, width: navIndicator.width }} />
           <form action={logout} style={{ display: "contents" }}>
             <button type="submit" className="slate-logout">Log Out</button>
@@ -428,22 +574,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   draggable={false}
                 />
               </div>
-              {(show.youtubeUrl || show.audioUrl) && (
-                <div className="slate-card-channels" onPointerDown={(e) => e.stopPropagation()}>
-                  {show.youtubeUrl && (
-                    <a className="slate-channel-btn" href={show.youtubeUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_youtube", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
-                      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M13.7 1.56A1.75 1.75 0 0 0 12.47.31C11.37 0 7 0 7 0S2.63 0 1.53.31A1.75 1.75 0 0 0 .3 1.56C0 2.67 0 5 0 5s0 2.33.3 3.44a1.75 1.75 0 0 0 1.23 1.25C2.63 10 7 10 7 10s4.37 0 5.47-.31a1.75 1.75 0 0 0 1.23-1.25C14 7.33 14 5 14 5s0-2.33-.3-3.44ZM5.6 7.14V2.86L9.24 5 5.6 7.14Z" fill="currentColor"/></svg>
-                      YouTube
-                    </a>
-                  )}
-                  {show.audioUrl && (
-                    <a className="slate-channel-btn" href={show.audioUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_spotify", { show_id: show.id, show_title: show.title }).catch(() => {}); }}>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="6" fill="currentColor" opacity=".15"/><path d="M8.6 8.2a.4.4 0 0 1-.55.13C6.74 7.33 5.12 7.13 3.2 7.58a.4.4 0 1 1-.18-.78C5 6.33 6.8 6.56 8.47 7.65a.4.4 0 0 1 .13.55Zm.55-1.22a.5.5 0 0 1-.69.16C6.6 6.02 4.67 5.75 2.88 6.26a.5.5 0 1 1-.28-.96C4.6 4.74 6.74 5.04 9 6.27a.5.5 0 0 1 .15.71Zm.05-1.27C6.85 4.3 4.38 4.22 2.73 4.7a.6.6 0 1 1-.35-1.15C4.25 3.02 6.99 3.11 9.4 4.56a.6.6 0 1 1-.6 1.04-.6.6 0 0 1-.2-.09Z" fill="currentColor" opacity=".9"/></svg>
-                      Audio
-                    </a>
-                  )}
-                </div>
-              )}
               <div className="slate-card-info">
                 <div>
                   <span className="slate-category">{show.category}</span>
@@ -463,23 +593,35 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         </div>
       </section>
 
-      <section id="audience" className="slate-audience" aria-labelledby="audience-heading">
-        <div className="slate-audience-inner">
-          <div className="slate-audience-heading">
-            <h2 id="audience-heading">Who&apos;s Watching.</h2>
-          </div>
-          <div className="slate-audience-metrics">
-            {[
-              ["1B+", "VIEWS PER MONTH"],
-              ["75%", "UNDER 35 AVERAGE AGE"],
-              ["0+", "PARTNER BRANDS"],
-              ["0M+", "SOCIAL REACH"],
-            ].map(([value, label]) => (
-              <div className="slate-audience-metric" key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
+      <section id="event" className="slate-event-section">
+        <div className="slate-event-inner">
+          <div className="slate-event-banner">
+            <div className="slate-event-top">
+              <span className="slate-event-name">Wave Upfronts 2027</span>
+              <button type="button" className="slate-event-rsvp" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>RSVP →</button>
+            </div>
+            <div className="slate-event-divider" />
+            <div className="slate-event-hero">
+              <div className="slate-event-venue-img">
+                <img src="/assets/altman-building.jpg" alt="The Altman Building" />
               </div>
-            ))}
+              <div className="slate-event-hero-right">
+                <div className="slate-event-hero-meta">
+                  <div className="slate-event-hero-row">
+                    <span className="slate-event-label">When</span>
+                    <span className="slate-event-hero-val">Tuesday, October 27, 2026 · 5:30–9PM EST</span>
+                  </div>
+                  <div className="slate-event-hero-row">
+                    <span className="slate-event-label">Where</span>
+                    <span className="slate-event-hero-val">The Altman Building · 135 West 18th St, New York</span>
+                  </div>
+                </div>
+                <div className="slate-event-hero-actions">
+                  <a className="slate-event-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2027&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2027&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011" target="_blank" rel="noopener noreferrer">Add to Calendar →</a>
+                  <a className="slate-event-btn" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">Get Directions →</a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -491,7 +633,22 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           </div>
           <div className="slate-assets-list">
             {[
-              ...shows.map((show) => ({ label: `${show.title} — One-Sheet`, type: "PDF", file: undefined, showId: show.id })),
+              ...shows.map((show) => {
+                const oneSheets: Record<string, string> = {
+                  "ngl": "/assets/one-sheets/Not Gonna Lie w_ Kylie Kelce _ One Sheet 2026.pdf",
+                  "bad-friends": "/assets/one-sheets/Bad Friends _ One Sheet 2026.pdf",
+                  "whiskey-ginger": "/assets/one-sheets/Whiskey Ginger with Andrew Santino _ One Sheet 2026.pdf",
+                  "almost-athletes": "/assets/one-sheets/Almost Athletes _ One Sheet 2026.pdf",
+                  "open-thoughts": "/assets/one-sheets/Open Thoughts _ One Sheet 2026.pdf",
+                  "wingmen": "/assets/one-sheets/Wingmen with Matthew & Brady Tkachuk _ One Sheet 2026.pdf",
+                  "7pm-brooklyn": "/assets/one-sheets/7PM in Brooklyn _ One Sheet 2026.pdf",
+                  "house-of-maher": "/assets/one-sheets/House of Maher _ One Sheet 2026.pdf",
+                  "big-bro": "/assets/one-sheets/Big Bro with Kid Cudi _ One Sheet 2026.pdf",
+                  "power-hour": "/assets/one-sheets/Power Hour One Sheet _ 2026.pdf",
+                  "my-momma-told-me": "/assets/one-sheets/My Momma Told Me One Sheet.pdf",
+                };
+                return { label: `${show.title} — One-Sheet`, type: "PDF", file: oneSheets[show.id], showId: show.id };
+              }),
               { label: "Wave Upfronts 2026 — Full Deck", type: "PDF", file: undefined, showId: undefined },
               { label: "Wave Network Overview", type: "PDF", file: undefined, showId: undefined },
               { label: "Audience & Reach Report", type: "PDF", file: undefined, showId: undefined },
@@ -566,7 +723,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-shade {
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.26) 48%, rgba(0,0,0,0) 78%), linear-gradient(0deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,0) 58%);
+          background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.26) 48%, rgba(0,0,0,0) 78%), linear-gradient(0deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,0) 58%), linear-gradient(180deg, rgba(33,41,34,.85) 0%, rgba(33,41,34,0) 22%);
         }
         .slate-detail.is-closing .slate-detail-image,
         .slate-detail.is-closing .slate-detail-shade {
@@ -605,17 +762,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           to { opacity: 0; transform: translateX(-20px); }
         }
         .slate-detail-header > img { width: 121px; height: auto; }
-        .slate-detail-header nav { margin-left: auto; display: flex; align-items: center; gap: 28px; font: 400 12px "Pragmatica Book", "Zalando Sans", sans-serif; letter-spacing: -.025em; color: #fff; mix-blend-mode: difference; }
-        .slate-detail-header nav button { border: 0; border-radius: 999px; padding: 5px 16px; background: #e3f643; color: #0b0909; font: 700 12px "Zalando Sans", sans-serif; letter-spacing: -.025em; cursor: pointer; mix-blend-mode: normal; }
-        .slate-page.detail-nav-dark .slate-detail-header nav {
-          color: #0b0909;
-          mix-blend-mode: normal;
-        }
-        .slate-page.detail-nav-dark .slate-detail-header nav > a,
-        .slate-page.detail-nav-dark .slate-detail-header nav > span:not(.slate-nav-indicator) {
-          color: #0b0909;
-          mix-blend-mode: normal;
-        }
+        .slate-detail-header nav { margin-left: auto; }
         .slate-detail-back {
           position: absolute;
           top: 120px;
@@ -682,10 +829,56 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-talent { margin: 20px 0 0; font: 500 clamp(24px, 3vw, 42px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-tags { display: flex; gap: 22px; margin-top: 34px; color: rgba(244,245,240,.72); }
         .slate-detail-description { max-width: 500px; margin: 32px 0 0; color: rgba(244,245,240,.88); font-size: 16px; line-height: 1.3; }
-        .slate-detail-specs { display: flex; gap: 42px; margin-top: 78px; }
+        .slate-detail-channels { display: flex; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+        .slate-detail-channel-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(244,245,240,.25); color: rgba(244,245,240,.8); font: 600 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; text-decoration: none; transition: border-color .15s, color .15s; }
+        .slate-detail-channel-btn:hover { border-color: #e3f643; color: #e3f643; }
+        .slate-onesheet-preview { display: block; margin-top: 20px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(244,245,240,.12); background: none; padding: 0; position: relative; transition: border-color .2s, transform .2s; max-width: 340px; cursor: pointer; }
+        .slate-onesheet-preview:hover { border-color: rgba(244,245,240,.3); transform: translateY(-2px); }
+        .slate-onesheet-preview img { display: block; width: 100%; height: auto; }
+        .slate-onesheet-preview-label { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: rgba(15,18,15,.85); color: rgba(244,245,240,.75); font: 600 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; border-top: 1px solid rgba(244,245,240,.08); transition: color .18s; }
+        .slate-onesheet-preview:hover .slate-onesheet-preview-label { color: #e3f643; }
+
+        @keyframes lb-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+        .onesheet-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(11,9,9,.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+        .onesheet-lightbox img { width: auto; height: 82vh; max-width: 88vw; object-fit: contain; border: 1px solid rgba(244,245,240,.1); box-shadow: 0 48px 120px rgba(0,0,0,.8); cursor: default; animation: lb-in .32s cubic-bezier(.16,1,.3,1) both; }
+        .onesheet-lightbox-actions { position: fixed; top: 24px; right: 24px; display: flex; align-items: center; gap: 10px; }
+        .onesheet-lightbox-download { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; background: #e3f643; color: #0b0909; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; text-decoration: none; transition: opacity .15s; }
+        .onesheet-lightbox-download:hover { opacity: .85; }
+        .onesheet-lightbox-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(244,245,240,.1); border: 1px solid rgba(244,245,240,.15); color: rgba(244,245,240,.7); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
+        .onesheet-lightbox-close:hover { background: rgba(244,245,240,.18); color: #f4f5f0; }
+        .slate-detail-specs { display: flex; gap: 42px; margin-top: 48px; }
         .slate-detail-specs div { display: grid; gap: 8px; }
         .slate-detail-specs span { color: rgba(244,245,240,.58); }
         .slate-detail-specs strong { max-width: 180px; white-space: pre-line; font: 500 13px/1.2 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
+        .slate-detail-content { overflow-y: auto; max-height: calc(100dvh - clamp(220px,31vh,300px) - 40px); padding-bottom: 60px; scrollbar-width: none; }
+        .slate-detail-content::-webkit-scrollbar { display: none; }
+        .slate-detail-audience-btn { cursor: pointer; border: 1px solid rgba(227,246,67,.35); border-radius: 6px; padding: 10px 14px; transition: border-color .2s, background .2s; }
+        .slate-detail-audience-btn:hover { border-color: rgba(227,246,67,.7); background: rgba(227,246,67,.06); }
+        .slate-detail-audience-btn.is-open { border-color: #e3f643; background: rgba(227,246,67,.08); }
+        .slate-detail-audience-btn strong { color: #e3f643 !important; font-size: 11px !important; letter-spacing: .04em; }
+        .detail-audience { display: flex; flex-direction: column; gap: 20px; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(244,245,240,.1); }
+        .detail-audience-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+        .detail-stat { display: flex; flex-direction: column; gap: 5px; }
+        .detail-stat strong { font: 700 clamp(16px,1.8vw,24px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.03em; color: #e3f643; }
+        .detail-stat span { font: 600 9px/1 "Zalando Sans Expanded", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,245,240,.5); }
+        .detail-audience-demo { display: flex; gap: 24px; align-items: flex-start; flex-wrap: nowrap; }
+        .detail-demo-gender, .detail-demo-age, .detail-demo-race { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .detail-race-row { display: flex; align-items: center; gap: 7px; font: 600 10px/1 "Zalando Sans Expanded", sans-serif; color: rgba(244,245,240,.7); }
+        .detail-race-label { width: 92px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .detail-race-pct { width: 34px; text-align: right; flex-shrink: 0; }
+        .detail-audience-geos { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+        .detail-geo-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .detail-demo-label { font: 700 9px/1 "Zalando Sans Expanded", sans-serif; letter-spacing: .1em; color: rgba(244,245,240,.45); }
+        .detail-gender-bars, .detail-age-bars { display: flex; flex-direction: column; gap: 7px; }
+        .detail-gender-row, .detail-age-row { display: flex; align-items: center; gap: 8px; font: 600 10px/1 "Zalando Sans Expanded", sans-serif; color: rgba(244,245,240,.7); }
+        .detail-gender-row > span:first-child, .detail-age-row > span:first-child { width: 28px; }
+        .detail-gender-row > span:last-child, .detail-age-row > span:last-child { width: 36px; text-align: right; }
+        .detail-gender-track, .detail-age-track, .detail-race-track { width: 88px; height: 4px; background: rgba(244,245,240,.12); border-radius: 2px; overflow: hidden; }
+        .detail-age-track { width: 100px; }
+        .detail-gender-fill { height: 100%; background: #e3f643; border-radius: 2px; transition: width .4s ease; }
+        .detail-gender-fill-dim { background: rgba(244,245,240,.35); }
+        .detail-age-fill { height: 100%; background: #e3f643; border-radius: 2px; }
+        .detail-geo-list span { display: inline-block; padding: 5px 12px; border: 1px solid rgba(244,245,240,.15); border-radius: 999px; font: 600 10px/1 "Space Grotesk", monospace; letter-spacing: .04em; color: rgba(244,245,240,.72); }
         .slate-header, .slate-footer {
           position: fixed;
           z-index: 10;
@@ -724,72 +917,83 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           position: relative;
           display: flex;
           align-items: center;
-          gap: 29px;
-          color: #fff;
-          mix-blend-mode: difference;
+          gap: 4px;
+          background: rgba(11,9,9,0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(244,245,240,0.1);
+          border-radius: 999px;
+          padding: 4px 6px;
         }
         .slate-nav button,
-        .slate-detail-header nav button { mix-blend-mode: normal; }
-        .slate-nav a {
-          position: relative;
-          color: inherit;
+        .slate-nav a,
+        .slate-detail-header nav button,
+        .slate-detail-header nav a {
+          border: 0;
+          background: none;
+          color: rgba(244,245,240,0.55);
+          font: 600 11px/1 "Space Grotesk", monospace;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           text-decoration: none;
+          padding: 6px 14px;
+          border-radius: 999px;
+          cursor: pointer;
+          transition: color 0.15s, background 0.15s;
+          white-space: nowrap;
         }
-        .slate-nav > a,
-        .slate-nav > span:not(.slate-nav-indicator),
-        .slate-detail-header nav > a,
-        .slate-detail-header nav > span:not(.slate-nav-indicator) {
-          color: #fff;
-          mix-blend-mode: difference;
+        .slate-nav button:hover,
+        .slate-nav a:hover,
+        .slate-detail-header nav button:hover,
+        .slate-detail-header nav a:hover { color: rgba(244,245,240,0.9); }
+        .slate-nav-active {
+          background: rgba(244,245,240,0.1) !important;
+          color: #faf7f4 !important;
         }
-        .slate-nav-active::after {
-          content: none;
-        }
-        .slate-nav-indicator {
-          position: absolute;
-          bottom: -7px;
-          left: 0;
-          height: 2px;
-          background: #e3f643;
-          transition: left .42s cubic-bezier(.16,1,.3,1), width .42s cubic-bezier(.16,1,.3,1);
-          pointer-events: none;
-        }
+        .slate-nav-indicator { display: none; }
         .slate-rsvp {
           border: 0;
           border-radius: 999px;
           background: #e3f643;
           color: #0b0909;
-          padding: 5px 16px;
-          font: 700 12px "Zalando Sans", sans-serif;
-          letter-spacing: -.025em;
+          padding: 6px 16px;
+          font: 700 11px/1 "Space Grotesk", monospace;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           cursor: pointer;
+          transition: opacity .15s;
         }
+        .slate-rsvp:hover { opacity: 0.85; }
         .slate-card-channels {
           position: absolute;
           top: 20px;
-          right: 20px;
+          left: 20px;
           display: flex;
           gap: 8px;
           z-index: 4;
+          flex-wrap: wrap;
         }
         .slate-channel-btn {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          padding: 4px 11px;
+          padding: 5px 12px;
           border-radius: 999px;
-          border: 1px solid rgba(250,247,244,0.28);
-          background: rgba(250,247,244,0.08);
-          color: rgba(250,247,244,0.75);
-          font: 500 10px "Pragmatica Book", sans-serif;
-          letter-spacing: 0.02em;
+          border: 1px solid rgba(250,247,244,0.35);
+          background: rgba(11,9,9,0.55);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: rgba(250,247,244,0.9);
+          font: 600 10px "Space Grotesk", monospace;
+          letter-spacing: 0.04em;
           text-decoration: none;
           cursor: pointer;
-          transition: background 0.15s, color 0.15s;
+          transition: background 0.15s, border-color 0.15s;
         }
         .slate-channel-btn:hover {
-          background: rgba(250,247,244,0.18);
-          color: #faf7f4;
+          background: rgba(227,246,67,0.15);
+          border-color: rgba(227,246,67,0.6);
+          color: #e3f643;
         }
         .slate-logout {
           border: 0;
@@ -802,7 +1006,31 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           mix-blend-mode: normal;
         }
         .slate-logout:hover { color: rgba(255,255,255,0.75); }
-        .slate-stage { height: 100vh; padding-top: 55px; padding-bottom: 57px; }
+        .slate-stage { height: 100vh; padding-top: 72px; padding-bottom: 57px; }
+        .slate-event-section { padding: 100px 30px; background: #000000; color: var(--slate-ink); }
+        .slate-event-venue-img { flex-shrink: 0; width: 260px; border-radius: 10px; overflow: hidden; align-self: stretch; margin-right: 8px; }
+        .slate-event-venue-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+        .slate-event-inner { max-width: 1200px; margin: 0 auto; }
+        .slate-event-eyebrow { margin: 0 0 32px; font: 700 10px/1 "Space Grotesk", monospace; letter-spacing: .12em; text-transform: uppercase; color: #e3f643; }
+        .slate-event-banner { background: #0e120e; border: 1px solid rgba(244,245,240,.08); border-radius: 20px; overflow: hidden; }
+        .slate-event-top { display: flex; align-items: center; justify-content: space-between; padding: 24px 44px; gap: 16px; }
+        .slate-event-name { font: 700 clamp(15px,1.6vw,20px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.02em; color: rgba(244,245,240,.45); }
+        .slate-event-rsvp { border: 1px solid #e3f643; border-radius: 999px; background: transparent; color: #e3f643; padding: 8px 20px; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .15s, color .15s; }
+        .slate-event-rsvp:hover { background: #e3f643; color: #0b0909; }
+        .slate-event-divider { height: 1px; background: rgba(244,245,240,.08); }
+        .slate-event-hero { display: flex; align-items: center; padding: 52px 80px 60px 44px; gap: 64px; }
+        .slate-event-hero-date { display: flex; flex-direction: column; align-items: flex-start; padding-right: 52px; border-right: 1px solid rgba(244,245,240,.1); margin-right: 52px; flex-shrink: 0; }
+        .slate-event-hero-month { font: 700 clamp(12px,1.2vw,15px)/1 "Space Grotesk", monospace; letter-spacing: .16em; text-transform: uppercase; color: #e3f643; margin-bottom: 6px; }
+        .slate-event-hero-day { font: 800 clamp(80px,11vw,148px)/.88 "Zalando Sans Expanded", sans-serif; letter-spacing: -.05em; color: #faf7f4; }
+        .slate-event-hero-right { display: flex; flex-direction: column; justify-content: space-between; flex: 1; gap: 36px; }
+        .slate-event-hero-meta { display: flex; flex-direction: column; gap: 24px; }
+        .slate-event-hero-row { display: flex; flex-direction: column; gap: 9px; }
+        .slate-event-label { font: 700 9px/1 "Space Grotesk", monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(244,245,240,.32); }
+        .slate-event-hero-val { font: 500 clamp(15px,1.7vw,21px)/1.25 "Zalando Sans Expanded", sans-serif; letter-spacing: -.02em; color: #faf7f4; }
+        .slate-event-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .slate-event-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; border: 1px solid rgba(244,245,240,.2); border-radius: 999px; color: rgba(244,245,240,.65); font: 600 11px/1 "Space Grotesk", monospace; letter-spacing: .06em; text-decoration: none; transition: border-color .15s, color .15s; white-space: nowrap; }
+        .slate-event-btn:hover { border-color: #e3f643; color: #e3f643; }
+        @media (max-width: 720px) { .slate-event-hero { flex-direction: column; padding: 40px 28px 48px; } .slate-event-hero-date { border-right: 0; border-bottom: 1px solid rgba(244,245,240,.1); padding-right: 0; padding-bottom: 32px; margin-right: 0; margin-bottom: 32px; } .slate-event-top { padding: 20px 28px; } }
         .slate-audience {
           min-height: 520px;
           padding: 112px 30px 140px;
@@ -918,7 +1146,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           height: auto;
           --card-lift: 28px;
           --card-scale: .92;
-          opacity: var(--parallax-opacity, .36);
+          opacity: var(--parallax-opacity, 1);
           transform: translate3d(0, var(--card-lift), 0) rotateY(var(--parallax-rotate, 0deg)) scale(var(--card-scale));
           transition: opacity .25s ease;
           will-change: transform, opacity, filter;
@@ -1069,7 +1297,52 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-detail-description { font-size: 14px; }
           .slate-detail-specs { gap: 18px; flex-wrap: wrap; margin-top: 28px; }
         }
+        @keyframes rsvp-float {
+          0%, 100% { transform: translateY(0); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 0 rgba(227,246,67,0); }
+          50% { transform: translateY(-5px); box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 28px 4px rgba(227,246,67,.18); }
+        }
+        .slate-float-rsvp {
+          position: fixed;
+          bottom: 28px;
+          right: 28px;
+          z-index: 50;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 14px 32px;
+          background: #e3f643;
+          color: #0b0909;
+          border: 0;
+          border-radius: 999px;
+          font: 700 12px/1 "Space Grotesk", monospace;
+          letter-spacing: .1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          animation: rsvp-float 3s ease-in-out infinite;
+          transition: opacity .15s;
+          white-space: nowrap;
+        }
+        .slate-float-rsvp:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.22); }
+        .slate-page.has-detail .slate-float-rsvp { opacity: 0; pointer-events: none; }
+
       `}</style>
+      <button type="button" className="slate-float-rsvp" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>
+        RSVP
+      </button>
+
+      {lightboxUrl && (
+        <div className="onesheet-lightbox" onClick={() => setLightboxUrl(null)}>
+          <img src={lightboxUrl.img} alt="One-Sheet" onClick={(e) => e.stopPropagation()} />
+          <div className="onesheet-lightbox-actions" onClick={(e) => e.stopPropagation()}>
+            <a className="onesheet-lightbox-download" href={lightboxUrl.pdf} download>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-8 4h16v-2H4v2z"/></svg>
+              Download
+            </a>
+            <button type="button" className="onesheet-lightbox-close" onClick={() => setLightboxUrl(null)} aria-label="Close">✕</button>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }
