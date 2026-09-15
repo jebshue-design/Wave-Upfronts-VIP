@@ -950,6 +950,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           min-height: 0;
           overflow-y: auto;
           scrollbar-width: none;
+          padding-top: 20px;
         }
         .slate-detail-scroll::-webkit-scrollbar { display: none; }
         .slate-detail-info {
