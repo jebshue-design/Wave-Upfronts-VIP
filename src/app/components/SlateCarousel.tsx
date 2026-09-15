@@ -395,6 +395,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               {(expandedShow.detailTopics ?? [expandedShow.category]).map((topic) => <span key={topic}>{topic}</span>)}
             </div>
             <p className="slate-detail-description">{expandedShow.detailDescription ?? expandedShow.description ?? expandedShow.tagline}</p>
+          </div>
             {(() => {
               const oneSheets: Record<string, string> = {
                 "ngl": "/assets/one-sheets/Not Gonna Lie w_ Kylie Kelce _ One Sheet 2026.pdf",
@@ -432,7 +433,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                 </div>
               );
             })()}
-          </div>
             <div className="slate-detail-specs">
               {expandedShow.audience ? (
                 <div
@@ -852,7 +852,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-talent { margin: 20px 0 0; font: 500 clamp(24px, 3vw, 42px)/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; }
         .slate-detail-tags { display: flex; gap: 22px; margin-top: 34px; color: rgba(244,245,240,.72); }
         .slate-detail-description { max-width: 500px; margin: 32px 0 0; color: rgba(244,245,240,.88); font-size: 16px; line-height: 1.3; }
-        .slate-detail-channels { display: flex; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+        .slate-detail-channels { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; flex-shrink: 0; }
         .slate-detail-channel-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(244,245,240,.25); color: rgba(244,245,240,.8); font: 600 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; text-decoration: none; transition: border-color .15s, color .15s; }
         .slate-detail-channel-btn:hover { border-color: #e3f643; color: #e3f643; }
         .slate-onesheet-preview { display: block; margin-top: 20px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(244,245,240,.12); background: none; padding: 0; position: relative; transition: border-color .2s, transform .2s; max-width: 340px; cursor: pointer; }
