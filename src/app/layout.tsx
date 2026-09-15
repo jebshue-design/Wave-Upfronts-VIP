@@ -1,10 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Wave Upfronts 2026",
   description: "Wave Sports & Entertainment — 2026 Upfronts. VIP access only.",
   robots: { index: false, follow: false },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

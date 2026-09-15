@@ -1286,9 +1286,14 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .explore-label img { width: 16px; height: 11px; }
         @media (max-width: 700px) {
           .slate-header, .slate-footer { padding: 16px 18px; }
-          .slate-nav, .slate-detail-header nav { gap: 12px; }
+          .slate-mark { width: 92px; }
+          .slate-logout { display: none; }
+          .slate-nav, .slate-detail-header nav { gap: 4px; }
           .slate-footer span:first-child { display: none; }
+          .slate-float-rsvp { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); right: max(20px, env(safe-area-inset-right)); padding: 12px 24px; font-size: 11px; }
           .slate-stage { padding-top: 48px; padding-bottom: 50px; }
+          .slate-event-section { padding: 60px 18px; }
+          .slate-event-venue-img { width: 100%; max-height: 220px; }
           .slate-audience { padding: 80px 18px 100px; }
           .slate-audience-heading { display: block; }
           .slate-audience-heading h2 { margin-top: 0; }
@@ -1298,6 +1303,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-audience-metric strong { margin-bottom: 16px; }
           .slate-assets { padding: 80px 18px 100px; }
           .slate-asset-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+          .slate-asset-type { align-self: flex-start; margin-left: 0; }
           .slate-rail { gap: 16px; }
           .slate-spacer { flex-basis: 10vw; }
           .slate-card { flex-basis: min(92vw, calc((100vh - 136px) * 1.6)); aspect-ratio: 16 / 10; height: auto; }
@@ -1315,12 +1321,17 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-detail-back { top: 100px; left: 18px; width: 112px; height: 33px; }
           .slate-detail-header { padding: 16px 18px; }
           .slate-detail-header > img { width: 92px; }
-          .slate-detail-header nav { gap: 12px; }
-          .slate-detail-header nav span:nth-child(2), .slate-detail-header nav span:nth-child(3) { display: none; }
+          .slate-detail-header nav .nav-event, .slate-detail-header nav .nav-assets { display: none; }
           .slate-detail-image { object-position: 72% center; transform: scale(1.04) translateX(1%); }
-          .slate-detail-body { top: 175px; left: 18px; bottom: 24px; width: calc(100vw - 36px); }
+          .slate-detail-body { top: 175px; left: 18px; bottom: max(24px, calc(env(safe-area-inset-bottom) + 8px)); width: calc(100vw - 36px); }
+          .slate-detail-content h1 { font-size: clamp(28px, 8vw, 42px); overflow-wrap: anywhere; }
+          .slate-detail-talent { font-size: clamp(16px, 5vw, 24px); }
           .slate-detail-description { font-size: 14px; }
-          .slate-detail-specs { gap: 18px; flex-wrap: wrap; margin-top: 28px; }
+          .slate-detail-specs { gap: 18px; flex-wrap: wrap; margin-top: 28px; padding-bottom: 0; }
+          .detail-audience-demo { flex-wrap: wrap; gap: 16px; }
+          .onesheet-lightbox img { height: auto; max-height: 75vh; max-width: 92vw; }
+          .onesheet-lightbox-actions { top: 12px; right: 12px; }
+          .onesheet-lightbox-download { padding: 6px 12px; font-size: 10px; }
         }
         @keyframes rsvp-float {
           0%, 100% { transform: translateY(0); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 0 rgba(227,246,67,0); }
