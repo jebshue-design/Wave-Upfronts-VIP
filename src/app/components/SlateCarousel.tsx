@@ -864,7 +864,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         @keyframes lb-in { from { opacity: 0; transform: scale(.96) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes lb-bg-in { from { opacity: 0; } to { opacity: 1; } }
         .onesheet-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(11,9,9,.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: zoom-out; animation: lb-bg-in .5s cubic-bezier(.16,1,.3,1) both; }
-        .onesheet-lightbox img { width: auto; height: 82vh; max-width: 88vw; object-fit: contain; border: 1px solid rgba(244,245,240,.1); box-shadow: 0 48px 120px rgba(0,0,0,.8); cursor: default; animation: lb-in .8s cubic-bezier(.16,1,.3,1) both; }
+        .onesheet-lightbox img { width: auto; height: 82vh; max-width: 88vw; object-fit: contain; border: 1px solid rgba(244,245,240,.1); box-shadow: 0 48px 120px rgba(0,0,0,.8); cursor: default; animation: lb-in .8s cubic-bezier(.16,1,.3,1) both; border-radius: 16px; }
         .onesheet-lightbox-actions { position: fixed; top: 24px; right: 24px; display: flex; align-items: center; gap: 10px; }
         .onesheet-lightbox-download { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; background: #e3f643; color: #0b0909; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .04em; text-decoration: none; transition: opacity .15s; }
         .onesheet-lightbox-download:hover { opacity: .85; }
