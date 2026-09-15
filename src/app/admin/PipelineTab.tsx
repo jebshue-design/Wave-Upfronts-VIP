@@ -401,8 +401,8 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                                       {([
                                         { label: "Show", tip: null },
                                         { label: "Views", tip: "How many times they opened this show card" },
-                                        { label: "Trailer", tip: "Clicked the YouTube trailer link" },
-                                        { label: "Audio", tip: "Clicked the Spotify / audio link" },
+                                        { label: "Trailer", tip: "Went to the YouTube page" },
+                                        { label: "Audio", tip: "Went to the Spotify page" },
                                         { label: "One-Sheet", tip: "Opened or downloaded the one-sheet PDF" },
                                         { label: "Aud. Expands", tip: "Expanded the audience demographics section" },
                                         { label: "Assets", tip: "Downloaded a file from the assets tab" },
