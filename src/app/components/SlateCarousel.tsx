@@ -516,12 +516,12 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                       )}
                     </div>
                   )}
-                  {aud.topGeos && aud.topGeos.length > 0 && (
+                  {(aud.interests?.length || aud.topGeos?.length) ? (
                     <div className="detail-audience-geos">
-                      <span className="detail-demo-label">TOP MARKETS</span>
-                      <div className="detail-geo-list">{aud.topGeos.map((g) => <span key={g}>{g}</span>)}</div>
+                      <span className="detail-demo-label">{aud.interests?.length ? "TOP INTERESTS" : "TOP MARKETS"}</span>
+                      <div className="detail-geo-list">{(aud.interests ?? aud.topGeos)!.map((g) => <span key={g}>{g}</span>)}</div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })()}
