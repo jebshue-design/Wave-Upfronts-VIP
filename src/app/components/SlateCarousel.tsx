@@ -831,7 +831,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-detail-body {
           position: absolute;
           left: 30px;
-          top: clamp(160px, 22vh, 240px);
+          top: clamp(190px, 26vh, 270px);
           bottom: 40px;
           width: min(620px, calc(100vw - 60px));
           display: flex;
