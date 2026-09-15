@@ -384,12 +384,12 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                                       <div style={{ fontFamily: S.fontDisplay, fontSize: "15px", fontWeight: 700, color: S.silver }}>{topShow.title}</div>
                                       <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginTop: "2px" }}>
                                         {[
-                                          topShow.views > 1 && `${topShow.views} opens`,
-                                          topShow.onesheetClicks > 0 && "one-sheet viewed",
-                                          topShow.assetDownloads > 0 && "assets downloaded",
-                                          topShow.audienceExpands > 0 && "researched audience",
-                                          topShow.youtubeClicks > 0 && "watched trailer",
-                                          topShow.spotifyClicks > 0 && "played audio",
+                                          topShow.views > 0 && `${topShow.views} view${topShow.views !== 1 ? "s" : ""}`,
+                                          topShow.youtubeClicks > 0 && `${topShow.youtubeClicks} trailer`,
+                                          topShow.spotifyClicks > 0 && `${topShow.spotifyClicks} audio`,
+                                          topShow.onesheetClicks > 0 && `${topShow.onesheetClicks} one-sheet`,
+                                          topShow.audienceExpands > 0 && `${topShow.audienceExpands} aud. expand${topShow.audienceExpands !== 1 ? "s" : ""}`,
+                                          topShow.assetDownloads > 0 && `${topShow.assetDownloads} asset download${topShow.assetDownloads !== 1 ? "s" : ""}`,
                                         ].filter(Boolean).join(" · ")}
                                       </div>
                                     </div>
