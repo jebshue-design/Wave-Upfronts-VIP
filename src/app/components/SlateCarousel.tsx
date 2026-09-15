@@ -857,7 +857,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           transform-origin: center right;
         }
         .slate-detail-image-crossfade {
-          animation: detail-image-crossfade .7s .25s ease both;
+          animation: detail-image-crossfade .9s 0s cubic-bezier(.16, 1, .3, 1) both;
         }
         @keyframes detail-image-crossfade {
           from { opacity: 0; }
