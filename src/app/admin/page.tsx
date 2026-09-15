@@ -34,7 +34,7 @@ export default async function AdminPage() {
   const logins      = events?.filter((e) => e.type === "login") ?? [];
   const views       = events?.filter((e) => e.type === "show_view") ?? [];
   const engagements = events?.filter((e) =>
-    ["show_youtube", "show_spotify", "show_sizzle", "show_onesheet"].includes(e.type)
+    ["show_youtube", "show_spotify", "show_onesheet", "onesheet_download", "audience_expand", "rsvp_open"].includes(e.type)
   ) ?? [];
 
   // Per-user show map
@@ -93,12 +93,12 @@ export default async function AdminPage() {
           const lastSeen   = showViews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.created_at;
           return {
             title,
-            views:          showViews.length,
-            youtubeClicks:  showEvents.filter((e) => e.type === "show_youtube").length,
-            spotifyClicks:  showEvents.filter((e) => e.type === "show_spotify").length,
-            sizzleClicks:   showEvents.filter((e) => e.type === "show_sizzle").length,
-            onesheetClicks: showEvents.filter((e) => e.type === "show_onesheet").length,
-            lastSeen:       lastSeen ? new Date(lastSeen).toLocaleString() : "—",
+            views:             showViews.length,
+            youtubeClicks:     showEvents.filter((e) => e.type === "show_youtube").length,
+            spotifyClicks:     showEvents.filter((e) => e.type === "show_spotify").length,
+            onesheetClicks:    showEvents.filter((e) => e.type === "show_onesheet" || e.type === "onesheet_download").length,
+            audienceExpands:   showEvents.filter((e) => e.type === "audience_expand").length,
+            lastSeen:          lastSeen ? new Date(lastSeen).toLocaleString() : "—",
           };
         })
         .sort((a, b) => b.views - a.views);
@@ -113,51 +113,27 @@ export default async function AdminPage() {
     })
     .sort((a, b) => b.totalViews - a.totalViews);
 
-  // Duration events by user → show
-  const durationByUserShow: Record<string, Record<string, number>> = {};
-  for (const e of events ?? []) {
-    if (e.type === "show_duration" && e.password_used && e.metadata?.show_title) {
-      const user = e.password_used;
-      const show = e.metadata.show_title;
-      const secs = parseInt(e.metadata.duration_seconds ?? "0", 10);
-      if (!durationByUserShow[user]) durationByUserShow[user] = {};
-      durationByUserShow[user][show] = (durationByUserShow[user][show] ?? 0) + secs;
-    }
-  }
-
   // Per-user engagement summary (keyed by password)
   const engagementByUser: Record<string, {
     topViewedShow:  { title: string; views: number }  | null;
     topClickedShow: { title: string; clicks: number } | null;
-    topTimeShow:    { title: string; seconds: number } | null;
     totalShowsViewed: number;
     totalClicks: number;
-    totalTimeSeconds: number;
-    showTimeBreakdown: { title: string; seconds: number }[];
   }> = {};
 
   for (const u of userBreakdownData) {
-    const totalClicks = u.shows.reduce((s, sh) => s + sh.youtubeClicks + sh.spotifyClicks + sh.sizzleClicks + sh.onesheetClicks, 0);
+    const totalClicks = u.shows.reduce((s, sh) => s + sh.youtubeClicks + sh.spotifyClicks + sh.onesheetClicks + sh.audienceExpands, 0);
     const topViewed   = u.shows.reduce<typeof u.shows[0] | null>((best, s) => !best || s.views > best.views ? s : best, null);
     const topClicked  = u.shows.reduce<{ title: string; clicks: number } | null>((best, s) => {
-      const clicks = s.youtubeClicks + s.spotifyClicks + s.sizzleClicks + s.onesheetClicks;
+      const clicks = s.youtubeClicks + s.spotifyClicks + s.onesheetClicks + s.audienceExpands;
       return !best || clicks > best.clicks ? { title: s.title, clicks } : best;
     }, null);
-    const userDurations   = durationByUserShow[u.user] ?? {};
-    const topTimeEntry    = Object.entries(userDurations).sort((a, b) => b[1] - a[1])[0];
-    const totalTimeSeconds = Object.values(userDurations).reduce((s, n) => s + n, 0);
 
     engagementByUser[u.user] = {
       topViewedShow:  topViewed  ? { title: topViewed.title, views: topViewed.views } : null,
       topClickedShow: topClicked && topClicked.clicks > 0 ? topClicked : null,
-      topTimeShow:    topTimeEntry ? { title: topTimeEntry[0], seconds: topTimeEntry[1] } : null,
       totalShowsViewed: u.shows.length,
       totalClicks,
-      totalTimeSeconds,
-      showTimeBreakdown: Object.entries(userDurations)
-        .filter(([, s]) => s > 0)
-        .sort((a, b) => b[1] - a[1])
-        .map(([title, seconds]) => ({ title, seconds })),
     };
   }
 
@@ -175,7 +151,8 @@ export default async function AdminPage() {
     { label: "Total Logins",  value: logins.length },
     { label: "Unique Users",  value: new Set(logins.map((e) => e.password_used)).size },
     { label: "Show Views",    value: views.length },
-    { label: "Link Clicks",   value: engagements.length },
+    { label: "Engagements",   value: engagements.length },
+    { label: "RSVP Opens",    value: events?.filter((e) => e.type === "rsvp_open").length ?? 0 },
     { label: "RSVPs",         value: rsvps?.length ?? 0 },
   ];
 
@@ -194,19 +171,12 @@ export default async function AdminPage() {
         </div>
 
         <AdminTabs
-          stats={stats}
-          sortedShows={sortedShows}
-          maxViews={maxViews}
-          showViewerData={showViewerData}
-          userBreakdownData={userBreakdownData}
-          userShowMap={userShowMap}
           logins={logins}
           rsvps={rsvps}
-          events={events ?? []}
           vipAccounts={vipAccounts ?? []}
           passwordToName={passwordToName}
-          emailLog={emailLog ?? []}
           engagementByUser={engagementByUser}
+          userBreakdownData={userBreakdownData}
         />
 
       </div>

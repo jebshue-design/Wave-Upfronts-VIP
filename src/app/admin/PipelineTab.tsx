@@ -57,11 +57,23 @@ type EngagementStats = {
   topClickedShow: { title: string; clicks: number } | null;
 };
 
+type ShowActivity = {
+  title: string;
+  views: number;
+  youtubeClicks: number;
+  spotifyClicks: number;
+  onesheetClicks: number;
+  audienceExpands: number;
+  lastSeen: string;
+};
+
 type Props = {
   vipAccounts: VipAccount[];
   logins: { created_at: string; password_used?: string; ip?: string }[];
   rsvps: { name: string; email: string; company: string; title: string }[] | null;
   engagementByUser: Record<string, EngagementStats>;
+  userBreakdownData: { user: string; shows: ShowActivity[] }[];
+  passwordToName: Record<string, string>;
 };
 
 function relativeTime(dateStr: string): string {
@@ -78,7 +90,7 @@ function relativeTime(dateStr: string): string {
 }
 
 
-export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvps, engagementByUser }: Props) {
+export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvps, engagementByUser, userBreakdownData, passwordToName }: Props) {
   const [accounts, setAccounts] = useState<VipAccount[]>(initialAccounts);
   const [filterAE, setFilterAE] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -331,7 +343,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                   {isExpanded && (
                     <tr key={`${row.id ?? row.email}-expanded`}>
                       <td colSpan={7} style={{ padding: "0", borderBottom: `1px solid ${S.line}`, background: "rgba(227,246,67,0.02)" }}>
-                        <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
+                        <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
 
                           {/* Contact */}
                           <div>
@@ -348,27 +360,38 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                             )}
                           </div>
 
-                          {/* Show engagement */}
-                          <div>
-                            <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.volt, marginBottom: "10px" }}>Show Engagement</div>
-                            {row.eng?.topViewedShow || row.eng?.topClickedShow ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                {row.eng.topViewedShow && (
-                                  <div>
-                                    <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginBottom: "2px" }}>Most Viewed</div>
-                                    <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.silver }}>{row.eng.topViewedShow.title} <span style={{ color: S.volt }}>×{row.eng.topViewedShow.views}</span></div>
-                                  </div>
-                                )}
-                                {row.eng.topClickedShow && (
-                                  <div>
-                                    <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginBottom: "2px" }}>Most Clicked</div>
-                                    <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.silver }}>{row.eng.topClickedShow.title} <span style={{ color: S.volt }}>{row.eng.topClickedShow.clicks} click{row.eng.topClickedShow.clicks !== 1 ? "s" : ""}</span></div>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.lineStrong }}>No engagement yet</div>
-                            )}
+                          {/* Show engagement — full breakdown */}
+                          <div style={{ gridColumn: "1 / -1" }}>
+                            <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.volt, marginBottom: "10px" }}>Show Activity</div>
+                            {(() => {
+                              const email = row.email.toLowerCase();
+                              const userData = userBreakdownData.find((u) => passwordToName[u.user]?.toLowerCase().includes(email) || u.user.toLowerCase() === email);
+                              if (!userData || userData.shows.length === 0) return <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.lineStrong }}>No show activity yet</div>;
+                              return (
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", fontFamily: S.fontMono }}>
+                                  <thead>
+                                    <tr>
+                                      {["Show", "Views", "YouTube", "Spotify", "One-Sheet", "Aud. Expands", "Last Seen"].map((h) => (
+                                        <th key={h} style={{ padding: "6px 10px", textAlign: h === "Show" || h === "Last Seen" ? "left" : "center", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {userData.shows.map((s) => (
+                                      <tr key={s.title} style={{ borderBottom: `1px solid ${S.line}` }}>
+                                        <td style={{ padding: "8px 10px", fontWeight: 600, color: S.silver }}>{s.title}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: S.volt, fontWeight: 700 }}>{s.views}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: s.youtubeClicks > 0 ? S.silver : S.lineStrong }}>{s.youtubeClicks || "—"}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: s.spotifyClicks > 0 ? S.silver : S.lineStrong }}>{s.spotifyClicks || "—"}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: s.onesheetClicks > 0 ? S.silver : S.lineStrong }}>{s.onesheetClicks || "—"}</td>
+                                        <td style={{ padding: "8px 10px", textAlign: "center", color: s.audienceExpands > 0 ? S.silver : S.lineStrong }}>{s.audienceExpands || "—"}</td>
+                                        <td style={{ padding: "8px 10px", color: S.clay, whiteSpace: "nowrap" }}>{s.lastSeen}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              );
+                            })()}
                           </div>
 
                           {/* Notes + Log Email */}
