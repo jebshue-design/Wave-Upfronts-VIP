@@ -1007,7 +1007,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           mix-blend-mode: normal;
         }
         .slate-logout:hover { color: rgba(255,255,255,0.75); }
-        .slate-stage { height: 100vh; padding-top: 72px; padding-bottom: 57px; overflow: hidden; }
+        .slate-stage { height: 100vh; padding-top: 32px; padding-bottom: 17px; overflow: hidden; }
         .slate-event-section { padding: 100px 30px; background: linear-gradient(180deg, #000000 0%, #212922 100%); color: var(--slate-ink); }
         .slate-event-venue-img { flex-shrink: 0; width: 260px; border-radius: 10px; overflow: hidden; align-self: stretch; margin-right: 8px; }
         .slate-event-venue-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
@@ -1130,13 +1130,9 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           align-items: center;
           gap: 28px;
           height: 100%;
-          padding: 0 0;
+          padding: 40px 0;
           overflow-x: auto;
           overflow-y: hidden;
-          padding-top: 40px;
-          margin-top: -40px;
-          padding-bottom: 40px;
-          margin-bottom: -40px;
           cursor: url("/assets/Swipe Cursor.svg") 32 32, grab;
           scrollbar-width: none;
           touch-action: pan-x;
