@@ -33,7 +33,7 @@ export type SlateItem = {
   youtubeUrl?: string | null;
   audioUrl?: string | null;
   audience?: {
-    persona: string;
+    persona?: string;
     genderSkew?: string;
     genderFemale?: number;
     genderMale?: number;
@@ -541,6 +541,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                 "big-bro": "/assets/one-sheets/Big Bro with Kid Cudi _ One Sheet 2026.pdf",
                 "power-hour": "/assets/one-sheets/Power Hour One Sheet _ 2026.pdf",
                 "my-momma-told-me": "/assets/one-sheets/My Momma Told Me One Sheet.pdf",
+                "so-true": "/assets/one-sheets/So True _ One Sheet 2026.pdf",
               };
               const showOneSheetUrl = oneSheets[expandedShow.id];
               const thumbUrl = showOneSheetUrl ? `/assets/one-sheets/thumbs/${expandedShow.id}.png` : null;
@@ -793,6 +794,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   "big-bro": "/assets/one-sheets/Big Bro with Kid Cudi _ One Sheet 2026.pdf",
                   "power-hour": "/assets/one-sheets/Power Hour One Sheet _ 2026.pdf",
                   "my-momma-told-me": "/assets/one-sheets/My Momma Told Me One Sheet.pdf",
+                  "so-true": "/assets/one-sheets/So True _ One Sheet 2026.pdf",
                 };
                 return { label: `${show.title} — One-Sheet`, type: "PDF", file: oneSheets[show.id], showId: show.id };
               }),
