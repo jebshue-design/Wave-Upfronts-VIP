@@ -643,6 +643,19 @@ const shows = [
     talent: "Langston Kerman & David Gborie",
     youtubeUrl: "https://www.youtube.com/@MyMommaToldMe",
     audioUrl: "https://open.spotify.com/show/4k3gmSWsZRadfpgyLNcG9B",
+    audience: {
+      followers: "128K",
+      monthlyViews: "3.7M",
+      ages: [
+        { label: "13–17", pct: 0.30 },
+        { label: "18–24", pct: 4.70 },
+        { label: "25–34", pct: 52.40 },
+        { label: "35–44", pct: 35.80 },
+        { label: "45–54", pct: 6.30 },
+        { label: "55–64", pct: 0.40 },
+        { label: "65+", pct: 0.10 },
+      ],
+    },
   },
 ];
 
