@@ -1308,7 +1308,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-spacer { flex-basis: 10vw; }
           .slate-card { flex-basis: min(92vw, calc((100vh - 136px) * 1.6)); aspect-ratio: 16 / 10; height: auto; }
           .slate-card-info { right: 20px; bottom: 20px; left: 20px; flex-direction: column; align-items: flex-start; }
-          .slate-card-meta { flex-direction: row; align-items: center; }
+          .slate-card-meta { flex-direction: row; align-items: center; align-self: flex-end; }
           .slate-frame { border-radius: 22px; }
           .frame-brand { top: 22px; right: 22px; }
           .slate-accolades { top: 22px; left: 22px; width: 145px; gap: 16px; }
