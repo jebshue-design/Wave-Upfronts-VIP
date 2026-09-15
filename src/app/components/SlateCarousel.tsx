@@ -444,6 +444,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                       setTimeout(() => {
                         detailContentRef.current?.scrollBy({ top: 180, behavior: "smooth" });
                       }, 50);
+                      trackEvent("audience_expand", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {});
                     }
                   }}
                   role="button"
@@ -891,7 +892,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .detail-race-row { display: flex; align-items: center; gap: 7px; font: 600 10px/1 "Zalando Sans Expanded", sans-serif; color: rgba(244,245,240,.7); }
         .detail-race-label { width: 92px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .detail-race-pct { width: 34px; text-align: right; flex-shrink: 0; }
-        .detail-audience-geos { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+        .detail-audience-geos { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
         .detail-geo-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .detail-demo-label { font: 700 9px/1 "Zalando Sans Expanded", sans-serif; letter-spacing: .1em; color: rgba(244,245,240,.45); }
         .detail-gender-bars, .detail-age-bars { display: flex; flex-direction: column; gap: 7px; }
@@ -1362,7 +1363,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-page.has-detail .slate-float-rsvp { opacity: 0; pointer-events: none; }
 
       `}</style>
-      <button type="button" className="slate-float-rsvp" onClick={() => window.dispatchEvent(new Event("open-rsvp"))}>
+      <button type="button" className="slate-float-rsvp" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); trackEvent("rsvp_open").catch(() => {}); }}>
         RSVP
       </button>
 
@@ -1370,7 +1371,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         <div className="onesheet-lightbox" onClick={() => setLightboxUrl(null)}>
           <img src={lightboxUrl.img} alt="One-Sheet" onClick={(e) => e.stopPropagation()} />
           <div className="onesheet-lightbox-actions" onClick={(e) => e.stopPropagation()}>
-            <a className="onesheet-lightbox-download" href={lightboxUrl.pdf} download>
+            <a className="onesheet-lightbox-download" href={lightboxUrl.pdf} download onClick={() => expandedShow && trackEvent("onesheet_download", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {})}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-8 4h16v-2H4v2z"/></svg>
               Download
             </a>
