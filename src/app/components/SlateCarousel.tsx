@@ -63,6 +63,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const [activeNav, setActiveNav] = useState<"slate" | "event" | "audience" | "assets">("slate");
   const [audienceExpanded, setAudienceExpanded] = useState(false);
   const detailNavRef = useRef<HTMLElement>(null);
+  const detailContentRef = useRef<HTMLDivElement>(null);
   const siteNavRef = useRef<HTMLElement>(null);
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0 });
   const [downloadedAssets, setDownloadedAssets] = useState<Set<string>>(new Set());
@@ -385,7 +386,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <img className="back-outline-art" src="/assets/Back Arrow@3x.png" alt="" draggable={false} />
             <img className="pill-fill-art" src="/assets/Back Fill.png" alt="" draggable={false} />
           </button>
-          <div className={`slate-detail-content${audienceExpanded ? " is-audience-view" : ""}`}>
+          <div ref={detailContentRef} className={`slate-detail-content${audienceExpanded ? " is-audience-view" : ""}`}>
             <span className="slate-detail-category">{expandedShow.category}</span>
             <h1>{expandedShow.id === "ngl" ? "Not Gonna Lie" : expandedShow.title}</h1>
             <p className="slate-detail-talent">{expandedShow.talent ?? expandedShow.category}</p>
@@ -434,10 +435,23 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               {expandedShow.audience ? (
                 <div
                   className={`slate-detail-audience-btn${audienceExpanded ? " is-open" : ""}`}
-                  onClick={() => setAudienceExpanded((v) => !v)}
+                  onClick={() => {
+                    const next = !audienceExpanded;
+                    setAudienceExpanded(next);
+                    if (next) {
+                      setTimeout(() => {
+                        detailContentRef.current?.scrollBy({ top: 180, behavior: "smooth" });
+                      }, 50);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && setAudienceExpanded((v) => !v)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    const next = !audienceExpanded;
+                    setAudienceExpanded(next);
+                    if (next) setTimeout(() => detailContentRef.current?.scrollBy({ top: 180, behavior: "smooth" }), 50);
+                  }}
                 >
                   <span>AUDIENCE</span>
                   <strong>{audienceExpanded ? "COLLAPSE ↑" : "VIEW DATA ↓"}</strong>
