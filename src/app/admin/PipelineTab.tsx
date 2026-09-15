@@ -368,7 +368,33 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                               const email = row.email.toLowerCase();
                               const userData = userBreakdownData.find((u) => passwordToName[u.user]?.toLowerCase().includes(email) || u.user.toLowerCase() === email);
                               if (!userData || userData.shows.length === 0) return <div style={{ fontFamily: S.fontMono, fontSize: "11px", color: S.lineStrong }}>No show activity yet</div>;
+
+                              const score = (s: typeof userData.shows[0]) =>
+                                s.views * 1 + s.youtubeClicks * 2 + s.spotifyClicks * 2 + s.audienceExpands * 3 + s.onesheetClicks * 4 + s.assetDownloads * 5;
+                              const topShow = userData.shows.reduce((best, s) => score(s) > score(best) ? s : best, userData.shows[0]);
+                              const topScore = score(topShow);
+
                               return (
+                                <>
+                                {topScore > 0 && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(227,246,67,0.06)", border: "1px solid rgba(227,246,67,0.2)", borderRadius: "10px", padding: "12px 16px", marginBottom: "14px" }}>
+                                    <div style={{ fontSize: "18px" }}>★</div>
+                                    <div>
+                                      <div style={{ fontFamily: S.fontMono, fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: S.volt, marginBottom: "3px" }}>Top Show of Interest</div>
+                                      <div style={{ fontFamily: S.fontDisplay, fontSize: "15px", fontWeight: 700, color: S.silver }}>{topShow.title}</div>
+                                      <div style={{ fontFamily: S.fontMono, fontSize: "9px", color: S.clay, marginTop: "2px" }}>
+                                        {[
+                                          topShow.views > 1 && `${topShow.views} opens`,
+                                          topShow.onesheetClicks > 0 && "one-sheet viewed",
+                                          topShow.assetDownloads > 0 && "assets downloaded",
+                                          topShow.audienceExpands > 0 && "researched audience",
+                                          topShow.youtubeClicks > 0 && "watched trailer",
+                                          topShow.spotifyClicks > 0 && "played audio",
+                                        ].filter(Boolean).join(" · ")}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", fontFamily: S.fontMono }}>
                                   <thead>
                                     <tr>
@@ -401,6 +427,7 @@ export default function PipelineTab({ vipAccounts: initialAccounts, logins, rsvp
                                     ))}
                                   </tbody>
                                 </table>
+                                </>
                               );
                             })()}
                           </div>
