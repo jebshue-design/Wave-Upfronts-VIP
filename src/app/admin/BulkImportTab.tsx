@@ -36,7 +36,9 @@ type ParsedAccount = {
   name: string;
   email: string;
   company: string;
+  account: string;
   title: string;
+  phone: string;
   point_of_contact: string;
 };
 
@@ -62,6 +64,7 @@ function parseCSV(raw: string): { accounts: ParsedAccount[]; parseError: string 
   const companyIdx = col(["brand/agency", "brand", "agency", "company"]);
   const accountIdx = col(["account"]);
   const titleIdx   = col(["title"]);
+  const phoneIdx   = col(["cell phone", "phone", "mobile"]);
   const sellerIdx  = col(["seller"]);
 
   if (nameIdx === -1) return { accounts: [], parseError: "Could not find a 'Name' column." };
@@ -74,13 +77,13 @@ function parseCSV(raw: string): { accounts: ParsedAccount[]; parseError: string 
     const email = cols[emailIdx]?.trim() ?? "";
     if (!name || !email) continue;
 
-    // Brand/Agency preferred over Account as company; fall back to Account
-    const company = (companyIdx !== -1 ? cols[companyIdx]?.trim() : "") ||
-                    (accountIdx !== -1 ? cols[accountIdx]?.trim() : "") || "";
-    const title   = titleIdx  !== -1 ? (cols[titleIdx]?.trim()  ?? "") : "";
-    const seller  = sellerIdx !== -1 ? (cols[sellerIdx]?.trim() ?? "") : "";
+    const company = companyIdx !== -1 ? (cols[companyIdx]?.trim() ?? "") : "";
+    const account = accountIdx !== -1 ? (cols[accountIdx]?.trim() ?? "") : "";
+    const title   = titleIdx   !== -1 ? (cols[titleIdx]?.trim()   ?? "") : "";
+    const phone   = phoneIdx   !== -1 ? (cols[phoneIdx]?.trim()   ?? "") : "";
+    const seller  = sellerIdx  !== -1 ? (cols[sellerIdx]?.trim()  ?? "") : "";
 
-    accounts.push({ name, email, company, title, point_of_contact: seller });
+    accounts.push({ name, email, company, account, title, phone, point_of_contact: seller });
   }
 
   if (accounts.length === 0) return { accounts: [], parseError: "No valid rows found. Make sure each row has Name and Email Address." };

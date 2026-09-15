@@ -13,7 +13,22 @@ const S = {
   fontMono: '"Space Grotesk", monospace',
 };
 
-type Account = { id?: string; name: string; email: string; company: string; title: string; created_at: string };
+const AES = ["Tom Defina","Gabby Davino","Larry Menkes","Ethan Abrams","Liane Sousa","Megan Rall","Austie Montgomery","Dean Markus","Meg Jones"];
+
+const selectStyle: React.CSSProperties = {
+  background: "#0B0909",
+  border: "1px solid #2E332E",
+  borderRadius: "6px",
+  color: "#FAF7F4",
+  fontFamily: '"Space Grotesk", monospace',
+  fontSize: "13px",
+  padding: "10px 14px",
+  width: "100%",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+type Account = { id?: string; name: string; email: string; company: string; title: string; created_at: string; point_of_contact?: string; phone?: string; account?: string };
 
 const inputStyle: React.CSSProperties = {
   background: S.night,
@@ -45,7 +60,7 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
   const [justCreated, setJustCreated] = useState<Account | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", email: "", company: "", title: "" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", company: "", title: "", point_of_contact: "", phone: "", account: "" });
   const [editError, setEditError] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -53,7 +68,7 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
 
   const startEdit = (acc: Account) => {
     setEditingId(acc.id ?? acc.email);
-    setEditForm({ name: acc.name, email: acc.email, company: acc.company, title: acc.title });
+    setEditForm({ name: acc.name, email: acc.email, company: acc.company, title: acc.title, point_of_contact: acc.point_of_contact ?? "", phone: acc.phone ?? "", account: acc.account ?? "" });
     setEditError("");
     setConfirmDeleteId(null);
   };
@@ -61,7 +76,15 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
   const handleSave = async () => {
     if (!editingId) return;
     setEditSaving(true);
-    const result = await updateVipAccount(editingId, editForm);
+    const result = await updateVipAccount(editingId, {
+      name: editForm.name,
+      email: editForm.email,
+      company: editForm.company,
+      title: editForm.title,
+      point_of_contact: editForm.point_of_contact || undefined,
+      phone: editForm.phone || undefined,
+      account: editForm.account || undefined,
+    });
     setEditSaving(false);
     if (result.success) {
       setAccounts((prev) => prev.map((a) => (a.id === editingId || a.email === editingId) ? { ...a, ...editForm } : a));
@@ -121,12 +144,27 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
               <input name="email" type="email" placeholder="jane@company.com" required style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Company</label>
-              <input name="company" type="text" placeholder="Acme Corp" required style={inputStyle} />
+              <label style={labelStyle}>Brand / Agency</label>
+              <input name="company" type="text" placeholder="Omnicom" required style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Account</label>
+              <input name="account" type="text" placeholder="Nike" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Title</label>
               <input name="title" type="text" placeholder="VP of Sales" required style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Cell Phone</label>
+              <input name="phone" type="tel" placeholder="+1 555 000 0000" style={inputStyle} />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={labelStyle}>Seller (AE)</label>
+              <select name="point_of_contact" style={selectStyle}>
+                <option value="">— Unassigned —</option>
+                {AES.map((ae) => <option key={ae} value={ae}>{ae}</option>)}
+              </select>
             </div>
           </div>
 
@@ -153,27 +191,30 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
             <thead>
               <tr style={{ background: S.slate }}>
-                {["Name", "Title", "Email", "Company", "Created", ""].map((h) => (
+                {["Name", "Title", "Brand / Agency", "Account", "Phone", "Seller", "Created", ""].map((h) => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: S.clay, borderBottom: `1px solid ${S.line}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {accounts.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: "32px 16px", color: S.clay, textAlign: "center" }}>No accounts yet — create one above</td></tr>
+                <tr><td colSpan={8} style={{ padding: "32px 16px", color: S.clay, textAlign: "center" }}>No accounts yet — create one above</td></tr>
               ) : accounts.map((acc) => {
                 const rowId = acc.id ?? acc.email;
                 const isEditing = editingId === rowId;
                 const p = { padding: "10px 12px", borderBottom: `1px solid ${S.line}` } as React.CSSProperties;
                 const smallInput: React.CSSProperties = { background: S.night, border: `1px solid ${S.line}`, borderRadius: "4px", color: S.silver, fontFamily: S.fontMono, fontSize: "12px", padding: "6px 10px", width: "100%", outline: "none", boxSizing: "border-box" };
+                const smallSelect: React.CSSProperties = { ...smallInput, cursor: "pointer" };
 
                 if (isEditing) {
                   return (
                     <tr key={rowId} style={{ background: "#141c14" }}>
-                      <td style={p}><input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} style={smallInput} /></td>
+                      <td style={p}><input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} style={smallInput} /><input value={editForm.email} onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))} style={{ ...smallInput, marginTop: "4px" }} /></td>
                       <td style={p}><input value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} style={smallInput} /></td>
-                      <td style={p}><input value={editForm.email} onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))} style={smallInput} /></td>
                       <td style={p}><input value={editForm.company} onChange={(e) => setEditForm((f) => ({ ...f, company: e.target.value }))} style={smallInput} /></td>
+                      <td style={p}><input value={editForm.account} onChange={(e) => setEditForm((f) => ({ ...f, account: e.target.value }))} style={smallInput} /></td>
+                      <td style={p}><input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} style={smallInput} /></td>
+                      <td style={p}><select value={editForm.point_of_contact} onChange={(e) => setEditForm((f) => ({ ...f, point_of_contact: e.target.value }))} style={smallSelect}><option value="">— Unassigned —</option>{AES.map((ae) => <option key={ae} value={ae}>{ae}</option>)}</select></td>
                       <td style={p} />
                       <td style={{ ...p, whiteSpace: "nowrap" }}>
                         {editError && <div style={{ color: "#ff6b6b", fontSize: "11px", marginBottom: "6px" }}>{editError}</div>}
@@ -210,10 +251,12 @@ export default function VipAccountManager({ initialAccounts }: { initialAccounts
 
                 return (
                   <tr key={rowId} style={{ borderBottom: `1px solid ${S.line}` }}>
-                    <td style={{ ...p, fontWeight: 700, color: S.silver }}>{acc.name}</td>
+                    <td style={{ ...p, fontWeight: 700, color: S.silver }}>{acc.name}<div style={{ fontSize: "11px", color: S.clay, fontWeight: 400 }}>{acc.email}</div></td>
                     <td style={{ ...p, color: S.clay }}>{acc.title}</td>
-                    <td style={{ ...p, color: S.clay }}>{acc.email}</td>
                     <td style={{ ...p, color: S.clay }}>{acc.company}</td>
+                    <td style={{ ...p, color: S.clay }}>{acc.account ?? "—"}</td>
+                    <td style={{ ...p, color: S.clay }}>{acc.phone ?? "—"}</td>
+                    <td style={{ ...p, color: acc.point_of_contact ? S.volt : S.clay, fontSize: "12px" }}>{acc.point_of_contact ?? "—"}</td>
                     <td style={{ ...p, color: S.clay, fontSize: "12px" }}>{new Date(acc.created_at).toLocaleDateString()}</td>
                     <td style={p}>
                       <button onClick={() => startEdit(acc)} style={{ background: "transparent", color: S.clay, border: `1px solid ${S.line}`, borderRadius: "4px", fontFamily: S.fontMono, fontSize: "10px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", padding: "5px 12px", cursor: "pointer" }}>
