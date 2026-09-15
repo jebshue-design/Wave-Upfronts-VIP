@@ -18,17 +18,17 @@ const S = {
 };
 
 const inputStyle = (hasError: boolean): React.CSSProperties => ({
-  background: S.night,
-  border: `1px solid ${hasError ? "#FA3842" : S.lineStrong}`,
+  background: "rgba(255,255,255,0.06)",
+  border: `1px solid ${hasError ? "#FA3842" : "rgba(250,247,244,0.18)"}`,
   color: S.silver,
   fontFamily: S.fontSans,
   fontSize: "15px",
-  height: "48px",
-  padding: "0 18px",
+  height: "52px",
+  padding: "0 16px",
   outline: "none",
   width: "100%",
-  borderRadius: "999px",
-  textAlign: "center",
+  borderRadius: "12px",
+  textAlign: "left",
   boxSizing: "border-box",
 });
 
@@ -39,7 +39,8 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.1em",
   textTransform: "uppercase",
   color: S.clay,
-  display: "none",
+  display: "block",
+  marginBottom: "6px",
 };
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
@@ -137,6 +138,7 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
       <style>{`
         .rsvp-confirm:not(:disabled) { background: #FAF7F4; transition: background-color .75s cubic-bezier(.16,1,.3,1), color .75s cubic-bezier(.16,1,.3,1); }
         .rsvp-confirm:not(:disabled):hover { background: #E3F643; }
+        .rsvp-field:focus { border-color: rgba(227,246,67,0.6) !important; background: rgba(227,246,67,0.05) !important; }
         .rsvp-confetti { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
         .rsvp-confetti span { position: absolute; top: 50%; left: 50%; width: 7px; height: 12px; border-radius: 2px; background: #E3F643; opacity: 0; animation: rsvp-confetti-burst 1.15s cubic-bezier(.16,1,.3,1) both; }
         .rsvp-confetti span:nth-child(2n) { background: #FAF7F4; }
@@ -165,33 +167,26 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           to { opacity: 0; transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
         }
       `}</style>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-          gap: "20px",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
         <div>
           <label style={labelStyle}>First Name</label>
-          <input name="firstName" type="text" required placeholder="First Name" aria-label="First Name" defaultValue={user?.firstName} style={inputStyle(false)} />
+          <input name="firstName" type="text" required placeholder="First name" aria-label="First Name" defaultValue={user?.firstName} className="rsvp-field" style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Last Name</label>
-          <input name="lastName" type="text" required placeholder="Last Name" aria-label="Last Name" defaultValue={user?.lastName} style={inputStyle(false)} />
+          <input name="lastName" type="text" required placeholder="Last name" aria-label="Last Name" defaultValue={user?.lastName} className="rsvp-field" style={inputStyle(false)} />
         </div>
         <div>
-          <label style={labelStyle}>Email Address</label>
-          <input name="email" type="email" required placeholder="Email Address" aria-label="Email Address" defaultValue={user?.email} style={inputStyle(false)} />
+          <label style={labelStyle}>Email</label>
+          <input name="email" type="email" required placeholder="you@company.com" aria-label="Email Address" defaultValue={user?.email} className="rsvp-field" style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Company</label>
-          <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} style={inputStyle(false)} />
+          <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} className="rsvp-field" style={inputStyle(false)} />
         </div>
         <div>
           <label style={labelStyle}>Title</label>
-          <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} style={inputStyle(false)} />
+          <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} className="rsvp-field" style={inputStyle(false)} />
         </div>
       </div>
 
