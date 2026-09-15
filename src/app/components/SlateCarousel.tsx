@@ -501,7 +501,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             <img className="back-outline-art" src="/assets/Back Arrow@3x.png" alt="" draggable={false} />
             <img className="pill-fill-art" src="/assets/Back Fill.png" alt="" draggable={false} />
           </button>
-          <div className={`slate-detail-body${audienceExpanded ? " audience-open" : ""}`}>
+          <div className={`slate-detail-body${audienceExpanded ? " audience-open" : ""} show-${expandedShow.id}`}>
           <div className="slate-detail-fixed">
             <span className="slate-detail-category">{expandedShow.category}</span>
             <h1>{expandedShow.id === "ngl" ? "Not Gonna Lie" : expandedShow.title}</h1>
@@ -944,6 +944,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           flex-direction: column;
           overflow: hidden;
         }
+        .slate-detail-body.show-open-thoughts { width: min(42vw, calc(100vw - 60px)); }
         .slate-detail-fixed { flex-shrink: 0; }
         .slate-detail-scroll {
           flex: 1;
