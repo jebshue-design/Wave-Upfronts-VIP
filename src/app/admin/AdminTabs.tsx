@@ -124,13 +124,16 @@ export default function AdminTabs(props: Props) {
           <div style={{ border: `1px solid ${S.line}`, borderRadius: "8px", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
-                <tr>{["Time", "Name", "Email", "Company", "Title", "Type"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
+                <tr>{["Time", "Name", "Email", "Company", "Title", "Type", "Confirmation Email"].map((h) => <th key={h} style={headCell as React.CSSProperties}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {!rsvps || rsvps.length === 0 ? (
-                  <tr><td colSpan={6} style={{ ...cell, color: S.clay, textAlign: "center" }}>No RSVPs yet</td></tr>
+                  <tr><td colSpan={7} style={{ ...cell, color: S.clay, textAlign: "center" }}>No RSVPs yet</td></tr>
                 ) : rsvps.map((r, i) => {
                   const isDecline = r.rsvp_type === "decline";
+                  const confirmSent = emailLog.some(
+                    (e) => e.recipient_email.toLowerCase() === r.email.toLowerCase() && e.type === "rsvp_confirmation"
+                  );
                   return (
                   <tr key={r.id ?? i} style={{ borderBottom: `1px solid ${S.line}` }}>
                     <td style={{ ...cell, color: S.clay, whiteSpace: "nowrap" }}>{new Date(r.created_at).toLocaleString()}</td>
@@ -142,6 +145,15 @@ export default function AdminTabs(props: Props) {
                       <span style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: isDecline ? S.clay : S.volt }}>
                         {isDecline ? "Decline" : "Confirm"}
                       </span>
+                    </td>
+                    <td style={{ ...cell }}>
+                      {isDecline ? (
+                        <span style={{ fontSize: "11px", color: S.clay }}>—</span>
+                      ) : confirmSent ? (
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#0BDD65" }}>Sent</span>
+                      ) : (
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#FF8C00" }}>Not sent</span>
+                      )}
                     </td>
                   </tr>
                   );
