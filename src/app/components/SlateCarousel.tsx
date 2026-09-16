@@ -1475,29 +1475,78 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-detail-header nav { gap: 4px; }
           .slate-detail-header nav .nav-event,
           .slate-detail-header nav .nav-assets { display: none; }
-          .slate-detail-image { object-position: 70% center; transform: scale(1.06) translateX(2%); }
+
+          /* Image: center composition for portrait screens, less aggressive push */
+          .slate-detail-image { object-position: center 30%; transform: scale(1.04); transform-origin: center top; }
+          .slate-detail-image-crossfade { animation: detail-image-crossfade-mobile 1.4s 0.05s ease-in-out both; }
+          @keyframes detail-image-crossfade-mobile {
+            from { opacity: 0; transform: scale(1.07); }
+            to   { opacity: 1; transform: scale(1.04); }
+          }
+
+          /* Shade: bottom-heavy for portrait — text lives at the bottom, not left */
+          .slate-detail-shade {
+            background:
+              linear-gradient(0deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.72) 28%, rgba(0,0,0,.28) 52%, rgba(0,0,0,0) 70%),
+              linear-gradient(180deg, rgba(11,9,9,.7) 0%, rgba(11,9,9,0) 14%);
+          }
 
           /* Back button sits below header (~60px tall), leave 8px gap */
           .slate-detail-back { top: 68px; left: 18px; width: 108px; height: 32px; }
 
-          /* Body starts below back button + 12px breathing room */
+          /* Body anchored to the bottom so content feels grounded */
           .slate-detail-body {
-            top: 118px;
-            left: 18px;
-            right: 18px;
+            top: auto;
+            bottom: max(100px, calc(env(safe-area-inset-bottom) + 88px));
+            left: 20px;
+            right: 20px;
             width: auto;
-            bottom: max(28px, calc(env(safe-area-inset-bottom) + 16px));
+            max-height: 62dvh;
           }
 
-          /* Info block (sticky) */
-          .slate-detail-info h1 { font-size: clamp(26px, 7.5vw, 40px); overflow-wrap: anywhere; line-height: 1.05; }
-          .slate-detail-talent { font-size: clamp(15px, 4.5vw, 22px); }
-          .slate-detail-description { font-size: 13px; line-height: 1.55; }
-          .slate-detail-channels { gap: 8px; margin-top: 14px; }
-          .slate-detail-channel-btn { font-size: 12px; padding: 10px 16px; }
+          /* Show category label on mobile for context */
+          .slate-detail-category { display: block; font-size: 10px; margin-bottom: 8px; }
 
-          /* Specs row */
-          .slate-detail-specs { gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-bottom: 4px; }
+          /* Title: tighter, smaller — expanded font is very wide at small sizes */
+          .slate-detail-fixed h1,
+          .slate-detail-info h1 { font-size: clamp(24px, 7vw, 36px); line-height: 0.95; overflow-wrap: anywhere; }
+          .slate-detail-talent { font-size: clamp(13px, 3.8vw, 17px); margin-top: 6px; opacity: 0.7; }
+
+          /* Scroll section */
+          .slate-detail-scroll { padding-top: 12px; }
+
+          /* Topics tags: slightly smaller */
+          .slate-detail-tags { gap: 14px; margin-top: 14px; font-size: 9px; }
+
+          /* Description: cap at 3 lines so it doesn't push specs off-screen */
+          .slate-detail-description {
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 100%;
+          }
+
+          .slate-detail-channels { gap: 8px; margin-top: 14px; }
+          .slate-detail-channel-btn { font-size: 11px; padding: 9px 14px; }
+
+          /* Specs: 2-column grid so cadence + format sit cleanly side by side */
+          .slate-detail-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 20px;
+            margin-top: 16px;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            border-top: 1px solid rgba(244,245,240,.1);
+          }
+          /* Audience button (first child when present) spans both columns */
+          .slate-detail-specs > div:first-child:has(> span + strong) { grid-column: 1 / -1; }
+          .slate-detail-audience-btn { grid-column: 1 / -1; }
+          .slate-detail-specs strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
           /* Audience data */
           .detail-audience { margin-top: 20px; gap: 16px; }
