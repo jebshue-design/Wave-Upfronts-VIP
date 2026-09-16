@@ -741,7 +741,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   <p className="slate-talent">{show.talent ?? show.category}</p>
                 </div>
                 <div className="slate-card-meta">
-                  <button className="explore-label" type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => openShow(show, event)}>
+                  <button className="explore-label" type="button" onPointerDown={(event) => { didDrag.current = false; event.stopPropagation(); }} onClick={(event) => openShow(show, event)}>
                     <span className="explore-outline-text">EXPLORE</span> <img className="explore-outline-art" src={arrowAsset} alt="" />
                     <img className="pill-fill-art" src="/assets/Explore Fill.png" alt="" draggable={false} />
                   </button>
@@ -1453,13 +1453,14 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-footer { font-size: 8px; }
 
           /* ── Carousel ── */
-          .slate-stage { height: 100dvh; padding-top: 0; padding-bottom: 0; }
-          .slate-rail { height: 100dvh; gap: 16px; padding: 40px 0; }
-          .slate-spacer { flex-basis: 10vw; }
-          .slate-card { flex-basis: 88vw; height: calc(100dvh - 180px); aspect-ratio: auto; border-radius: 22px; }
-          .slate-frame::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 55%; background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.38) 38%, transparent 100%); z-index: 2; pointer-events: none; }
-          .slate-frame { border-radius: 22px; }
-          .slate-card-info { right: 18px; bottom: 18px; left: 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
+          .slate-stage { height: auto; padding-top: 0; padding-bottom: 0; }
+          .slate-rail { height: auto; gap: 10px; padding: 72px 0 24px; align-items: flex-start; }
+          .slate-spacer { flex-basis: 4vw; }
+          .slate-card { flex-basis: 92vw; width: 92vw; height: 92vw; aspect-ratio: 1/1; border-radius: 22px; }
+          .slate-frame { border-radius: 22px; background: #0d0d0d; }
+          .slate-image { transform: scale(0.97); object-fit: cover; }
+          .slate-frame::after { content: ''; position: absolute; top: auto; bottom: 0; left: 0; right: 0; height: 45%; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.88) 30%, rgba(0,0,0,0.4) 65%, transparent 100%); z-index: 2; pointer-events: none; }
+          .slate-card-info { right: 18px; bottom: 2px; left: 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
           .slate-card-meta { flex-direction: row; align-items: center; align-self: flex-end; }
           .frame-brand { top: 36px; right: 36px; }
           .slate-accolades { top: 36px; left: 36px; width: 130px; gap: 14px; }
@@ -1486,8 +1487,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           /* Shade: bottom-heavy for portrait — text lives at the bottom, not left */
           .slate-detail-shade {
             background:
-              linear-gradient(0deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.72) 28%, rgba(0,0,0,.28) 52%, rgba(0,0,0,0) 70%),
-              linear-gradient(180deg, rgba(11,9,9,.7) 0%, rgba(11,9,9,0) 14%);
+              linear-gradient(0deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.82) 40%, rgba(0,0,0,.35) 65%, rgba(0,0,0,0) 82%),
+              linear-gradient(180deg, rgba(20,24,20,.9) 0%, rgba(20,24,20,0) 18%);
           }
 
           /* Back button sits below header (~60px tall), leave 8px gap */
@@ -1529,6 +1530,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
 
           .slate-detail-channels { gap: 8px; margin-top: 14px; }
           .slate-detail-channel-btn { font-size: 11px; padding: 9px 14px; }
+          .slate-detail-info { padding-bottom: 72px; }
 
           /* Specs: 2-column grid so cadence + format sit cleanly side by side */
           .slate-detail-specs {
@@ -1543,7 +1545,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           /* Audience button (first child when present) spans both columns */
           .slate-detail-specs > div:first-child:has(> span + strong) { grid-column: 1 / -1; }
           .slate-detail-audience-btn { grid-column: 1 / -1; }
-          .slate-detail-specs strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+          .slate-detail-specs strong { white-space: normal; overflow: visible; text-overflow: clip; max-width: 100%; word-break: break-word; }
 
           /* Audience data */
           .detail-audience { margin-top: 20px; gap: 16px; }
@@ -1567,11 +1569,13 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           }
 
           /* Event section */
-          .slate-event-section { padding: 0 16px 72px; }
+          .slate-event-section { padding: 72px 16px 72px; }
           .slate-event-card { border-radius: 18px; aspect-ratio: 4 / 3; }
-          .slate-event-date { font-size: clamp(32px, 7vw, 50px); }
-          .slate-event-venue { font-size: 13px; margin-bottom: 20px; }
-          .slate-event-btn { padding: 11px 20px; font-size: 10px; }
+          .slate-event-content { max-width: 90%; padding: 0 20px 20px; }
+          .slate-event-eyebrow { font-size: 13px; margin-bottom: 8px; }
+          .slate-event-date { font-size: clamp(28px, 6.5vw, 44px); margin-bottom: 12px; }
+          .slate-event-venue { font-size: 12px; margin-bottom: 14px; }
+          .slate-event-btn { padding: 10px 16px; font-size: 10px; }
           .slate-audience { padding: 80px 18px 100px; }
           .slate-audience-heading { display: block; }
           .slate-audience-heading h2 { margin-top: 0; }
