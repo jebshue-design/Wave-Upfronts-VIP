@@ -90,8 +90,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const draggingRef = useRef(false);
   const momentumActiveRef = useRef(false);
   const didDrag = useRef(false);
-  const eventCardRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const rail = railRef.current;
@@ -399,52 +399,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     return () => page.removeEventListener("scroll", update);
   }, [expandedShow]);
 
-  useEffect(() => {
-    const card = eventCardRef.current;
-    if (!card) return;
-
-    // Fade-in animation
-    const animObserver = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { card.classList.add("is-visible"); animObserver.disconnect(); } },
-      { threshold: 0.12 }
-    );
-    animObserver.observe(card);
-
-    // Gentle snap after scroll settles
-    const page = card.closest<HTMLElement>(".slate-page");
-    if (!page) return () => animObserver.disconnect();
-
-    let scrollTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const onScroll = () => {
-      if (scrollTimer) clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const cardRect = card.getBoundingClientRect();
-        const pageHeight = page.clientHeight;
-        const visibleTop = Math.max(cardRect.top, 0);
-        const visibleBottom = Math.min(cardRect.bottom, pageHeight);
-        const visibleHeight = visibleBottom - visibleTop;
-        const visibleRatio = cardRect.height > 0 ? visibleHeight / cardRect.height : 0;
-
-        // Only nudge when card is partially in view (20–85%) — not when fully visible or just entering
-        if (visibleRatio > 0.2 && visibleRatio < 0.85) {
-          const cardCenter = cardRect.top + cardRect.height / 2;
-          const viewCenter = pageHeight / 2;
-          const delta = cardCenter - viewCenter;
-          if (Math.abs(delta) > 30) {
-            page.scrollBy({ top: delta, behavior: "smooth" });
-          }
-        }
-      }, 160);
-    };
-
-    page.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      animObserver.disconnect();
-      page.removeEventListener("scroll", onScroll);
-      if (scrollTimer) clearTimeout(scrollTimer);
-    };
-  }, []);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -473,6 +427,29 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     update();
     return () => { scroller.removeEventListener("scroll", onScroll); if (rafId) cancelAnimationFrame(rafId); };
   }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const page = hero.closest<HTMLElement>(".slate-page");
+    if (!page) return;
+    let rafId: number | null = null;
+    const update = () => {
+      const scrollTop = page.scrollTop;
+      const heroHeight = hero.offsetHeight;
+      hero.style.setProperty("--hero-parallax", `${(scrollTop * 0.38).toFixed(1)}px`);
+      const contentProgress = Math.max(0, Math.min(1, scrollTop / (heroHeight * 0.6)));
+      hero.style.setProperty("--hero-content-y", `${(-scrollTop * 0.16).toFixed(1)}px`);
+      hero.style.setProperty("--hero-content-opacity", `${Math.max(0, 1 - contentProgress * 1.5).toFixed(3)}`);
+      hero.style.setProperty("--hero-hint-opacity", `${Math.max(0, 1 - scrollTop / 80).toFixed(3)}`);
+      rafId = null;
+    };
+    const onScroll = () => { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(update); };
+    page.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => { page.removeEventListener("scroll", onScroll); if (rafId) cancelAnimationFrame(rafId); };
+  }, []);
+
 
   return (
     <main className={`slate-page${expandedShow ? " has-detail" : ""}${isReturning ? " is-returning" : ""}${expandedShow?.detailNavTone === "dark" ? " detail-nav-dark" : ""}`}>
@@ -684,6 +661,29 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         </nav>
       </header>
 
+      <section ref={heroRef} id="event" className="slate-event-section slate-event-hero">
+        <img className="slate-event-bg" src="/assets/altman-building.jpg" alt="The Altman Building" />
+        <div className="slate-event-overlay" />
+        <div className="slate-event-content">
+          <span className="slate-event-eyebrow">Wave Upfronts 2027</span>
+          <h1 className="slate-event-date">Tuesday, October<br />27th, 2026</h1>
+          <a className="slate-event-venue" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">
+            <img src="/assets/location-pin.svg" alt="" aria-hidden="true" width="20" height="26" style={{ flexShrink: 0, marginTop: 2 }} />
+            <span>
+              The Altman Building
+              <span className="slate-event-address">135 West 18th Street, New York, NY 10011</span>
+            </span>
+          </a>
+          <div className="slate-event-actions">
+            <a className="slate-event-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2027&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2027&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011" target="_blank" rel="noopener noreferrer">Add to Calendar</a>
+            <a className="slate-event-btn" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">Get Directions</a>
+          </div>
+        </div>
+        <div className="slate-hero-scroll-hint" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M5 9l6 6 6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
+      </section>
+
       <section ref={stageRef} className="slate-stage" aria-label="Wave 2026 slate">
         <div
           ref={railRef}
@@ -750,27 +750,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
             </article>
           ))}
           <div className="slate-spacer" />
-        </div>
-      </section>
-
-      <section id="event" className="slate-event-section">
-        <div className="slate-event-inner">
-          <div ref={eventCardRef} className="slate-event-card">
-            <img className="slate-event-bg" src="/assets/altman-building.jpg" alt="The Altman Building" />
-            <div className="slate-event-overlay" />
-            <div className="slate-event-content">
-              <span className="slate-event-eyebrow">Wave Upfronts 2027</span>
-              <h2 className="slate-event-date">Tuesday, October<br />27th, 2026</h2>
-              <p className="slate-event-venue">
-                <img src="/assets/location-pin.svg" alt="" aria-hidden="true" width="20" height="26" style={{ flexShrink: 0, marginTop: 2 }} />
-                The Altman Building
-              </p>
-              <div className="slate-event-actions">
-                <a className="slate-event-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2027&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2027&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011" target="_blank" rel="noopener noreferrer">Add to Calendar</a>
-                <a className="slate-event-btn" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">Get Directions</a>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1200,6 +1179,16 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-stage { height: 100vh; padding-top: 32px; padding-bottom: 17px; overflow: hidden; background: linear-gradient(180deg, #212922 0%, #000 100%); }
         .slate-stage .slate-rail { filter: blur(var(--rail-blur, 0px)); opacity: var(--rail-opacity, 1); }
         .slate-event-section { padding: 0 8.5vw 100px; background: linear-gradient(180deg, #000 0%, #212922 100%); }
+        .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% center; transform: translateY(var(--hero-parallax, 0px)); will-change: transform; }
+        .slate-event-hero .slate-event-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,.18) 60%, rgba(0,0,0,.38) 100%); }
+        .slate-event-hero .slate-event-content { max-width: 60%; padding: 0 8vw clamp(80px, 10vh, 120px); transform: translateY(var(--hero-content-y, 0px)); opacity: var(--hero-content-opacity, 1); will-change: transform, opacity; }
+        @keyframes hero-hint-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 55% { transform: translateX(-50%) translateY(7px); } }
+        .slate-hero-scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,.42); opacity: var(--hero-hint-opacity, 1); animation: hero-hint-bounce 2.2s cubic-bezier(.37,0,.63,1) infinite; pointer-events: none; }
+        .slate-event-hero .slate-event-eyebrow { font-size: clamp(13px, 1.4vw, 20px); margin-bottom: 20px; }
+        .slate-event-hero .slate-event-date { font: 500 clamp(52px, 6.8vw, 108px)/.9 "Zalando Sans Expanded", sans-serif; margin-bottom: 28px; }
+        .slate-event-hero .slate-event-venue { font-size: clamp(15px, 1.6vw, 22px); margin-bottom: 36px; align-items: flex-start; }
+        .slate-event-address { display: block; font: 400 clamp(10px, 0.9vw, 13px)/1.4 "Zalando Sans", sans-serif; letter-spacing: 0; color: rgba(244,245,240,.55); margin-top: 3px; }
         .slate-event-inner { width: 100%; }
         .slate-event-card { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 24px; overflow: hidden; display: flex; align-items: flex-end; opacity: 0; transform: translateY(110px) scale(0.93); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1); }
         .slate-event-card.is-visible { opacity: 1; transform: translateY(0) scale(1); }
@@ -1208,7 +1197,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-event-content { position: relative; z-index: 2; padding: 0 clamp(28px, 4vw, 64px) clamp(36px, 5vh, 64px); display: flex; flex-direction: column; align-items: flex-start; max-width: 55%; }
         .slate-event-eyebrow { font: 700 19px/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; text-transform: uppercase; color: #e3f643; margin-bottom: 16px; }
         .slate-event-date { margin: 0 0 20px; font: 500 clamp(36px, 4.6vw, 72px)/.92 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; color: #faf7f4; }
-        .slate-event-venue { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 28px; font: 500 clamp(14px, 1.5vw, 20px)/1.2 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; color: rgba(244,245,240,.85); }
+        .slate-event-venue { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 28px; font: 500 clamp(14px, 1.5vw, 20px)/1.2 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; color: rgba(244,245,240,.85); text-decoration: none; }
         .slate-event-actions { display: flex; gap: 12px; flex-wrap: wrap; }
         .slate-event-btn { display: inline-flex; align-items: center; padding: 13px 28px; border: 1px solid rgba(244,245,240,.5); border-radius: 999px; color: #faf7f4; font: 600 11px/1 "Zalando Sans Expanded", sans-serif; letter-spacing: -.025em; text-transform: uppercase; text-decoration: none; white-space: nowrap; background: transparent; transition: border-color .2s, background .2s, color .2s; }
         .slate-event-btn:hover { background: #faf7f4; border-color: #faf7f4; color: #0b0909; }
