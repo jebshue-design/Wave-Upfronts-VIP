@@ -666,18 +666,41 @@ export async function adminRsvp(data: {
 export async function bulkCreateVipAccounts(
   accounts: { name: string; email: string; company: string; account: string; title: string; phone: string; point_of_contact: string }[]
 ): Promise<{ results: { name: string; email: string; company: string; account: string; title: string; phone: string; point_of_contact: string; success: boolean; error?: string }[] }> {
-  const results = await Promise.all(
-    accounts.map(async (acc) => {
-      const { error } = await supabaseAdmin
-        .from("vip_accounts")
-        .insert({ name: acc.name, email: acc.email, company: acc.company || null, account: acc.account || null, title: acc.title, phone: acc.phone || null, point_of_contact: acc.point_of_contact || null });
-      if (error) {
-        return { ...acc, success: false, error: error.code === "23505" ? "Email already exists" : error.message };
-      }
-      return { ...acc, success: true };
-    })
-  );
-  return { results };
+  const BATCH = 100;
+  const allResults: { name: string; email: string; company: string; account: string; title: string; phone: string; point_of_contact: string; success: boolean; error?: string }[] = [];
+
+  for (let i = 0; i < accounts.length; i += BATCH) {
+    const chunk = accounts.slice(i, i + BATCH);
+    const rows = chunk.map((acc) => ({
+      name: acc.name,
+      email: acc.email,
+      company: acc.company || null,
+      account: acc.account || null,
+      title: acc.title,
+      phone: acc.phone || null,
+      point_of_contact: acc.point_of_contact || null,
+    }));
+
+    const { error } = await supabaseAdmin.from("vip_accounts").insert(rows);
+
+    if (error) {
+      // Batch had an error — fall back to one-by-one to surface per-row errors
+      const rowResults = await Promise.all(
+        chunk.map(async (acc) => {
+          const { error: rowErr } = await supabaseAdmin
+            .from("vip_accounts")
+            .insert({ name: acc.name, email: acc.email, company: acc.company || null, account: acc.account || null, title: acc.title, phone: acc.phone || null, point_of_contact: acc.point_of_contact || null });
+          if (rowErr) return { ...acc, success: false, error: rowErr.code === "23505" ? "Email already exists" : rowErr.message };
+          return { ...acc, success: true };
+        })
+      );
+      allResults.push(...rowResults);
+    } else {
+      allResults.push(...chunk.map((acc) => ({ ...acc, success: true })));
+    }
+  }
+
+  return { results: allResults };
 }
 
 export async function adminLogin(

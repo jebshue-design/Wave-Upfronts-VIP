@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/admin/login"];
-const STATIC_PREFIXES = ["/_next/", "/fonts/", "/assets/", "/thumbnails/", "/headshots/", "/favicon.ico"];
+const PUBLIC_PATHS = ["/login", "/admin/login", ...(process.env.NODE_ENV === "development" ? ["/dev-preview"] : [])];
+const STATIC_PREFIXES = ["/_next/", "/fonts/", "/assets/", "/thumbnails/", "/headshots/", "/videos/", "/favicon.ico"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

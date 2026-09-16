@@ -1,128 +1,217 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import Image from "next/image";
 import { login } from "../actions";
 
+const arrowAsset = "/assets/site-arrow.svg";
+
 export default function LoginPage() {
+  const [loginReady, setLoginReady] = useState(false);
+  const [logoReady, setLogoReady] = useState(false);
   const [state, formAction, isPending] = useActionState(login, { error: "" });
 
-  const pillStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    width: "min(100%, 286px)",
-    height: "31px",
-    padding: "0 8px 0 16px",
-    border: state?.error ? "1px solid #ff6b6b" : "1px solid rgba(255,255,255,0.82)",
-    borderRadius: "999px",
-    transition: "border-color 180ms ease",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    minWidth: 0,
-    flex: 1,
-    border: 0,
-    outline: 0,
-    background: "transparent",
-    color: "#ffffff",
-    padding: 0,
-    fontFamily: '"Zalando Sans Expanded", sans-serif',
-    fontSize: "10px",
-    fontWeight: 700,
-    letterSpacing: "-0.025em",
-    lineHeight: 1,
-  };
+  useEffect(() => {
+    const logoTimer = window.setTimeout(() => setLogoReady(true), 3400);
+    const loginTimer = window.setTimeout(() => setLoginReady(true), 4400);
+    return () => {
+      window.clearTimeout(logoTimer);
+      window.clearTimeout(loginTimer);
+    };
+  }, []);
 
   return (
-    <main style={{ minHeight: "100vh", background: "#000000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+    <main className={`stinger-page${loginReady ? " login-ready" : ""}`}>
       <style>{`
-        @keyframes gate-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .stinger-page {
+          position: relative;
+          min-height: 100vh;
+          overflow: hidden;
+          background: #000;
+          display: grid;
+          place-items: center;
         }
-        @keyframes gate-out {
-          from { opacity: 1; transform: translateY(0); }
-          to   { opacity: 0; transform: translateY(-6px); }
+
+        /* ── Bold text intro ── */
+        @keyframes Bold {
+          0% { opacity: 0; }
+          3% { opacity: 1; }
+          100% { opacity: 1; }
         }
-        .gate-content {
+        @keyframes bold-block-exit {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        .bold-mask {
+          position: relative;
+          z-index: 1;
+          overflow: hidden;
+          text-align: center;
+        }
+        .bold-title {
+          margin: 0;
+          color: #faf7f4;
+          font: 700 clamp(44px, 8.5vw, 132px)/.95 "Zalando Sans Expanded", sans-serif;
+          letter-spacing: -.025em;
+          animation: bold-block-exit .5s ease 2.9s both;
+        }
+        .bold-line { display: block; height: .95em; }
+        .bold-word { display: inline-block; opacity: 0; animation: Bold 2.68s step-end both; }
+        .bold-word:nth-child(1) { animation-delay: .15s; animation-duration: 2.68s; }
+        .bold-word:nth-child(2) { animation-delay: .65s; animation-duration: 2.43s; }
+        .bold-line:last-child .bold-word { animation-delay: 1.15s; animation-duration: 2.18s; }
+        @media (max-width: 700px) {
+          .bold-mask { width: 100vw; padding: 0 6vw; }
+          .bold-title { font-size: clamp(32px, 11vw, 76px); }
+        }
+
+        /* ── Logo ── */
+        @keyframes login-logo-arrival {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes login-logo-settle {
+          from { transform: translate(-50%, -50%) scale(1); }
+          to { transform: translate(-50%, calc(-50% - 86px)) scale(.58); }
+        }
+        .login-logo {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          z-index: 2;
+          width: min(21vw, 270px);
+          height: auto;
+          animation: login-logo-arrival .55s cubic-bezier(.16,1,.3,1) both;
+        }
+        .stinger-page.login-ready .login-logo {
+          animation: login-logo-settle 1s cubic-bezier(.16,1,.3,1) both;
+        }
+
+        /* ── Login form ── */
+        @keyframes login-form-arrival {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(.88); filter: blur(4px); }
+          65% { opacity: 1; transform: translate(-50%, -50%) scale(1.01); filter: blur(0); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+        }
+        .login-form {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          z-index: 2;
           display: flex;
           flex-direction: column;
           align-items: center;
-          animation: gate-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+          gap: 10px;
+          animation: login-form-arrival .8s cubic-bezier(.16,1,.3,1) both;
         }
-        .gate-content.is-leaving {
-          animation: gate-out 0.18s ease-out both;
+        .login-pill {
+          display: flex;
+          align-items: center;
+          width: min(340px, calc(100vw - 48px));
+          height: 48px;
+          padding: 5px 6px 5px 20px;
+          border: 1px solid rgba(250,247,244,.75);
+          border-radius: 999px;
+          background: rgba(33,41,34,.35);
+          backdrop-filter: blur(18px) saturate(125%);
+          -webkit-backdrop-filter: blur(18px) saturate(125%);
+          transition: border-color .2s;
         }
-        input::placeholder { color: rgba(255,255,255,0.38); }
+        .login-pill.has-error { border-color: #ff6b6b; }
+        .login-pill input {
+          min-width: 0;
+          flex: 1;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          color: #faf7f4;
+          font: 700 11px "Zalando Sans Expanded", sans-serif;
+          letter-spacing: -.025em;
+          text-transform: uppercase;
+        }
+        .login-pill input::placeholder { color: rgba(250,247,244,.5); }
+        .login-pill button {
+          flex-shrink: 0;
+          display: grid;
+          place-items: center;
+          width: 34px;
+          height: 34px;
+          border: 0;
+          border-radius: 50%;
+          background: transparent;
+          cursor: pointer;
+          transition: background .15s;
+        }
+        .login-pill button:hover { background: rgba(250,247,244,.12); }
+        .login-pill button:disabled { opacity: .5; cursor: wait; }
+        .login-error {
+          color: #ff8f8f;
+          font: 400 12px "Zalando Sans", sans-serif;
+          text-align: center;
+        }
+
+        /* ── Footer ── */
+        .login-footer {
+          position: fixed;
+          bottom: 20px;
+          font: 400 11px "Zalando Sans", sans-serif;
+          color: rgba(244,245,240,.28);
+          letter-spacing: -.025em;
+          z-index: 3;
+        }
       `}</style>
 
-      <div className={`gate-content${isPending ? " is-leaving" : ""}`}>
+      {!logoReady && (
+        <div className="bold-mask">
+          <h1 className="bold-title">
+            <span className="bold-line">
+              <span className="bold-word">ON</span>{" "}
+              <span className="bold-word">YOUR</span>
+            </span>
+            <span className="bold-line">
+              <span className="bold-word">FREQUENCY</span>
+            </span>
+          </h1>
+        </div>
+      )}
 
-        {/* Logo */}
-        <img
-          src="/assets/Wave Logo.svg"
-          alt="Wave Sports & Entertainment"
-          style={{ width: "121px", height: "auto", marginBottom: "52px" }}
-        />
+      {logoReady && (
+        <Image className="login-logo" src="/assets/Wave Logo.svg" alt="Wave" width={270} height={35} priority />
+      )}
 
-        {/* Headline */}
-        <p style={{ margin: "0 0 10px", fontFamily: '"Zalando Sans Expanded", sans-serif', fontSize: "10px", fontWeight: 700, letterSpacing: "-0.025em", textTransform: "uppercase", color: "rgba(244,245,240,0.4)", textAlign: "center" }}>
-          VIP Access
-        </p>
-        <h1 style={{ margin: "0 0 40px", fontFamily: '"Zalando Sans Expanded", sans-serif', fontSize: "clamp(28px, 6vw, 52px)", fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 0.92, color: "#f4f5f0", textAlign: "center" }}>
-          Wave Upfronts 2027
-        </h1>
-
-        <form action={formAction} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-          {/* Email pill */}
-          <div style={{ ...pillStyle, border: "1px solid rgba(255,255,255,0.82)" }}>
-            <label htmlFor="login-email" style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>Email address</label>
+      {loginReady && (
+        <form className="login-form" action={formAction}>
+          <div className="login-pill">
+            <label htmlFor="login-email" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Email address</label>
             <input
               id="login-email"
               name="email"
               type="email"
               autoComplete="email"
               autoFocus
-              placeholder="ENTER YOUR EMAIL"
+              placeholder="Email Address"
               disabled={isPending}
-              style={inputStyle}
             />
           </div>
-
-          {/* Password pill with arrow submit */}
-          <div style={{ ...pillStyle, border: state?.error ? "1px solid #ff6b6b" : "1px solid rgba(255,255,255,0.82)" }}>
-            <label htmlFor="login-password" style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>Event password</label>
+          <div className={`login-pill${state?.error ? " has-error" : ""}`}>
+            <label htmlFor="login-password" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Event password</label>
             <input
               id="login-password"
               name="password"
               type="password"
               autoComplete="current-password"
-              placeholder="EVENT PASSWORD"
+              placeholder="Event Password"
               disabled={isPending}
-              style={inputStyle}
             />
-            <button
-              type="submit"
-              aria-label="Submit"
-              disabled={isPending}
-              style={{ display: "grid", placeItems: "center", flexShrink: 0, width: "24px", height: "24px", padding: 0, border: 0, background: "transparent", cursor: isPending ? "wait" : "pointer" }}
-            >
-              <img src="/assets/site-arrow.svg" alt="" width="18" height="13" />
+            <button type="submit" aria-label="Submit" disabled={isPending}>
+              <img src={arrowAsset} alt="" width={18} height={13} draggable={false} />
             </button>
           </div>
+          {state?.error && <p className="login-error">{state.error}</p>}
         </form>
+      )}
 
-        {state?.error && (
-          <p style={{ margin: "14px 0 0", color: "#ffb0b0", fontFamily: '"Zalando Sans", sans-serif', fontSize: "11px", letterSpacing: "-0.025em" }}>
-            {state.error}
-          </p>
-        )}
-
-      </div>
-
-      {/* Footer */}
-      <p style={{ position: "fixed", bottom: "20px", fontFamily: '"Zalando Sans", sans-serif', fontSize: "11px", color: "rgba(244,245,240,0.28)", letterSpacing: "-0.025em" }}>
-        © 2026 Wave Sports &amp; Entertainment
-      </p>
+      <p className="login-footer">© 2026 Wave Sports &amp; Entertainment</p>
     </main>
   );
 }

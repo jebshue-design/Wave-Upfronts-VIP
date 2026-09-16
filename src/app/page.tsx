@@ -6,7 +6,7 @@ import SlateCarousel from "./components/SlateCarousel";
 /* =========================================================
    SHOW DATA — swap in real content here
    ========================================================= */
-const shows = [
+export const shows = [
   {
     id: "ngl",
     title: "Not Gonna Lie with Kylie Kelce",
@@ -21,7 +21,7 @@ const shows = [
     demo: "18–30 · Female-Leaning",
     thumbnailPath: "/thumbnails/ngl.jpg",
     slateImagePath: "/assets/Images/Slate/Slides BG_Not Gonna Lie.png",
-    detailImagePath: "/assets/Images/Slate/Detail_Not Gonna Lie.jpg",
+    detailImagePath: "/assets/Images/Slate/Detail_Not Gonna Lie 2.jpg",
     accoladeLogoPath: "/assets/accolades/3x/webby@3x.png",
     accolades: [
       "2026|PODCAST OF|THE YEAR",

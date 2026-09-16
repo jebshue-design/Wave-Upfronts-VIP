@@ -798,7 +798,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                 };
                 return { label: `${show.title} — One-Sheet`, type: "PDF", file: oneSheets[show.id], showId: show.id };
               }),
-              { label: "Wave Upfronts 2026 — Full Deck", type: "PDF", file: undefined, showId: undefined },
               { label: "Wave Network Overview", type: "PDF", file: undefined, showId: undefined },
               { label: "Audience & Reach Report", type: "PDF", file: undefined, showId: undefined },
               { label: "2026 Advertising Opportunities", type: "PDF", file: undefined, showId: undefined },
@@ -1544,7 +1543,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           }
           /* Audience button (first child when present) spans both columns */
           .slate-detail-specs > div:first-child:has(> span + strong) { grid-column: 1 / -1; }
-          .slate-detail-audience-btn { grid-column: 1 / -1; }
+          .slate-detail-audience-btn { grid-column: 1 / -1; width: fit-content; }
           .slate-detail-specs strong { white-space: normal; overflow: visible; text-overflow: clip; max-width: 100%; word-break: break-word; }
 
           /* Audience data */
