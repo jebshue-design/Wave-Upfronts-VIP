@@ -1473,8 +1473,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .slate-detail-header { padding: 14px 18px; }
           .slate-detail-header > img { width: 88px; }
           .slate-detail-header nav { gap: 4px; }
-          .slate-detail-header nav .nav-event,
-          .slate-detail-header nav .nav-assets { display: none; }
+          .slate-detail-header nav button { font-size: 9px; padding: 6px 8px; }
 
           /* Image: center composition for portrait screens, less aggressive push */
           .slate-detail-image { object-position: center 30%; transform: scale(1.04); transform-origin: center top; }
@@ -1497,11 +1496,11 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           /* Body anchored to the bottom so content feels grounded */
           .slate-detail-body {
             top: auto;
-            bottom: max(100px, calc(env(safe-area-inset-bottom) + 88px));
+            bottom: max(72px, calc(env(safe-area-inset-bottom) + 64px));
             left: 20px;
             right: 20px;
             width: auto;
-            max-height: 62dvh;
+            max-height: 72dvh;
           }
 
           /* Show category label on mobile for context */
@@ -1518,16 +1517,14 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           /* Topics tags: slightly smaller */
           .slate-detail-tags { gap: 14px; margin-top: 14px; font-size: 9px; }
 
-          /* Description: cap at 3 lines so it doesn't push specs off-screen */
+          /* Description: full text, scrollable within the panel */
           .slate-detail-description {
             font-size: 13px;
             line-height: 1.5;
             margin-top: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
             max-width: 100%;
+            display: block;
+            overflow: visible;
           }
 
           .slate-detail-channels { gap: 8px; margin-top: 14px; }
