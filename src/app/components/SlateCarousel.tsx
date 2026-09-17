@@ -50,6 +50,8 @@ export type SlateItem = {
     usShare?: string;
     avgWatchTime?: string;
     audienceOverlap?: string[];
+    videoPct?: number;
+    audioPct?: number;
   } | null;
 };
 
@@ -57,6 +59,7 @@ type UserPrefill = { firstName: string; lastName: string; email: string; company
 
 export default function SlateCarousel({ shows, user, existingRsvpType: initialRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
   const [existingRsvpType, setExistingRsvpType] = useState(initialRsvpType ?? null);
+  const [pillMsgIndex, setPillMsgIndex] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -507,6 +510,12 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
   }, []);
 
   useEffect(() => {
+    if (existingRsvpType !== "confirm") return;
+    const id = setInterval(() => setPillMsgIndex(i => (i + 1) % 2), 4000);
+    return () => clearInterval(id);
+  }, [existingRsvpType]);
+
+  useEffect(() => {
     const page = document.querySelector<HTMLElement>(".slate-page");
     const slate = stageRef.current;
     if (!page || !slate) return;
@@ -694,13 +703,26 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
                   </div>
                   {(gF != null || gM != null || (aud.ages && aud.ages.length > 0) || (aud.topGeos && aud.topGeos.length > 0)) && (
                     <div className="detail-audience-demo">
-                      {(gF != null || gM != null) && (
-                        <div className="detail-demo-gender">
-                          <span className="detail-demo-label">GENDER</span>
-                          <div className="detail-gender-bars">
-                            {gF != null && <div className="detail-gender-row"><span>F</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gM != null && gM > gF) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gF}%` }} /></div><span>{gF}%</span></div>}
-                            {gM != null && <div className="detail-gender-row"><span>M</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gF != null && gF > gM) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gM}%` }} /></div><span>{gM}%</span></div>}
-                          </div>
+                      {(gF != null || gM != null || aud.videoPct != null || aud.audioPct != null) && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px", flexShrink: 0 }}>
+                          {(gF != null || gM != null) && (
+                            <div className="detail-demo-gender">
+                              <span className="detail-demo-label">GENDER</span>
+                              <div className="detail-gender-bars">
+                                {gF != null && <div className="detail-gender-row"><span>F</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gM != null && gM > gF) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gF}%` }} /></div><span>{gF}%</span></div>}
+                                {gM != null && <div className="detail-gender-row"><span>M</span><div className="detail-gender-track"><div className={`detail-gender-fill${(gF != null && gF > gM) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${gM}%` }} /></div><span>{gM}%</span></div>}
+                              </div>
+                            </div>
+                          )}
+                          {(aud.videoPct != null || aud.audioPct != null) && (
+                            <div className="detail-demo-gender">
+                              <span className="detail-demo-label">VIDEO / AUDIO SPLIT</span>
+                              <div className="detail-gender-bars">
+                                {aud.videoPct != null && <div className="detail-gender-row"><span>VID</span><div className="detail-gender-track"><div className={`detail-gender-fill${(aud.audioPct != null && aud.audioPct > aud.videoPct) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${aud.videoPct}%` }} /></div><span>{aud.videoPct}%</span></div>}
+                                {aud.audioPct != null && <div className="detail-gender-row"><span>AUD</span><div className="detail-gender-track"><div className={`detail-gender-fill${(aud.videoPct != null && aud.videoPct > aud.audioPct) ? " detail-gender-fill-dim" : ""}`} style={{ width: `${aud.audioPct}%` }} /></div><span>{aud.audioPct}%</span></div>}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                       {aud.ages && aud.ages.length > 0 && (
@@ -770,6 +792,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
                 <span>
                   The Altman Building
                   <span className="slate-event-address">135 West 18th Street, New York, NY 10011</span>
+                  <span className="slate-event-address">Doors Open at 5:00pm</span>
                 </span>
               </a>
               <div className="slate-event-actions">
@@ -778,7 +801,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
               </div>
             </div>
             <div className={`slate-hero-content-slide${heroSlide === 1 ? " is-active" : ""}`}>
-              <h1 className="slate-event-date">Hear From Our<br />Top Creators</h1>
+              <h1 className="slate-event-date">In Person with<br />Our Top Creators</h1>
               <p className="slate-hero-talent-names">Andrew Santino · Kylie Kelce · Funny Marco</p>
             </div>
           </div>
@@ -1728,14 +1751,24 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
           white-space: nowrap;
         }
         .slate-float-rsvp:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.22); }
-        .slate-float-rsvp--confirmed { background: #1a2e1a; color: #E3F643; border: 1px solid rgba(227,246,67,.35); }
+        .slate-float-rsvp--confirmed { background: #1a2e1a; color: #E3F643; border: 1px solid rgba(227,246,67,.35); min-width: 190px; justify-content: center; overflow: hidden; }
         .slate-float-rsvp--confirmed:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.14); }
+        .pill-ticker { height: 20px; overflow: hidden; width: 100%; }
+        .pill-ticker-track { display: flex; flex-direction: column; transition: transform 0.55s cubic-bezier(.16,1,.3,1); }
+        .pill-ticker-item { height: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; width: 100%; }
 
       `}</style>
       {existingRsvpType === "confirm" ? (
         <button type="button" className="slate-float-rsvp slate-float-rsvp--confirmed" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); }}>
-          <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Attending
+          <span className="pill-ticker">
+            <span className="pill-ticker-track" style={{ transform: `translateY(${pillMsgIndex * -20}px)` }}>
+              <span className="pill-ticker-item">
+                <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Attending
+              </span>
+              <span className="pill-ticker-item">More Info</span>
+            </span>
+          </span>
         </button>
       ) : (
         <button type="button" className="slate-float-rsvp" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); trackEvent("rsvp_open").catch(() => {}); }}>

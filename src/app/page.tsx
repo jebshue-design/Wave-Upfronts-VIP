@@ -78,6 +78,8 @@ export const shows = [
       viewerBehavior: { new: 24.8, casual: 35.2, regular: 40.0 },
       interests: ["Country 47%", "American football 44%", "News 40%", "Rock 40%", "Reality TV 27%"],
       audienceOverlap: ["New Heights", "Good Hang", "The YOYOYO Podcast"],
+      videoPct: 40,
+      audioPct: 60,
     },
   },
   {
@@ -120,6 +122,8 @@ export const shows = [
         { label: "Asian", pct: 6.9 },
       ],
       interests: ["Sports", "MMA", "Comedy", "Rap & Hip Hop", "Gaming"],
+      videoPct: 30,
+      audioPct: 70,
     },
   },
   {
@@ -180,6 +184,8 @@ export const shows = [
       viewerBehavior: { new: 31.1, casual: 40.2, regular: 28.7 },
       interests: ["Comedy 25%", "Sport 22%", "Gaming 21%", "Sports 19%", "Rap & hip hop 19%"],
       audienceOverlap: ["Bad Friends", "Theo Von", "PowerfulJRE"],
+      videoPct: 55,
+      audioPct: 45,
     },
   },
   {
@@ -237,6 +243,8 @@ export const shows = [
       viewerBehavior: { new: 38.5, casual: 49.4, regular: 12.1 },
       interests: ["Rap & Hip Hop 38%", "R&B 36%", "Basketball 30%", "American Football 26%", "Soul 22%"],
       audienceOverlap: ["DeenTheGreat", "Revolt", "Deen N AB Updates"],
+      videoPct: 98,
+      audioPct: 2,
     },
   },
   {
@@ -317,6 +325,8 @@ export const shows = [
       viewerBehavior: { new: 36.1, casual: 46.5, regular: 17.5 },
       interests: ["American football 52%", "Sport 49%", "Christian & gospel 35%", "Basketball 34%", "News 34%"],
       audienceOverlap: ["Dude Perfect Outdoors", "The FRDI Show", "DP Interns"],
+      videoPct: 75,
+      audioPct: 25,
     },
   },
   {
@@ -393,6 +403,8 @@ export const shows = [
       viewerBehavior: { new: 34.8, casual: 34.5, regular: 30.6 },
       interests: ["Alternative/Indie rock 45%", "LGBTQ+ 45%", "Pop 41%", "Rock 41%", "Comedy 32%"],
       audienceOverlap: ["Royal Court", "cassieopeeyah", "Ziwe"],
+      videoPct: 70,
+      audioPct: 30,
     },
   },
   {
@@ -452,6 +464,8 @@ export const shows = [
       viewerBehavior: { new: 32.2, casual: 55.8, regular: 12.0 },
       interests: ["Hockey 63%", "Sport 56%", "American football 38%", "Baseball 33%", "Golf 31%"],
       audienceOverlap: ["TFS", "Game Script NHL", "sdpn"],
+      videoPct: 40,
+      audioPct: 60,
     },
   },
   {
@@ -516,6 +530,8 @@ export const shows = [
       viewerBehavior: { new: 26.9, casual: 40.5, regular: 32.7 },
       interests: ["Sport 57%", "Basketball 57%", "Rap & hip hop 52%", "Sports 44%", "American football 44%"],
       audienceOverlap: ["Club 520 Podcast", "The Arena", "Nightcap"],
+      videoPct: 85,
+      audioPct: 15,
     },
   },
   {
@@ -573,6 +589,8 @@ export const shows = [
       viewerBehavior: { new: 72.6, casual: 27.4, regular: 0 },
       interests: ["Rap & hip hop 39.6%", "Sport 25.7%", "Music 24.4%", "American football 24.1%", "Basketball 23.7%"],
       audienceOverlap: ["JoeandJada", "soseriuzradio", "Druski"],
+      videoPct: 95,
+      audioPct: 5,
     },
   },
   {
@@ -634,6 +652,8 @@ export const shows = [
       viewerBehavior: { new: 52.8, casual: 36.3, regular: 10.9 },
       interests: ["Rock 32%", "Country 31%", "News 31%", "Pop 30%", "Alternative/Indie rock 30%"],
       audienceOverlap: ["Not Gonna Lie", "Good Hang", "hudcon central"],
+      videoPct: 50,
+      audioPct: 50,
     },
   },
   {
@@ -668,6 +688,8 @@ export const shows = [
         { label: "55–64", pct: 0.40 },
         { label: "65+", pct: 0.10 },
       ],
+      videoPct: 60,
+      audioPct: 40,
     },
   },
 ];

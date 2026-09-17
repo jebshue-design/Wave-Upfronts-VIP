@@ -137,6 +137,25 @@ export default function RsvpForm({ onSuccess, onRsvpComplete, user, existingRsvp
         <div style={{ fontFamily: S.fontSans, fontSize: "14px", color: S.clay, maxWidth: "320px", lineHeight: 1.6 }}>
           {effectiveRsvpType === "decline" ? "We hope to see you at a future event." : "We can't wait to see you there."}
         </div>
+        {effectiveRsvpType !== "decline" && (
+          <div style={{ marginTop: "8px", padding: "16px 20px", background: "rgba(255,255,255,.05)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", textAlign: "left", width: "100%", maxWidth: "300px", display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#E3F643" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/></svg>
+              <div>
+                <div style={{ fontFamily: S.fontDisplay, fontSize: "13px", fontWeight: 700, color: "#FAF7F4", letterSpacing: "-0.02em" }}>October 27, 2026</div>
+                <div style={{ fontFamily: S.fontSans, fontSize: "12px", color: S.clay, marginTop: "2px" }}>5:30 – 9:00 PM ET</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#E3F643" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <div>
+                <div style={{ fontFamily: S.fontDisplay, fontSize: "13px", fontWeight: 700, color: "#FAF7F4", letterSpacing: "-0.02em" }}>The Altman Building</div>
+                <div style={{ fontFamily: S.fontSans, fontSize: "12px", color: S.clay, marginTop: "2px" }}>135 W 18th St, New York, NY</div>
+                <div style={{ fontFamily: S.fontSans, fontSize: "12px", color: S.clay, marginTop: "2px" }}>Doors Open at 5:00pm</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       </>
     );
