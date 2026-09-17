@@ -751,7 +751,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
 
       <section ref={heroRef} id="event" className="slate-event-section slate-event-hero">
         <img className={`slate-event-bg slate-hero-slide${heroSlide === 0 ? " is-active" : ""}`} src="/assets/altman-building.jpg" alt="The Altman Building" style={{ objectPosition: "65% 75%" }} />
-        <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" />
+        <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" style={{ objectPosition: "center 65%" }} />
         <div className="slate-event-overlay" />
         <div className="slate-event-content">
           <div className="slate-hero-slides-wrap">
