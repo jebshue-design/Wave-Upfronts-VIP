@@ -60,8 +60,6 @@ type UserPrefill = { firstName: string; lastName: string; email: string; company
 export default function SlateCarousel({ shows, user, existingRsvpType: initialRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
   const [existingRsvpType, setExistingRsvpType] = useState(initialRsvpType ?? null);
   const [pillMsgIndex, setPillMsgIndex] = useState(0);
-  const heroIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const heroAutoRef = useRef(true);
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -507,28 +505,9 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
   }, []);
 
   useEffect(() => {
-    heroIntervalRef.current = setInterval(() => setHeroSlide(s => (s + 1) % 2), 8000);
-    return () => { if (heroIntervalRef.current) clearInterval(heroIntervalRef.current); };
+    const id = setInterval(() => setHeroSlide(s => (s + 1) % 2), 8000);
+    return () => clearInterval(id);
   }, []);
-
-  const goToHeroSlide = (index: number) => {
-    heroAutoRef.current = false;
-    if (heroIntervalRef.current) { clearInterval(heroIntervalRef.current); heroIntervalRef.current = null; }
-    setHeroSlide(index);
-  };
-
-  const handleHeroPointerDown = () => {
-    if (heroAutoRef.current && heroIntervalRef.current) {
-      clearInterval(heroIntervalRef.current);
-      heroIntervalRef.current = null;
-    }
-  };
-
-  const handleHeroPointerUp = () => {
-    if (heroAutoRef.current && !heroIntervalRef.current) {
-      heroIntervalRef.current = setInterval(() => setHeroSlide(s => (s + 1) % 2), 8000);
-    }
-  };
 
   useEffect(() => {
     if (existingRsvpType !== "confirm") return;
@@ -799,7 +778,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
         </nav>
       </header>
 
-      <section ref={heroRef} id="event" className="slate-event-section slate-event-hero" onPointerDown={handleHeroPointerDown} onPointerUp={handleHeroPointerUp} onPointerLeave={handleHeroPointerUp}>
+      <section ref={heroRef} id="event" className="slate-event-section slate-event-hero">
         <img className={`slate-event-bg slate-hero-slide${heroSlide === 0 ? " is-active" : ""}`} src="/assets/altman-building.jpg" alt="The Altman Building" style={{ objectPosition: "65% 75%" }} />
         <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" style={{ objectPosition: "center 5%" }} />
         <div className="slate-event-overlay" />
@@ -822,13 +801,13 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
               </div>
             </div>
             <div className={`slate-hero-content-slide${heroSlide === 1 ? " is-active" : ""}`}>
-              <h1 className="slate-event-date">Hear From Our<br />Top Creators</h1>
+              <h1 className="slate-event-date">In Person with<br />Our Top Creators</h1>
               <p className="slate-hero-talent-names">Andrew Santino · Kylie Kelce · Funny Marco</p>
             </div>
           </div>
-          <div className="slate-hero-bars">
-            <button type="button" className={`slate-hero-bar${heroSlide === 0 ? " is-active" : ""}`} onClick={() => goToHeroSlide(0)} aria-label="Event info slide"><span className="slate-hero-bar-fill" /></button>
-            <button type="button" className={`slate-hero-bar${heroSlide === 1 ? " is-active" : ""}`} onClick={() => goToHeroSlide(1)} aria-label="Talent slide"><span className="slate-hero-bar-fill" /></button>
+          <div className="slate-hero-bars" aria-hidden="true">
+            <div className={`slate-hero-bar${heroSlide === 0 ? " is-active" : ""}`}><span className="slate-hero-bar-fill" /></div>
+            <div className={`slate-hero-bar${heroSlide === 1 ? " is-active" : ""}`}><span className="slate-hero-bar-fill" /></div>
           </div>
         </div>
         <div className="slate-hero-scroll-hint" aria-hidden="true">
@@ -1328,15 +1307,15 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
         .slate-stage { height: 100vh; padding-top: 32px; padding-bottom: 17px; overflow: hidden; background: linear-gradient(180deg, #000 0%, #212922 100%); }
         .slate-stage .slate-rail { filter: blur(var(--rail-blur, 0px)); opacity: var(--rail-opacity, 1); }
         .slate-event-section { padding: 0 8.5vw 100px; background: linear-gradient(180deg, #000 0%, #212922 100%); }
-        .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; overflow: hidden; cursor: url("/assets/Swipe Cursor.svg") 32 32, pointer; }
+        .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; overflow: hidden; }
         .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
         .slate-hero-slide { opacity: 0; transition: opacity 1s ease-in-out; }
         .slate-hero-slide.is-active { opacity: 1; }
         .slate-hero-slide--talent { object-position: center center; }
         .slate-event-hero .slate-event-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,.18) 60%, rgba(0,0,0,.38) 100%); }
         .slate-event-hero .slate-event-content { position: absolute; top: 0; bottom: 0; left: 5vw; max-width: 60%; padding: 0 0 44px; z-index: 2; transform: translateY(var(--hero-content-y, 0px)); opacity: var(--hero-content-opacity, 1); will-change: transform, opacity; display: flex; flex-direction: column; justify-content: flex-end; }
-        .slate-hero-bars { display: flex; gap: 8px; margin-top: 44px; align-items: flex-end; }
-        .slate-hero-bar { position: relative; width: 48px; height: 2px; background: rgba(255,255,255,.25); border-radius: 1px; overflow: hidden; border: none; padding: 0; cursor: pointer; flex-shrink: 0; }
+        .slate-hero-bars { display: flex; gap: 8px; margin-top: 44px; }
+        .slate-hero-bar { width: 48px; height: 2px; background: rgba(255,255,255,.25); border-radius: 1px; overflow: hidden; }
         .slate-hero-bar-fill { display: block; height: 100%; width: 100%; background: #fff; border-radius: 1px; transform: scaleX(0); transform-origin: left; }
         .slate-hero-bar.is-active .slate-hero-bar-fill { animation: hero-bar-fill 8s linear forwards; }
         @keyframes hero-bar-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
