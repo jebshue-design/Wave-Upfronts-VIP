@@ -890,6 +890,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
           </div>
           <div className="slate-assets-list">
             {[
+              { label: "Wave Network Overview", type: "PDF", file: "/assets/Wave Network Overview.pdf", showId: undefined },
               ...shows.map((show) => {
                 const oneSheets: Record<string, string> = {
                   "ngl": "/assets/one-sheets/Not Gonna Lie w_ Kylie Kelce _ One Sheet 2026.pdf",
@@ -907,9 +908,6 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
                 };
                 return { label: `${show.title} — One-Sheet`, type: "PDF", file: oneSheets[show.id], showId: show.id };
               }),
-              { label: "Wave Network Overview", type: "PDF", file: undefined, showId: undefined },
-              { label: "Audience & Reach Report", type: "PDF", file: undefined, showId: undefined },
-              { label: "2026 Advertising Opportunities", type: "PDF", file: undefined, showId: undefined },
             ].map((asset) => (
               <div className="slate-asset-row" key={asset.label}>
                 <button
