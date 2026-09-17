@@ -4,6 +4,22 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabase, supabaseAdmin } from "@/lib/supabase";
 import nodemailer from "nodemailer";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  const [hashed, salt] = hash.split(".");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return timingSafeEqual(buf, Buffer.from(hashed, "hex"));
+}
 
 // ── AE roster ──────────────────────────────────────────────────────────────
 const AE_EMAILS: Record<string, string> = {
@@ -286,17 +302,7 @@ export async function login(
   _prevState: { error: string },
   formData: FormData
 ) {
-  const email    = (formData.get("email")    as string | null)?.trim().toLowerCase() ?? "";
-  const password = (formData.get("password") as string | null)?.trim() ?? "";
-
-  if (!password) {
-    return { error: "Please enter the event password." } as { error: string };
-  }
-
-  const gatePassword = process.env.GATE_PASSWORD ?? "";
-  if (gatePassword && password !== gatePassword) {
-    return { error: "Incorrect password." } as { error: string };
-  }
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
 
   if (!email) {
     return { error: "Please enter your email address." } as { error: string };
@@ -404,11 +410,12 @@ export async function submitRsvp(
   const lastName = (formData.get("lastName") as string | null)?.trim() ?? "";
   const name = [firstName, lastName].filter(Boolean).join(" ");
   const email = (formData.get("email") as string | null)?.trim() ?? "";
+  const phone = (formData.get("phone") as string | null)?.trim() ?? "";
   const company = (formData.get("company") as string | null)?.trim() ?? "";
   const title = (formData.get("title") as string | null)?.trim() ?? "";
   const rsvpType = (formData.get("rsvpType") as string | null) ?? "confirm";
 
-  if (!firstName || !lastName || !email || !company || !title) {
+  if (!firstName || !lastName || !email || !phone || !company || !title) {
     return { error: "Please fill in all fields.", success: false };
   }
 
@@ -432,18 +439,21 @@ export async function submitRsvp(
     return { error: "", success: true, rsvpType };
   }
 
-  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), company, title, rsvp_type: rsvpType });
+  const { error: dbError } = await supabaseAdmin.from("rsvps").insert({ name, email: email.toLowerCase(), phone, company, title, rsvp_type: rsvpType });
   if (dbError && rsvpType !== "decline") {
     return { error: "Something went wrong. Please try again.", success: false };
   }
 
-  // Look up assigned AE
+  // Look up assigned AE and backfill phone if missing
   const { data: vipMatch } = await supabaseAdmin
     .from("vip_accounts")
-    .select("point_of_contact")
+    .select("point_of_contact, phone")
     .eq("email", email)
     .maybeSingle();
   const aeName = vipMatch?.point_of_contact ?? null;
+  if (vipMatch && !vipMatch.phone && phone) {
+    await supabaseAdmin.from("vip_accounts").update({ phone }).eq("email", email);
+  }
   const aeEmailAddr = aeName ? (AE_EMAILS[aeName] ?? "jeb.shue@wave.tv") : "jeb.shue@wave.tv";
 
   // Alert Wave team
@@ -466,6 +476,7 @@ export async function submitRsvp(
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:Helvetica,Arial,sans-serif;font-size:13px;">
               <tr><td style="padding:7px 0;color:#94958B;width:90px;">Name</td><td style="color:#FAF7F4;font-weight:600;">${name}</td></tr>
               <tr><td style="padding:7px 0;color:#94958B;">Email</td><td style="color:#FAF7F4;">${email}</td></tr>
+              <tr><td style="padding:7px 0;color:#94958B;">Phone</td><td style="color:#FAF7F4;">${phone}</td></tr>
               <tr><td style="padding:7px 0;color:#94958B;">Company</td><td style="color:#E3F643;font-weight:600;">${company}</td></tr>
               <tr><td style="padding:7px 0;color:#94958B;">Title</td><td style="color:#FAF7F4;">${title}</td></tr>
             </table>
@@ -723,4 +734,135 @@ export async function adminLogin(
   });
 
   redirect("/admin");
+}
+
+// ── Seller actions ──────────────────────────────────────────────────────────
+
+const SELLER_COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 60 * 60 * 24 * 7,
+  path: "/",
+};
+
+export async function sellerLogin(
+  _prevState: { error: string },
+  formData: FormData
+): Promise<{ error: string }> {
+  const email    = (formData.get("email")    as string | null)?.trim().toLowerCase() ?? "";
+  const password = (formData.get("password") as string | null)?.trim() ?? "";
+
+  if (!email || !password) {
+    return { error: "Email and password are required." };
+  }
+
+  const { data: seller } = await supabaseAdmin
+    .from("sellers")
+    .select("id, password_hash")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (!seller) {
+    return { error: "Invalid email or password." };
+  }
+
+  const valid = await verifyPassword(password, seller.password_hash);
+  if (!valid) {
+    return { error: "Invalid email or password." };
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set("wave-seller", seller.id, SELLER_COOKIE_OPTS);
+
+  redirect("/seller");
+}
+
+export async function sellerLogout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("wave-seller");
+  redirect("/seller/login");
+}
+
+type SellerGuestState = {
+  error: string;
+  success: boolean;
+  account?: { id?: string; name: string; email: string; company: string; title: string; created_at: string; point_of_contact?: string };
+};
+
+export async function sellerAddGuest(
+  _prevState: SellerGuestState,
+  formData: FormData
+): Promise<SellerGuestState> {
+  const cookieStore = await cookies();
+  const sellerId = cookieStore.get("wave-seller")?.value;
+
+  if (!sellerId) {
+    return { error: "Not authenticated.", success: false };
+  }
+
+  const { data: seller } = await supabaseAdmin
+    .from("sellers")
+    .select("name")
+    .eq("id", sellerId)
+    .maybeSingle();
+
+  if (!seller) {
+    return { error: "Seller not found.", success: false };
+  }
+
+  const name    = (formData.get("name")    as string | null)?.trim() ?? "";
+  const email   = (formData.get("email")   as string | null)?.trim() ?? "";
+  const company = (formData.get("company") as string | null)?.trim() ?? "";
+  const title   = (formData.get("title")   as string | null)?.trim() ?? "";
+  const phone   = (formData.get("phone")   as string | null)?.trim() || null;
+
+  if (!name || !email || !company) {
+    return { error: "Name, email, and company are required.", success: false };
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("vip_accounts")
+    .insert({ name, email, company, title, phone, point_of_contact: seller.name })
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "23505") return { error: "An account with that email already exists.", success: false };
+    return { error: "Failed to add guest. Try again.", success: false };
+  }
+
+  return { error: "", success: true, account: data };
+}
+
+export async function createSeller(
+  _prevState: { error: string; success: boolean },
+  formData: FormData
+): Promise<{ error: string; success: boolean }> {
+  const name     = (formData.get("name")     as string | null)?.trim() ?? "";
+  const email    = (formData.get("email")    as string | null)?.trim().toLowerCase() ?? "";
+  const password = (formData.get("password") as string | null)?.trim() ?? "";
+
+  if (!name || !email || !password) {
+    return { error: "Name, email, and password are required.", success: false };
+  }
+
+  const password_hash = await hashPassword(password);
+
+  const { error } = await supabaseAdmin
+    .from("sellers")
+    .insert({ name, email, password_hash });
+
+  if (error) {
+    if (error.code === "23505") return { error: "A seller with that email already exists.", success: false };
+    return { error: "Failed to create seller. Try again.", success: false };
+  }
+
+  return { error: "", success: true };
+}
+
+export async function deleteSeller(id: string): Promise<{ error: string; success: boolean }> {
+  const { error } = await supabaseAdmin.from("sellers").delete().eq("id", id);
+  if (error) return { error: "Failed to delete seller.", success: false };
+  return { error: "", success: true };
 }

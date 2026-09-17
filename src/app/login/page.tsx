@@ -181,7 +181,7 @@ export default function LoginPage() {
 
       {loginReady && (
         <form className="login-form" action={formAction}>
-          <div className="login-pill">
+          <div className={`login-pill${state?.error ? " has-error" : ""}`}>
             <label htmlFor="login-email" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Email address</label>
             <input
               id="login-email"
@@ -190,17 +190,6 @@ export default function LoginPage() {
               autoComplete="email"
               autoFocus
               placeholder="Email Address"
-              disabled={isPending}
-            />
-          </div>
-          <div className={`login-pill${state?.error ? " has-error" : ""}`}>
-            <label htmlFor="login-password" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Event password</label>
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Event Password"
               disabled={isPending}
             />
             <button type="submit" aria-label="Submit" disabled={isPending}>

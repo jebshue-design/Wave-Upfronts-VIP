@@ -21,32 +21,35 @@ export default function RsvpModal({ user }: { user?: UserPrefill } = {}) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [isFirstOpen, setIsFirstOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const openModal = () => {
+    const openModal = (first = false) => {
       if (closeTimer.current) clearTimeout(closeTimer.current);
       setClosing(false);
       setConfirmed(false);
+      setIsFirstOpen(first);
       setOpen(true);
     };
-    window.addEventListener("open-rsvp", openModal);
+    const handleOpenRsvp = () => openModal(false);
+    window.addEventListener("open-rsvp", handleOpenRsvp);
 
     // Auto-open once per session after the carousel has settled
     if (!sessionStorage.getItem("rsvp-shown")) {
       const t = setTimeout(() => {
         sessionStorage.setItem("rsvp-shown", "1");
-        openModal();
+        openModal(true);
       }, 1400);
       return () => {
         clearTimeout(t);
-        window.removeEventListener("open-rsvp", openModal);
+        window.removeEventListener("open-rsvp", handleOpenRsvp);
         if (closeTimer.current) clearTimeout(closeTimer.current);
       };
     }
 
     return () => {
-      window.removeEventListener("open-rsvp", openModal);
+      window.removeEventListener("open-rsvp", handleOpenRsvp);
       if (closeTimer.current) clearTimeout(closeTimer.current);
     };
   }, []);
@@ -162,7 +165,7 @@ export default function RsvpModal({ user }: { user?: UserPrefill } = {}) {
             lineHeight: 1.05,
             textAlign: "center",
           }}>
-            Join us in New York
+            {isFirstOpen && user?.firstName ? `Welcome, ${user.firstName}` : "Join us in New York"}
           </h2>}
 
           {!confirmed && <p style={{

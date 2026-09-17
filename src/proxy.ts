@@ -20,6 +20,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Seller section — requires separate seller cookie
+  if (pathname.startsWith("/seller")) {
+    if (pathname === "/seller/login") return NextResponse.next();
+    const isSellerAuthed = request.cookies.has("wave-seller");
+    if (!isSellerAuthed) return NextResponse.redirect(new URL("/seller/login", request.url));
+    return NextResponse.next();
+  }
+
   const isPublic = PUBLIC_PATHS.includes(pathname);
   const isAuthed = request.cookies.has("wave-auth");
 

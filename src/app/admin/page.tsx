@@ -26,6 +26,11 @@ export default async function AdminPage() {
     .order("created_at", { ascending: false })
     .limit(500);
 
+  const { data: sellers } = await supabase
+    .from("sellers")
+    .select("id, name, email, created_at")
+    .order("name");
+
   const passwordToName: Record<string, string> = {};
   for (const acc of (vipAccounts ?? [])) {
     passwordToName[acc.email.toLowerCase()] = `${acc.name} · ${acc.company}`;
@@ -179,6 +184,7 @@ export default async function AdminPage() {
           passwordToName={passwordToName}
           engagementByUser={engagementByUser}
           userBreakdownData={userBreakdownData}
+          sellers={sellers ?? []}
         />
 
       </div>

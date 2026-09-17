@@ -92,6 +92,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const didDrag = useRef(false);
   const stageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const isJumping = useRef(false);
 
   useEffect(() => {
     const rail = railRef.current;
@@ -130,6 +132,32 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     };
 
     const onScroll = () => {
+      if (isJumping.current) {
+        isJumping.current = false;
+        return;
+      }
+
+      // Infinite loop: silently jump when drifting into clone sets
+      const allCards = Array.from(rail.querySelectorAll<HTMLElement>("[data-slate-card]"));
+      const setSize = Math.floor(allCards.length / 3);
+      if (setSize > 0 && allCards.length === setSize * 3) {
+        const setWidth = rail.scrollWidth / 3;
+        if (rail.scrollLeft < setWidth * 0.5) {
+          if (snapTimer.current) clearTimeout(snapTimer.current);
+          isJumping.current = true;
+          lastScrollLeft.current += setWidth;
+          rail.scrollLeft += setWidth;
+          return;
+        }
+        if (rail.scrollLeft > setWidth * 2.5) {
+          if (snapTimer.current) clearTimeout(snapTimer.current);
+          isJumping.current = true;
+          lastScrollLeft.current -= setWidth;
+          rail.scrollLeft -= setWidth;
+          return;
+        }
+      }
+
       const delta = rail.scrollLeft - lastScrollLeft.current;
       lastScrollLeft.current = rail.scrollLeft;
       scrollVelocity.current = Math.max(-1.25, Math.min(1.25, delta / rail.clientWidth * 0.7));
@@ -146,7 +174,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           nearestDistance = distance;
         }
       });
-      setActiveIndex(nearest);
+      setActiveIndex(nearest % shows.length);
       if (snapTimer.current) clearTimeout(snapTimer.current);
       if (draggingRef.current || momentumActiveRef.current) {
         if (parallaxFrame.current === null) {
@@ -177,6 +205,14 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     const waitForLayout = () => {
       const cards = Array.from(rail.querySelectorAll<HTMLElement>("[data-slate-card]"));
       if (cards.length > 0 && cards[0].offsetWidth > 0) {
+        // Center the first card of the middle set (NGL) on load
+        const setSize = Math.floor(cards.length / 3);
+        const middleNgl = cards[setSize];
+        if (middleNgl) {
+          const target = middleNgl.offsetLeft + middleNgl.offsetWidth / 2 - rail.clientWidth / 2;
+          rail.scrollLeft = target;
+          lastScrollLeft.current = target;
+        }
         updateParallax();
         onScroll();
       } else {
@@ -318,7 +354,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const selectSlate = () => {
     lockNav(); setActiveNav("slate");
     const page = document.querySelector<HTMLElement>(".slate-page");
-    page?.scrollTo({ top: 0, behavior: "smooth" });
+    const slate = stageRef.current;
+    if (page && slate) page.scrollTo({ top: slate.offsetTop, behavior: "smooth" });
     trackEvent("nav_slate").catch(() => {});
   };
 
@@ -450,6 +487,45 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     return () => { page.removeEventListener("scroll", onScroll); if (rafId) cancelAnimationFrame(rafId); };
   }, []);
 
+  useEffect(() => {
+    const id = setInterval(() => setHeroSlide(s => (s + 1) % 2), 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const page = document.querySelector<HTMLElement>(".slate-page");
+    const slate = stageRef.current;
+    if (!page || !slate) return;
+
+    let isSnapping = false;
+    let hasSnappedThisEntrance = false;
+
+    const handleScroll = () => {
+      if (isSnapping) return;
+
+      const slateTop = slate.offsetTop;
+      const slateHeight = slate.offsetHeight;
+      const scrollTop = page.scrollTop;
+      const vh = page.clientHeight;
+
+      const visibleTop = Math.max(slateTop, scrollTop);
+      const visibleBottom = Math.min(slateTop + slateHeight, scrollTop + vh);
+      const visiblePx = Math.max(0, visibleBottom - visibleTop);
+      const visibleRatio = visiblePx / vh;
+
+      if (visibleRatio < 0.3) hasSnappedThisEntrance = false;
+
+      if (visibleRatio >= 0.6 && !hasSnappedThisEntrance) {
+        hasSnappedThisEntrance = true;
+        isSnapping = true;
+        page.scrollTo({ top: slateTop, behavior: "smooth" });
+        setTimeout(() => { isSnapping = false; }, 1000);
+      }
+    };
+
+    page.addEventListener("scroll", handleScroll, { passive: true });
+    return () => page.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <main className={`slate-page${expandedShow ? " has-detail" : ""}${isReturning ? " is-returning" : ""}${expandedShow?.detailNavTone === "dark" ? " detail-nav-dark" : ""}`}>
@@ -480,8 +556,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           <header className="slate-detail-header">
             <img src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
             <nav ref={detailNavRef} aria-label="Show navigation">
-              <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setActiveNav("slate"); }}>SLATE</button>
               <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectEvent, 350); }}>EVENT</button>
+              <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectSlate, 350); }}>SLATE</button>
               <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={() => { closeShow(); setTimeout(selectAssets, 350); }}>ASSETS</button>
               <span className="slate-nav-indicator" style={{ transform: `translateX(${navIndicator.left}px)`, width: navIndicator.width }} />
               <form action={logout} style={{ display: "contents" }}>
@@ -651,8 +727,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
       <header className="slate-header">
         <img className="slate-mark" src="/assets/Wave Logo.svg" alt="Wave Sports & Entertainment" />
         <nav ref={siteNavRef} className="slate-nav" aria-label="Site navigation">
-          <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={selectSlate}>SLATE</button>
           <button type="button" className={`nav-event${activeNav === "event" ? " slate-nav-active" : ""}`} onClick={selectEvent}>EVENT</button>
+          <button type="button" className={`nav-slate${activeNav === "slate" ? " slate-nav-active" : ""}`} onClick={selectSlate}>SLATE</button>
           <button type="button" className={`nav-assets${activeNav === "assets" ? " slate-nav-active" : ""}`} onClick={selectAssets}>ASSETS</button>
           <span className="slate-nav-indicator" style={{ transform: `translateX(${navIndicator.left}px)`, width: navIndicator.width }} />
           <form action={logout} style={{ display: "contents" }}>
@@ -662,21 +738,34 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
       </header>
 
       <section ref={heroRef} id="event" className="slate-event-section slate-event-hero">
-        <img className="slate-event-bg" src="/assets/altman-building.jpg" alt="The Altman Building" />
+        <img className={`slate-event-bg slate-hero-slide${heroSlide === 0 ? " is-active" : ""}`} src="/assets/altman-building.jpg" alt="The Altman Building" />
+        <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" />
         <div className="slate-event-overlay" />
         <div className="slate-event-content">
-          <span className="slate-event-eyebrow">Wave Upfronts 2027</span>
-          <h1 className="slate-event-date">Tuesday, October<br />27th, 2026</h1>
-          <a className="slate-event-venue" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">
-            <img src="/assets/location-pin.svg" alt="" aria-hidden="true" width="20" height="26" style={{ flexShrink: 0, marginTop: 2 }} />
-            <span>
-              The Altman Building
-              <span className="slate-event-address">135 West 18th Street, New York, NY 10011</span>
-            </span>
-          </a>
-          <div className="slate-event-actions">
-            <a className="slate-event-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2027&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2027&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011" target="_blank" rel="noopener noreferrer">Add to Calendar</a>
-            <a className="slate-event-btn" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">Get Directions</a>
+          <div className="slate-hero-slides-wrap">
+            <div className={`slate-hero-content-slide${heroSlide === 0 ? " is-active" : ""}`}>
+              <span className="slate-event-eyebrow">Wave Upfronts 2027</span>
+              <h1 className="slate-event-date">Tuesday, October<br />27th, 2026</h1>
+              <a className="slate-event-venue" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">
+                <img src="/assets/location-pin.svg" alt="" aria-hidden="true" width="20" height="26" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span>
+                  The Altman Building
+                  <span className="slate-event-address">135 West 18th Street, New York, NY 10011</span>
+                </span>
+              </a>
+              <div className="slate-event-actions">
+                <a className="slate-event-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wave+Upfronts+2027&dates=20261027T213000Z/20261028T010000Z&details=Wave+Upfronts+2027&location=The+Altman+Building,+135+West+18th+Street,+New+York,+NY+10011" target="_blank" rel="noopener noreferrer">Add to Calendar</a>
+                <a className="slate-event-btn" href="https://maps.google.com/?q=135+West+18th+Street+New+York+NY+10011" target="_blank" rel="noopener noreferrer">Get Directions</a>
+              </div>
+            </div>
+            <div className={`slate-hero-content-slide${heroSlide === 1 ? " is-active" : ""}`}>
+              <h1 className="slate-event-date">Hear From Our<br />Top Creators</h1>
+              <p className="slate-hero-talent-names">Andrew Santino · Kylie Kelce · Funny Marco</p>
+            </div>
+          </div>
+          <div className="slate-hero-bars" aria-hidden="true">
+            <div className={`slate-hero-bar${heroSlide === 0 ? " is-active" : ""}`}><span className="slate-hero-bar-fill" /></div>
+            <div className={`slate-hero-bar${heroSlide === 1 ? " is-active" : ""}`}><span className="slate-hero-bar-fill" /></div>
           </div>
         </div>
         <div className="slate-hero-scroll-hint" aria-hidden="true">
@@ -696,13 +785,13 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           onClickCapture={cancelClickAfterDrag}
           onDragStart={(event) => event.preventDefault()}
         >
-          <div className="slate-spacer" />
-          {shows.map((show, index) => (
+          {[...shows, ...shows, ...shows].map((show, index) => (
             <article
-              key={show.id}
+              key={`${show.id}-${Math.floor(index / shows.length)}`}
               data-slate-card
+              data-id={show.id}
               data-color={show.categoryColor}
-              className={`slate-card${index === activeIndex ? " is-active" : ""}`}
+              className={`slate-card${index % shows.length === activeIndex ? " is-active" : ""}`}
               style={{ "--accent": show.categoryColor } as React.CSSProperties}
             >
               <div className="slate-frame">
@@ -749,7 +838,6 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               </div>
             </article>
           ))}
-          <div className="slate-spacer" />
         </div>
       </section>
 
@@ -1176,22 +1264,35 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           mix-blend-mode: normal;
         }
         .slate-logout:hover { color: rgba(255,255,255,0.75); }
-        .slate-stage { height: 100vh; padding-top: 32px; padding-bottom: 17px; overflow: hidden; background: linear-gradient(180deg, #212922 0%, #000 100%); }
+        .slate-stage { height: 100vh; padding-top: 32px; padding-bottom: 17px; overflow: hidden; background: linear-gradient(180deg, #000 0%, #212922 100%); }
         .slate-stage .slate-rail { filter: blur(var(--rail-blur, 0px)); opacity: var(--rail-opacity, 1); }
         .slate-event-section { padding: 0 8.5vw 100px; background: linear-gradient(180deg, #000 0%, #212922 100%); }
-        .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
-        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% center; transform: translateY(var(--hero-parallax, 0px)); will-change: transform; }
+        .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; overflow: hidden; }
+        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% center; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
+        .slate-hero-slide { opacity: 0; transition: opacity 1s ease-in-out; }
+        .slate-hero-slide.is-active { opacity: 1; }
+        .slate-hero-slide--talent { object-position: center center; }
         .slate-event-hero .slate-event-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,.18) 60%, rgba(0,0,0,.38) 100%); }
-        .slate-event-hero .slate-event-content { max-width: 60%; padding: 0 8vw clamp(80px, 10vh, 120px); transform: translateY(var(--hero-content-y, 0px)); opacity: var(--hero-content-opacity, 1); will-change: transform, opacity; }
+        .slate-event-hero .slate-event-content { position: absolute; top: 0; bottom: 0; left: 5vw; max-width: 60%; padding: 0 0 44px; z-index: 2; transform: translateY(var(--hero-content-y, 0px)); opacity: var(--hero-content-opacity, 1); will-change: transform, opacity; display: flex; flex-direction: column; justify-content: flex-end; }
+        .slate-hero-bars { display: flex; gap: 8px; margin-top: 44px; }
+        .slate-hero-bar { width: 48px; height: 2px; background: rgba(255,255,255,.25); border-radius: 1px; overflow: hidden; }
+        .slate-hero-bar-fill { display: block; height: 100%; width: 100%; background: #fff; border-radius: 1px; transform: scaleX(0); transform-origin: left; }
+        .slate-hero-bar.is-active .slate-hero-bar-fill { animation: hero-bar-fill 5s linear forwards; }
+        @keyframes hero-bar-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        .slate-hero-slides-wrap { display: grid; }
+        .slate-hero-content-slide { grid-area: 1 / 1; opacity: 0; transition: opacity 1s ease-in-out; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; }
+        .slate-hero-content-slide.is-active { opacity: 1; pointer-events: auto; }
+        .slate-hero-talent-names { margin: 0; font: 400 clamp(15px, 1.2vw, 19px)/1.4 "Zalando Sans", sans-serif; color: rgba(244,245,240,.72); }
         @keyframes hero-hint-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 55% { transform: translateX(-50%) translateY(7px); } }
         .slate-hero-scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,.42); opacity: var(--hero-hint-opacity, 1); animation: hero-hint-bounce 2.2s cubic-bezier(.37,0,.63,1) infinite; pointer-events: none; }
-        .slate-event-hero .slate-event-eyebrow { font-size: clamp(13px, 1.4vw, 20px); margin-bottom: 20px; }
-        .slate-event-hero .slate-event-date { font: 500 clamp(52px, 6.8vw, 108px)/.9 "Zalando Sans Expanded", sans-serif; margin-bottom: 28px; }
-        .slate-event-hero .slate-event-venue { font-size: clamp(15px, 1.6vw, 22px); margin-bottom: 36px; align-items: flex-start; }
-        .slate-event-address { display: block; font: 400 clamp(10px, 0.9vw, 13px)/1.4 "Zalando Sans", sans-serif; letter-spacing: 0; color: rgba(244,245,240,.55); margin-top: 3px; }
+        .slate-event-hero .slate-event-eyebrow { font-size: clamp(22px, 3vw, 44px); margin-bottom: 20px; }
+        .slate-event-hero .slate-event-date { font: 500 clamp(34px, 3.8vw, 63px)/1.05 "Zalando Sans Expanded", sans-serif; margin-bottom: 28px; }
+        .slate-event-hero .slate-event-venue { font-size: clamp(18px, 2vw, 28px); margin-bottom: 36px; align-items: flex-start; }
+        .slate-event-address { display: block; font: 400 clamp(12px, 1.1vw, 16px)/1.4 "Zalando Sans", sans-serif; letter-spacing: 0; color: rgba(244,245,240,.55); margin-top: 4px; }
         .slate-event-inner { width: 100%; }
         .slate-event-card { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 24px; overflow: hidden; display: flex; align-items: flex-end; opacity: 0; transform: translateY(110px) scale(0.93); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1); }
         .slate-event-card.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+        .slate-hero-scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,.42); opacity: var(--hero-hint-opacity, 1); animation: hero-hint-bounce 2.2s cubic-bezier(.37,0,.63,1) infinite; pointer-events: none; }
         .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 65% center; }
         .slate-event-overlay { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 42%, rgba(0,0,0,.18) 72%, transparent 100%); }
         .slate-event-content { position: relative; z-index: 2; padding: 0 clamp(28px, 4vw, 64px) clamp(36px, 5vh, 64px); display: flex; flex-direction: column; align-items: flex-start; max-width: 55%; }
@@ -1427,6 +1528,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         }
         .slate-category { display: none; }
         .slate-card h1 { max-width: 740px; margin: 0; font-family: "Zalando Sans Expanded", sans-serif; font-size: clamp(32px, 5vw, 76px); font-weight: 700; letter-spacing: -.025em; line-height: .92; }
+        [data-id="my-momma-told-me"] h1 { white-space: nowrap; font-size: clamp(22px, 3.8vw, 58px); }
         .slate-card-info p { margin: 10px 0 0; font-size: 10px; font-weight: 700; letter-spacing: -.025em; line-height: 1; color: rgba(244,245,240,.82); }
         .slate-card-info p.slate-talent { margin-top: 12px; font-family: "Zalando Sans Expanded", sans-serif; font-size: clamp(22px, 2.2vw, 34px); font-weight: 500; letter-spacing: -.025em; color: rgba(244,245,240,.95); }
         .slate-card-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 15px; white-space: nowrap; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
@@ -1559,7 +1661,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           /* Event section */
           .slate-event-section { padding: 72px 16px 72px; }
           .slate-event-card { border-radius: 18px; aspect-ratio: 4 / 3; }
-          .slate-event-content { max-width: 90%; padding: 0 20px 20px; }
+          .slate-event-hero .slate-event-content { top: 0; bottom: 0; left: 20px; max-width: calc(100vw - 40px); padding-bottom: 44px; }
           .slate-event-eyebrow { font-size: 13px; margin-bottom: 8px; }
           .slate-event-date { font-size: clamp(28px, 6.5vw, 44px); margin-bottom: 12px; }
           .slate-event-venue { font-size: 12px; margin-bottom: 14px; }
@@ -1579,6 +1681,8 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           .onesheet-lightbox img { height: auto; max-height: 78dvh; max-width: 94vw; }
           .onesheet-lightbox-actions { top: max(12px, env(safe-area-inset-top)); right: 12px; }
           .onesheet-lightbox-download { padding: 6px 12px; font-size: 10px; }
+
+          .slate-event-btn { padding: 10px 16px; font-size: 10px; }
         }
         @keyframes rsvp-float {
           0%, 100% { transform: translateY(0); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 0 rgba(227,246,67,0); }

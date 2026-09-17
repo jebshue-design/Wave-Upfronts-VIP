@@ -59,8 +59,8 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
     return (
       <>
       <style>{`
-        .rsvp-confetti { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
-        .rsvp-confetti span { position: absolute; top: 50%; left: 50%; width: 7px; height: 12px; border-radius: 2px; background: #E3F643; opacity: 0; animation: rsvp-confetti-burst 1.15s cubic-bezier(.16,1,.3,1) both; }
+        .rsvp-confetti { position: fixed; top: 50%; left: 50%; width: 0; height: 0; z-index: 1001; pointer-events: none; }
+        .rsvp-confetti span { position: absolute; top: 0; left: 0; width: 7px; height: 12px; border-radius: 2px; background: #E3F643; opacity: 0; animation: rsvp-confetti-burst 1.15s cubic-bezier(.16,1,.3,1) both; }
         .rsvp-confetti span:nth-child(2n) { background: #FAF7F4; }
         .rsvp-confetti span:nth-child(3n) { width: 5px; height: 5px; border-radius: 50%; }
         .rsvp-confetti span:nth-child(1) { --x: -150px; --y: -70px; --r: -35deg; }
@@ -82,16 +82,15 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
         .rsvp-confetti span:nth-child(17) { --x: -4px; --y: -155px; --r: 30deg; }
         .rsvp-confetti span:nth-child(18) { --x: 4px; --y: 150px; --r: -30deg; }
         @keyframes rsvp-confetti-burst {
-          from { opacity: 0; transform: translate(-50%, -50%) translate(0, 0) rotate(0) scale(.4); }
+          from { opacity: 0; transform: translate(0, 0) rotate(0) scale(.4); }
           18% { opacity: 1; }
-          to { opacity: 0; transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
+          to { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
         }
       `}</style>
       <div
         className="rsvp-success"
         style={{
           position: "relative",
-          overflow: "hidden",
           background: "transparent",
           border: "none",
           borderRadius: 0,
@@ -103,9 +102,11 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           gap: "16px",
         }}
       >
-        <div className="rsvp-confetti" aria-hidden="true">
-          {Array.from({ length: 18 }, (_, index) => <span key={index} />)}
-        </div>
+        {state.rsvpType !== "decline" && (
+          <div className="rsvp-confetti" aria-hidden="true">
+            {Array.from({ length: 18 }, (_, index) => <span key={index} />)}
+          </div>
+        )}
         <div
           style={{
             width: "48px",
@@ -138,8 +139,8 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
         .rsvp-confirm:not(:disabled) { background: #FAF7F4; transition: background-color .75s cubic-bezier(.16,1,.3,1), color .75s cubic-bezier(.16,1,.3,1); }
         .rsvp-confirm:not(:disabled):hover { background: #E3F643; }
         .rsvp-field:focus { border-color: rgba(227,246,67,0.6) !important; background: rgba(227,246,67,0.05) !important; }
-        .rsvp-confetti { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
-        .rsvp-confetti span { position: absolute; top: 50%; left: 50%; width: 7px; height: 12px; border-radius: 2px; background: #E3F643; opacity: 0; animation: rsvp-confetti-burst 1.15s cubic-bezier(.16,1,.3,1) both; }
+        .rsvp-confetti { position: fixed; top: 50%; left: 50%; width: 0; height: 0; z-index: 1001; pointer-events: none; }
+        .rsvp-confetti span { position: absolute; top: 0; left: 0; width: 7px; height: 12px; border-radius: 2px; background: #E3F643; opacity: 0; animation: rsvp-confetti-burst 1.15s cubic-bezier(.16,1,.3,1) both; }
         .rsvp-confetti span:nth-child(2n) { background: #FAF7F4; }
         .rsvp-confetti span:nth-child(3n) { width: 5px; height: 5px; border-radius: 50%; }
         .rsvp-confetti span:nth-child(1) { --x: -150px; --y: -70px; --r: -35deg; }
@@ -161,15 +162,16 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
         .rsvp-confetti span:nth-child(17) { --x: -4px; --y: -155px; --r: 30deg; }
         .rsvp-confetti span:nth-child(18) { --x: 4px; --y: 150px; --r: -30deg; }
         @keyframes rsvp-confetti-burst {
-          from { opacity: 0; transform: translate(-50%, -50%) translate(0, 0) rotate(0) scale(.4); }
+          from { opacity: 0; transform: translate(0, 0) rotate(0) scale(.4); }
           18% { opacity: 1; }
-          to { opacity: 0; transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
+          to { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
         }
       `}</style>
       <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
         <input name="firstName" type="text" required placeholder="First Name" aria-label="First Name" defaultValue={user?.firstName} className="rsvp-field" style={inputStyle(false)} />
         <input name="lastName" type="text" required placeholder="Last Name" aria-label="Last Name" defaultValue={user?.lastName} className="rsvp-field" style={inputStyle(false)} />
         <input name="email" type="email" required placeholder="Email Address" aria-label="Email Address" defaultValue={user?.email} className="rsvp-field" style={inputStyle(false)} />
+        <input name="phone" type="tel" required placeholder="Phone Number" aria-label="Phone Number" className="rsvp-field" style={inputStyle(false)} />
         <input name="company" type="text" required placeholder="Company" aria-label="Company" defaultValue={user?.company} className="rsvp-field" style={inputStyle(false)} />
         <input name="title" type="text" required placeholder="Title" aria-label="Title" defaultValue={user?.title} className="rsvp-field" style={inputStyle(false)} />
       </div>

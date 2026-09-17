@@ -5,6 +5,7 @@ import PipelineTab from "./PipelineTab";
 import VipAccountManager from "./VipAccountManager";
 import BulkImportTab from "./BulkImportTab";
 import FollowUpTab from "./FollowUpTab";
+import SellersTab from "./SellersTab";
 
 const S = {
   night:       "#0B0909",
@@ -48,14 +49,15 @@ type Props = {
     user: string; totalViews: number; firstSeen: string; lastSeen: string;
     shows: ShowActivity[];
   }[];
+  sellers: { id: string; name: string; email: string; created_at: string }[];
 };
 
-const TABS = ["Pipeline", "Follow Up", "Users", "Import", "RSVPs", "Logins"] as const;
+const TABS = ["Pipeline", "Follow Up", "Users", "Import", "RSVPs", "Logins", "Sellers"] as const;
 type Tab = typeof TABS[number];
 
 export default function AdminTabs(props: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("Pipeline");
-  const { logins, rsvps, vipAccounts, emailLog, passwordToName, engagementByUser, userBreakdownData } = props;
+  const { logins, rsvps, vipAccounts, emailLog, passwordToName, engagementByUser, userBreakdownData, sellers } = props;
 
   return (
     <>
@@ -193,6 +195,11 @@ export default function AdminTabs(props: Props) {
             </table>
           </div>
         </div>
+      )}
+
+      {/* ── SELLERS ── */}
+      {activeTab === "Sellers" && (
+        <SellersTab sellers={sellers} />
       )}
     </>
   );
