@@ -502,7 +502,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => setHeroSlide(s => (s + 1) % 2), 5000);
+    const id = setInterval(() => setHeroSlide(s => (s + 1) % 2), 8000);
     return () => clearInterval(id);
   }, []);
 
@@ -1296,7 +1296,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
         .slate-hero-bars { display: flex; gap: 8px; margin-top: 44px; }
         .slate-hero-bar { width: 48px; height: 2px; background: rgba(255,255,255,.25); border-radius: 1px; overflow: hidden; }
         .slate-hero-bar-fill { display: block; height: 100%; width: 100%; background: #fff; border-radius: 1px; transform: scaleX(0); transform-origin: left; }
-        .slate-hero-bar.is-active .slate-hero-bar-fill { animation: hero-bar-fill 5s linear forwards; }
+        .slate-hero-bar.is-active .slate-hero-bar-fill { animation: hero-bar-fill 8s linear forwards; }
         @keyframes hero-bar-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         .slate-hero-slides-wrap { display: grid; }
         .slate-hero-content-slide { grid-area: 1 / 1; opacity: 0; transition: opacity 1s ease-in-out; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; }
