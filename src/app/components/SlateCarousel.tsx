@@ -32,6 +32,7 @@ export type SlateItem = {
   detailPartnerships?: string;
   youtubeUrl?: string | null;
   audioUrl?: string | null;
+  instagramUrl?: string | null;
   audience?: {
     persona?: string;
     genderSkew?: string;
@@ -610,7 +611,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
               };
               const showOneSheetUrl = oneSheets[expandedShow.id];
               const thumbUrl = showOneSheetUrl ? `/assets/one-sheets/thumbs/${expandedShow.id}.png` : null;
-              if (!expandedShow.youtubeUrl && !expandedShow.audioUrl && !showOneSheetUrl) return null;
+              if (!expandedShow.youtubeUrl && !expandedShow.audioUrl && !showOneSheetUrl && !expandedShow.instagramUrl) return null;
               return (
                 <div className="slate-detail-channels">
                   {expandedShow.youtubeUrl && (
@@ -621,6 +622,11 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
                   {expandedShow.audioUrl && (
                     <a className="slate-detail-channel-btn" href={expandedShow.audioUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_spotify", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {}); }}>
                       Listen
+                    </a>
+                  )}
+                  {expandedShow.instagramUrl && (
+                    <a className="slate-detail-channel-btn" href={expandedShow.instagramUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); trackEvent("show_instagram", { show_id: expandedShow.id, show_title: expandedShow.title }).catch(() => {}); }}>
+                      Instagram
                     </a>
                   )}
                   {thumbUrl && showOneSheetUrl && (

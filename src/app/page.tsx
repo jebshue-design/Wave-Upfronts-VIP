@@ -38,6 +38,7 @@ export const shows = [
     detailPartnerships: "KEY PARTNERSHIPS AND EPISODES",
     youtubeUrl: "https://www.youtube.com/@nglwithkylie",
     audioUrl: "https://open.spotify.com/show/0RgXbSGGmwpzAyeLHbDqUD",
+    instagramUrl: "https://www.instagram.com/nglwithkylie",
     audience: {
       followers: "3.7M",
       monthlyViews: "140M",
@@ -99,6 +100,7 @@ export const shows = [
     talent: "Andrew Santino & Bobby Lee",
     youtubeUrl: "https://www.youtube.com/@BadFriends",
     audioUrl: "https://open.spotify.com/show/3gaGfrqgnVqUBNDdtv5p3S",
+    instagramUrl: "https://www.instagram.com/badfriendspod",
     audience: {
       followers: "5M",
       monthlyViews: "38M",
@@ -139,6 +141,7 @@ export const shows = [
     talent: "Andrew Santino",
     youtubeUrl: "https://www.youtube.com/@AndrewSantinoWhiskeyGinger",
     audioUrl: "https://open.spotify.com/show/2QoIpuCjh332VOeDYxLr3A",
+    instagramUrl: "https://www.instagram.com/whiskeygingerpodcast",
     audience: {
       followers: "2M",
       monthlyViews: "5M",
@@ -197,6 +200,7 @@ export const shows = [
     talent: "Funny Marco",
     youtubeUrl: "https://www.youtube.com/@OpenThoughts0",
     audioUrl: "https://open.spotify.com/show/7AwnOVezHIfHVbNVINNlQL",
+    instagramUrl: "https://www.instagram.com/openthoughtsmarco",
     audience: {
       followers: "1.2M",
       monthlyViews: "19M",
@@ -253,6 +257,7 @@ export const shows = [
     talent: "Ilona Maher",
     youtubeUrl: "https://www.youtube.com/@HouseofMaher",
     audioUrl: null as string | null,
+    instagramUrl: "https://www.instagram.com/powerhourilona",
   },
   {
     id: "almost-athletes",
@@ -273,6 +278,7 @@ export const shows = [
     talent: "Dude Perfect",
     youtubeUrl: "https://www.youtube.com/@almostathletes",
     audioUrl: "https://open.spotify.com/show/55gaQm31JIbp6td7QtYsPU",
+    instagramUrl: "https://www.instagram.com/almostathletes",
     audience: {
       followers: "162K",
       monthlyViews: "12M",
@@ -348,6 +354,7 @@ export const shows = [
     talent: "Caleb Hearon",
     youtubeUrl: "https://www.youtube.com/@sooootruepod",
     audioUrl: "https://open.spotify.com/show/3EgXpWE5vz6JkRtjhenVOU",
+    instagramUrl: "https://www.instagram.com/sooootruepod",
     audience: {
       followers: "581K",
       monthlyViews: "22M",
@@ -406,6 +413,7 @@ export const shows = [
     talent: "Matthew & Brady Tkachuk",
     youtubeUrl: "https://www.youtube.com/@Wingmenpod",
     audioUrl: "https://open.spotify.com/show/0phWiahC5nLC7azlkhe8hh",
+    instagramUrl: "https://www.instagram.com/wingmenpod",
     audience: {
       followers: "162K",
       monthlyViews: "14M",
@@ -469,6 +477,7 @@ export const shows = [
     talent: "Carmelo Anthony",
     youtubeUrl: "https://www.youtube.com/@7PMinBrooklyn",
     audioUrl: "https://open.spotify.com/show/4sEy5p87mJ002F3NGsKIpq",
+    instagramUrl: "https://www.instagram.com/7pminbrooklyn",
     audience: {
       followers: "1.7M",
       monthlyViews: "44M",
@@ -527,6 +536,7 @@ export const shows = [
     talent: "Kid Cudi",
     youtubeUrl: "https://www.youtube.com/@BigBroCudi",
     audioUrl: "https://open.spotify.com/show/015FnGMuczOXnpFEMbrlu5",
+    instagramUrl: "https://www.instagram.com/bigbrocudi",
     audience: {
       followers: "62K",
       monthlyViews: "17M",
@@ -585,6 +595,7 @@ export const shows = [
     talent: "Ilona Maher",
     youtubeUrl: "https://www.youtube.com/@HouseofMaher",
     audioUrl: "https://open.spotify.com/show/5kQkbgxHPgvBc0wcb9qhNK",
+    instagramUrl: "https://www.instagram.com/houseofmaher",
     audience: {
       followers: "230K",
       monthlyViews: "50M",
@@ -644,6 +655,7 @@ export const shows = [
     talent: "Langston Kerman & David Gborie",
     youtubeUrl: "https://www.youtube.com/@MyMommaToldMe",
     audioUrl: "https://open.spotify.com/show/4k3gmSWsZRadfpgyLNcG9B",
+    instagramUrl: "https://www.instagram.com/mymommatoldmepod",
     audience: {
       followers: "128K",
       monthlyViews: "3.7M",
