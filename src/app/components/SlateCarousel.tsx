@@ -801,7 +801,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
               </div>
             </div>
             <div className={`slate-hero-content-slide${heroSlide === 1 ? " is-active" : ""}`}>
-              <h1 className="slate-event-date">In Person with<br />Our Top Creators</h1>
+              <h1 className="slate-event-date">Hear From<br />Our Top Creators</h1>
               <p className="slate-hero-talent-names">Andrew Santino · Kylie Kelce · Funny Marco</p>
             </div>
           </div>
