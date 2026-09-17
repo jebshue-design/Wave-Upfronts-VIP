@@ -1714,12 +1714,12 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 16px 37px;
+          padding: 20px 44px;
           background: #e3f643;
           color: #0b0909;
           border: 0;
           border-radius: 999px;
-          font: 700 14px/1 "Zalando Sans Expanded", sans-serif;
+          font: 700 16px/1 "Zalando Sans Expanded", sans-serif;
           letter-spacing: -.025em;
           cursor: pointer;
           animation: rsvp-float 3s ease-in-out infinite;
