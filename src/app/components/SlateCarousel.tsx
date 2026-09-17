@@ -1280,7 +1280,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-stage .slate-rail { filter: blur(var(--rail-blur, 0px)); opacity: var(--rail-opacity, 1); }
         .slate-event-section { padding: 0 8.5vw 100px; background: linear-gradient(180deg, #000 0%, #212922 100%); }
         .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; overflow: hidden; }
-        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% 0%; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
+        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% 5%; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
         .slate-hero-slide { opacity: 0; transition: opacity 1s ease-in-out; }
         .slate-hero-slide.is-active { opacity: 1; }
         .slate-hero-slide--talent { object-position: center center; }
