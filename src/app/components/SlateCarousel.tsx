@@ -1764,7 +1764,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
                 <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Attending
               </span>
-              <span className="pill-ticker-item">More Info</span>
+              <span className="pill-ticker-item">Event Info</span>
             </span>
           </span>
         </button>
