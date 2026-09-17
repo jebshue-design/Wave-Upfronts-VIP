@@ -1728,7 +1728,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
           white-space: nowrap;
         }
         .slate-float-rsvp:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.22); }
-        .slate-float-rsvp--confirmed { background: #1a2e1a; color: #E3F643; border: 1px solid rgba(227,246,67,.35); animation: none; }
+        .slate-float-rsvp--confirmed { background: #1a2e1a; color: #E3F643; border: 1px solid rgba(227,246,67,.35); }
         .slate-float-rsvp--confirmed:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.14); }
 
       `}</style>
