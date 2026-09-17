@@ -44,15 +44,21 @@ const labelStyle: React.CSSProperties = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function RsvpForm({ onSuccess, user, existingRsvpType }: { onSuccess?: () => void; user?: UserPrefill; existingRsvpType?: string | null } = {}) {
+export default function RsvpForm({ onSuccess, onRsvpComplete, user, existingRsvpType }: { onSuccess?: () => void; onRsvpComplete?: (rsvpType: string) => void; user?: UserPrefill; existingRsvpType?: string | null } = {}) {
   const [state, formAction, isPending] = useActionState(submitRsvp, { error: "", success: false, rsvpType: "confirm" });
   const effectiveSuccess = state.success || !!existingRsvpType;
   const effectiveRsvpType = state.rsvpType || existingRsvpType || "confirm";
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (effectiveSuccess) {
+    if (state.success) {
       formRef.current?.reset();
+      onRsvpComplete?.(state.rsvpType ?? "confirm");
+    }
+  }, [state.success, state.rsvpType, onRsvpComplete]);
+
+  useEffect(() => {
+    if (effectiveSuccess) {
       onSuccess?.();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -17,7 +17,7 @@ const S = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function RsvpModal({ user, existingRsvpType }: { user?: UserPrefill; existingRsvpType?: string | null } = {}) {
+export default function RsvpModal({ user, existingRsvpType, onRsvpComplete }: { user?: UserPrefill; existingRsvpType?: string | null; onRsvpComplete?: (rsvpType: string) => void } = {}) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -179,7 +179,7 @@ export default function RsvpModal({ user, existingRsvpType }: { user?: UserPrefi
             Confirm your attendance below. We&apos;ll follow up with event details.
           </p>}
 
-          <RsvpForm onSuccess={() => setConfirmed(true)} user={user} existingRsvpType={existingRsvpType} />
+          <RsvpForm onSuccess={() => setConfirmed(true)} onRsvpComplete={onRsvpComplete} user={user} existingRsvpType={existingRsvpType} />
         </div>
       </div>
     </div>

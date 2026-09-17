@@ -55,7 +55,8 @@ export type SlateItem = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function SlateCarousel({ shows, user, existingRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
+export default function SlateCarousel({ shows, user, existingRsvpType: initialRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
+  const [existingRsvpType, setExistingRsvpType] = useState(initialRsvpType ?? null);
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -542,7 +543,7 @@ export default function SlateCarousel({ shows, user, existingRsvpType }: { shows
 
   return (
     <main className={`slate-page${expandedShow ? " has-detail" : ""}${isReturning ? " is-returning" : ""}${expandedShow?.detailNavTone === "dark" ? " detail-nav-dark" : ""}`}>
-      <RsvpModal user={user} existingRsvpType={existingRsvpType} />
+      <RsvpModal user={user} existingRsvpType={existingRsvpType} onRsvpComplete={(t) => setExistingRsvpType(t)} />
       {expandedShow && (
         <section
           className={`slate-detail${isClosing ? " is-closing" : ""}`}
