@@ -94,6 +94,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
   const heroRef = useRef<HTMLElement>(null);
   const [heroSlide, setHeroSlide] = useState(0);
   const isJumping = useRef(false);
+  const navScrolling = useRef(false);
 
   useEffect(() => {
     const rail = railRef.current;
@@ -337,25 +338,36 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     if (page && audience) page.scrollTo({ top: audience.offsetTop, behavior: "smooth" });
     trackEvent("nav_audience").catch(() => {});
   };
+  const withNavScroll = (fn: () => void) => {
+    navScrolling.current = true;
+    fn();
+    setTimeout(() => { navScrolling.current = false; }, 1200);
+  };
   const selectEvent = () => {
     lockNav(); setActiveNav("event");
-    const page = document.querySelector<HTMLElement>(".slate-page");
-    const event = document.getElementById("event");
-    if (page && event) page.scrollTo({ top: event.offsetTop, behavior: "smooth" });
+    withNavScroll(() => {
+      const page = document.querySelector<HTMLElement>(".slate-page");
+      const event = document.getElementById("event");
+      if (page && event) page.scrollTo({ top: event.offsetTop, behavior: "smooth" });
+    });
     trackEvent("nav_event").catch(() => {});
   };
   const selectAssets = () => {
     lockNav(); setActiveNav("assets");
-    const page = document.querySelector<HTMLElement>(".slate-page");
-    const assets = document.getElementById("assets");
-    if (page && assets) page.scrollTo({ top: assets.offsetTop, behavior: "smooth" });
+    withNavScroll(() => {
+      const page = document.querySelector<HTMLElement>(".slate-page");
+      const assets = document.getElementById("assets");
+      if (page && assets) page.scrollTo({ top: assets.offsetTop, behavior: "smooth" });
+    });
     trackEvent("nav_assets").catch(() => {});
   };
   const selectSlate = () => {
     lockNav(); setActiveNav("slate");
-    const page = document.querySelector<HTMLElement>(".slate-page");
-    const slate = stageRef.current;
-    if (page && slate) page.scrollTo({ top: slate.offsetTop, behavior: "smooth" });
+    withNavScroll(() => {
+      const page = document.querySelector<HTMLElement>(".slate-page");
+      const slate = stageRef.current;
+      if (page && slate) page.scrollTo({ top: slate.offsetTop, behavior: "smooth" });
+    });
     trackEvent("nav_slate").catch(() => {});
   };
 
@@ -501,7 +513,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
     let hasSnappedThisEntrance = false;
 
     const handleScroll = () => {
-      if (isSnapping) return;
+      if (isSnapping || navScrolling.current) return;
 
       const slateTop = slate.offsetTop;
       const slateHeight = slate.offsetHeight;
@@ -1268,7 +1280,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
         .slate-stage .slate-rail { filter: blur(var(--rail-blur, 0px)); opacity: var(--rail-opacity, 1); }
         .slate-event-section { padding: 0 8.5vw 100px; background: linear-gradient(180deg, #000 0%, #212922 100%); }
         .slate-event-hero { position: relative; height: 100svh; padding: 0; background: #000; overflow: hidden; }
-        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% center; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
+        .slate-event-hero .slate-event-bg { position: absolute; inset: 0; width: 100%; height: 115%; object-fit: cover; object-position: 65% 0%; transform: translateY(var(--hero-parallax, 0px)); will-change: transform, opacity; }
         .slate-hero-slide { opacity: 0; transition: opacity 1s ease-in-out; }
         .slate-hero-slide.is-active { opacity: 1; }
         .slate-hero-slide--talent { object-position: center center; }
