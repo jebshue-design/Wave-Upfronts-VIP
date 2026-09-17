@@ -59,7 +59,8 @@ type UserPrefill = { firstName: string; lastName: string; email: string; company
 
 export default function SlateCarousel({ shows, user, existingRsvpType: initialRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
   const [existingRsvpType, setExistingRsvpType] = useState(initialRsvpType ?? null);
-  const [pillMsgIndex, setPillMsgIndex] = useState(0);
+  const [pillPos, setPillPos] = useState(0);
+  const [pillNoTransition, setPillNoTransition] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -511,7 +512,20 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
 
   useEffect(() => {
     if (existingRsvpType !== "confirm") return;
-    const id = setInterval(() => setPillMsgIndex(i => (i + 1) % 2), 4000);
+    const id = setInterval(() => {
+      setPillPos(pos => {
+        const next = pos + 1;
+        if (next === 2) {
+          // After transition to clone completes, snap back to 0
+          setTimeout(() => {
+            setPillNoTransition(true);
+            setPillPos(0);
+            requestAnimationFrame(() => requestAnimationFrame(() => setPillNoTransition(false)));
+          }, 600);
+        }
+        return next;
+      });
+    }, 4000);
     return () => clearInterval(id);
   }, [existingRsvpType]);
 
@@ -1759,12 +1773,16 @@ export default function SlateCarousel({ shows, user, existingRsvpType: initialRs
       {existingRsvpType === "confirm" ? (
         <button type="button" className="slate-float-rsvp slate-float-rsvp--confirmed" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); }}>
           <span className="pill-ticker">
-            <span className="pill-ticker-track" style={{ transform: `translateY(${pillMsgIndex * -20}px)` }}>
+            <span className="pill-ticker-track" style={{ transform: `translateY(${pillPos * -20}px)`, transition: pillNoTransition ? 'none' : undefined }}>
               <span className="pill-ticker-item">
                 <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Attending
               </span>
               <span className="pill-ticker-item">Event Info</span>
+              <span className="pill-ticker-item">
+                <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Attending
+              </span>
             </span>
           </span>
         </button>
