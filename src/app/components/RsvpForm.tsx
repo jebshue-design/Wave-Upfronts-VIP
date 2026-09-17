@@ -44,18 +44,21 @@ const labelStyle: React.CSSProperties = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; user?: UserPrefill } = {}) {
+export default function RsvpForm({ onSuccess, user, existingRsvpType }: { onSuccess?: () => void; user?: UserPrefill; existingRsvpType?: string | null } = {}) {
   const [state, formAction, isPending] = useActionState(submitRsvp, { error: "", success: false, rsvpType: "confirm" });
+  const effectiveSuccess = state.success || !!existingRsvpType;
+  const effectiveRsvpType = state.rsvpType || existingRsvpType || "confirm";
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.success) {
+    if (effectiveSuccess) {
       formRef.current?.reset();
       onSuccess?.();
     }
-  }, [state.success, onSuccess]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveSuccess, onSuccess]);
 
-  if (state.success) {
+  if (effectiveSuccess) {
     return (
       <>
       <style>{`
@@ -102,7 +105,7 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           gap: "16px",
         }}
       >
-        {state.rsvpType !== "decline" && (
+        {effectiveRsvpType !== "decline" && !existingRsvpType && (
           <div className="rsvp-confetti" aria-hidden="true">
             {Array.from({ length: 18 }, (_, index) => <span key={index} />)}
           </div>
@@ -123,10 +126,10 @@ export default function RsvpForm({ onSuccess, user }: { onSuccess?: () => void; 
           </svg>
         </div>
         <div style={{ fontFamily: S.fontDisplay, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.02em", color: S.silver }}>
-          {state.rsvpType === "decline" ? "We'll Miss You!" : "Thank you for Confirming!"}
+          {effectiveRsvpType === "decline" ? "We'll Miss You!" : existingRsvpType ? "You're Confirmed" : "Thank you for Confirming!"}
         </div>
         <div style={{ fontFamily: S.fontSans, fontSize: "14px", color: S.clay, maxWidth: "320px", lineHeight: 1.6 }}>
-          {state.rsvpType === "decline" ? "We hope to see you at a future event." : "We can't wait to see you there."}
+          {effectiveRsvpType === "decline" ? "We hope to see you at a future event." : "We can't wait to see you there."}
         </div>
       </div>
       </>

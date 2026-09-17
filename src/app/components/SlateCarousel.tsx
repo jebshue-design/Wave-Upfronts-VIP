@@ -55,7 +55,7 @@ export type SlateItem = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; user?: UserPrefill }) {
+export default function SlateCarousel({ shows, user, existingRsvpType }: { shows: SlateItem[]; user?: UserPrefill; existingRsvpType?: string | null }) {
   const railRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedShow, setExpandedShow] = useState<SlateItem | null>(null);
@@ -542,7 +542,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
 
   return (
     <main className={`slate-page${expandedShow ? " has-detail" : ""}${isReturning ? " is-returning" : ""}${expandedShow?.detailNavTone === "dark" ? " detail-nav-dark" : ""}`}>
-      <RsvpModal user={user} />
+      <RsvpModal user={user} existingRsvpType={existingRsvpType} />
       {expandedShow && (
         <section
           className={`slate-detail${isClosing ? " is-closing" : ""}`}
@@ -757,7 +757,7 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
 
       <section ref={heroRef} id="event" className="slate-event-section slate-event-hero">
         <img className={`slate-event-bg slate-hero-slide${heroSlide === 0 ? " is-active" : ""}`} src="/assets/altman-building.jpg" alt="The Altman Building" style={{ objectPosition: "65% 75%" }} />
-        <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" style={{ objectPosition: "center 15%" }} />
+        <img className={`slate-event-bg slate-hero-slide slate-hero-slide--talent${heroSlide === 1 ? " is-active" : ""}`} src="/assets/talent-collage.jpg" alt="Wave talent" style={{ objectPosition: "center 5%" }} />
         <div className="slate-event-overlay" />
         <div className="slate-event-content">
           <div className="slate-hero-slides-wrap">
@@ -1727,11 +1727,20 @@ export default function SlateCarousel({ shows, user }: { shows: SlateItem[]; use
           white-space: nowrap;
         }
         .slate-float-rsvp:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.22); }
+        .slate-float-rsvp--confirmed { background: #1a2e1a; color: #E3F643; border: 1px solid rgba(227,246,67,.35); animation: none; }
+        .slate-float-rsvp--confirmed:hover { animation: none; transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 32px 6px rgba(227,246,67,.14); }
 
       `}</style>
-      <button type="button" className="slate-float-rsvp" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); trackEvent("rsvp_open").catch(() => {}); }}>
-        RSVP
-      </button>
+      {existingRsvpType === "confirm" ? (
+        <button type="button" className="slate-float-rsvp slate-float-rsvp--confirmed" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); }}>
+          <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><path d="M1 5.5L5 9.5L13 1" stroke="#E3F643" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Attending
+        </button>
+      ) : (
+        <button type="button" className="slate-float-rsvp" onClick={() => { window.dispatchEvent(new Event("open-rsvp")); trackEvent("rsvp_open").catch(() => {}); }}>
+          RSVP
+        </button>
+      )}
 
       {lightboxUrl && (
         <div className="onesheet-lightbox" onClick={() => setLightboxUrl(null)}>

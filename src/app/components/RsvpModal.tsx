@@ -17,7 +17,7 @@ const S = {
 
 type UserPrefill = { firstName: string; lastName: string; email: string; company: string; title: string };
 
-export default function RsvpModal({ user }: { user?: UserPrefill } = {}) {
+export default function RsvpModal({ user, existingRsvpType }: { user?: UserPrefill; existingRsvpType?: string | null } = {}) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -35,8 +35,8 @@ export default function RsvpModal({ user }: { user?: UserPrefill } = {}) {
     const handleOpenRsvp = () => openModal(false);
     window.addEventListener("open-rsvp", handleOpenRsvp);
 
-    // Auto-open once per session after the carousel has settled
-    if (!sessionStorage.getItem("rsvp-shown")) {
+    // Auto-open once per session after the carousel has settled (skip if already RSVPed)
+    if (!sessionStorage.getItem("rsvp-shown") && !existingRsvpType) {
       const t = setTimeout(() => {
         sessionStorage.setItem("rsvp-shown", "1");
         openModal(true);
@@ -179,7 +179,7 @@ export default function RsvpModal({ user }: { user?: UserPrefill } = {}) {
             Confirm your attendance below. We&apos;ll follow up with event details.
           </p>}
 
-          <RsvpForm onSuccess={() => setConfirmed(true)} user={user} />
+          <RsvpForm onSuccess={() => setConfirmed(true)} user={user} existingRsvpType={existingRsvpType} />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import SlateCarousel from "./components/SlateCarousel";
 
 /* =========================================================
@@ -681,24 +681,25 @@ export default async function LandingPage() {
   if (cookieStore.has("wave-auth")) {
     const email = cookieStore.get("wave-user")?.value ?? "";
     let user: { firstName: string; lastName: string; email: string; company: string; title: string } | undefined;
+    let existingRsvpType: string | null = null;
     if (email) {
-      const { data } = await supabase
-        .from("vip_accounts")
-        .select("name, email, company, title")
-        .eq("email", email)
-        .maybeSingle();
-      if (data) {
-        const parts = (data.name ?? "").trim().split(/\s+/);
+      const [accountResult, rsvpResult] = await Promise.all([
+        supabase.from("vip_accounts").select("name, email, company, title").eq("email", email).maybeSingle(),
+        supabaseAdmin.from("rsvps").select("rsvp_type").eq("email", email.toLowerCase()).maybeSingle(),
+      ]);
+      if (accountResult.data) {
+        const parts = (accountResult.data.name ?? "").trim().split(/\s+/);
         user = {
           firstName: parts[0] ?? "",
           lastName: parts.slice(1).join(" "),
-          email: data.email ?? email,
-          company: data.company ?? "",
-          title: data.title ?? "",
+          email: accountResult.data.email ?? email,
+          company: accountResult.data.company ?? "",
+          title: accountResult.data.title ?? "",
         };
       }
+      existingRsvpType = rsvpResult.data?.rsvp_type ?? null;
     }
-    return <SlateCarousel shows={[...shows].sort((first, second) => Number(second.id === "ngl") - Number(first.id === "ngl"))} user={user} />;
+    return <SlateCarousel shows={[...shows].sort((first, second) => Number(second.id === "ngl") - Number(first.id === "ngl"))} user={user} existingRsvpType={existingRsvpType} />;
   }
 
   redirect("/login");
